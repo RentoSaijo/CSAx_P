@@ -1,0 +1,19 @@
+\addtolength{\oddsidemargin}{-.5in}%
+\addtolength{\evensidemargin}{-1in}%
+\addtolength{\textwidth}{1in}%
+\addtolength{\textheight}{1.7in}%
+\addtolength{\topmargin}{-1in}%
+\usepackage{float}%
+\usepackage{array}%
+\usepackage{longtable}%
+\usepackage{placeins}%
+\usepackage{etoolbox}%
+\usepackage{microtype}%
+\clubpenalty=10000%
+\widowpenalty=10000%
+\displaywidowpenalty=10000%
+\setlength{\textfloatsep}{10pt plus 2pt minus 2pt}%
+\setlength{\floatsep}{9pt plus 2pt minus 2pt}%
+\setlength{\intextsep}{9pt plus 2pt minus 2pt}%
+\AtBeginEnvironment{thebibliography}{\small\interlinepenalty=10000}%
+\AtBeginDocument{\renewcommand{\harvardurl}[1]{\textbf{URL:} {\hypersetup{urlcolor=black}\textit{\url{#1}}}}}%

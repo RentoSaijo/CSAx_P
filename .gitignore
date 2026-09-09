@@ -1,0 +1,13 @@
+.DS_Store
+.RData
+.Rhistory
+.Rproj.user/
+Rplots.pdf
+
+renv/library/
+renv/local/
+renv/staging/
+
+data/cache/
+validation_private/
+tmp/

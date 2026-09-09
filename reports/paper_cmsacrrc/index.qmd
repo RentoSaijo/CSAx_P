@@ -1,0 +1,231 @@
+---
+title: "Playing Big for Their Size: Expected Size and Roster Security among NHL Forwards"
+date: "September 1, 2026"
+abstract: |
+  When a forward throws hits, absorbs contact, blocks shots, and keeps returning to difficult ice, hockey fans say he "plays bigger than his size." We convert that judgment into a frame-relative "toughness" measure. Listed size ($S$) combines height and weight; expected size (xS) estimates the frame implied by ten action variables through nested held-out fitting; and CSAx compares xS with the value normally produced by forwards of the same frame, removing the small-player advantage created by prediction shrinkage. We study 1,763 forward-seasons from 613 NHL players between 2021--22 and 2024--25. CSAx persists across seasons, while contact and interior-shot reconstructions show that the metric is multivariable despite hits being its strongest single component. After adjustment for size, age, current opportunity, performance, and season, one CSAx standard deviation corresponds to 1.22 times the odds of at least 300 NHL minutes the following season (full-pipeline bootstrap 95% interval: 1.03, 1.49), or 3.79 additional continuations per 100 comparable cases between CSAx $=-1$ and $+1$. The association is strongest among established forwards and remains similar, though less precise, when prior-season role replaces current role on the same prior-appearance sample. Furthermore, blinded pre-NHL scouting ratings have a graded association with later CSAx, with active engagement providing the clearest cue. One standard deviation also accompanies 0.30 additional years on external veteran contracts and, among playoff qualifiers, a 3.24-percentage-point increase in games-dressed share. At team level, higher CSAx is descriptively associated with less positive goals above expected ($r=-0.19$) and smaller regular-season-to-playoff changes in five-on-five shot quality ($r=-0.28$), motivating questions about the repeatability of physical roster identities. CSAx therefore supplies a reproducible language for player comparison, scouting, roster security, organizational commitment, playoff availability, and team-style research.
+keywords:
+  - hockey analytics
+  - calibrated residuals
+  - size
+  - expected size
+  - calibrated size above expected
+  - toughness
+  - softness
+bibliography: references.bib
+journal:
+  blinded: true
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+```{r}
+# Load manuscript values from the strict analysis object.
+base::source('manuscript_setup.R')
+```
+
+## Introduction
+
+Every NHL roster contains players whose bodies undersell their games. We can all picture a smaller forward who enters contact, reaches the net front, works along the wall, blocks a shot, and returns to the same difficult ice on his next shift. Hockey fans call that package *playing bigger than his size*. When a large frame seldom produces the same behaviors, the language shifts toward playing small or soft. Both judgments are relational: they compare what a player does with what his body leads fans to expect. That comparison often matters most at the roster margin. Elite scoring can secure a place regardless of style, but many depth forwards earn and retain NHL work through forechecking, physical engagement, interior play, and a willingness to absorb the costs of contested possessions. Yet public statistics do not directly show whether those behaviors are unusually physical *for a player's frame*. Hits might seem like an answer, but they capture only one part of the profile.
+
+The basketball project *Statistical Height* provides a practical starting point: predict listed height from performance, then interpret that prediction as the height at which a player appears to play [@dbcjason2026]. Hockey research has likewise shown that event data can recover recognizable roles and styles [@vincent2009; @chan2012; @safvenberg2024; @olivestam2024]. Translating that idea to hockey, however, requires solving two additional problems. The first is how to represent the physical frame against which behavior should be judged. Height alone is incomplete because weight also affects how a player occupies space and withstands contact. While some may suggest body mass index (BMI), it is not a suitable substitute as BMI expresses mass relative to height, whereas our target is overall listed frame; its height-squared normalization therefore works against our need to retain stature as a meaningful component of size. Nor does BMI recover body composition, since it cannot distinguish fat mass from fat-free mass in an athletic population [@ode2007]. While the same limitation applies to any measure built only from listed height and weight, including ours, we instead construct a listed-frame index, $S$, that combines the two public measurements, still acknowledging that body composition is a separate, unobserved construct. The second problem is more statistical in that predicted sizes are imperfect and tend to shrink toward the league average. Simply subtracting $S$ from expected size (xS), the frame implied by recorded behavior, systematically rewards smaller players and penalizes larger ones; as such, this naive statistic correlates `r format_number(sax_correlation)` with listed size. Calibrated size above expected (CSAx) removes that dependence by comparing xS with the value normally produced by forwards of the same frame. Positive CSAx thus indicates a larger-than-expected behavioral profile, while negative CSAx indicates a smaller-than-expected profile.
+
+We then ask whether this profile matters beyond description, and the most intuitive application looks one season ahead. Prior NHL career research shows that continuation depends on career stage and opportunity [@depken2017; @goldstein2026], making future NHL work a natural outcome to study. We test whether CSAx is associated with logging at least 300 NHL minutes in the following season, a pragmatic threshold that we believe is enough to represent a substantive block of league work while excluding brief fringe appearances. We then further relate CSAx to scouting language, career stage, contracts, playoff availability, and team-level patterns, asking whether a statistical measure of *playing big* corresponds to the ways physical style is described, valued, and deployed across the league.
+
+## Measuring playing big
+
+### Constructing S and xS
+
+Let $H_i$ and $W_i$ denote a forward's height and weight in the current public player registry, and let $z_t(\cdot)$ standardize a quantity among eligible forwards in season $t$. The registry supplies one pair per player, which we reuse across observed seasons, so growth and later listing changes are not captured. Nonetheless, the listed size is
+
+$$
+S_{it}=z_t\left[\frac{z_t(H_i)+z_t(W_i)}{\sqrt{2}}\right].
+$$ {#eq-size}
+
+Standardizing height and weight first makes inches and pounds commensurate, and the final standardization gives $S$ a mean of zero and a standard deviation of one within each season. Thus, $S=1$ describes a listed frame one season-specific standard deviation above the forward average.
+
+Expected size then asks, "If the roster bio disappeared, what listed frame would the player's actions imply?" For each season, ridge regression predicts $S$ from ten variables [@hoerl1970]. Six record contact and confrontation: hits delivered, hits received, blocks, penalties taken, penalties drawn, and fights. Four describe interior shooting: net-front attempt share, tip or deflection share, median unblocked-shot distance, and backhand share. Counts enter per 60 minutes and shooting variables enter as shares or distance. It is important to note that these public events identify forms of engagement, not necessarily whether a player wins an exchange, while their joint use lets xS recognize several ways of occupying difficult ice or otherwise *playing big*. Age, scoring, team, games played, raw ice time, and special-teams deployment remain outside the expected-size model because they describe opportunity, performance, or downstream context. In each of five repetitions, 10 outer folds exclude assessment rows while five inner folds choose the ridge penalty using only the associated training sample [@varma2006]. Within the *tidymodels* workflow [@kuhn2022], median imputation, a Yeo--Johnson transformation [@yeo2000], normalization, and zero-variance filtering are learned inside those samples. Averaging the five outer predictions gives xS on the same listed-size standard-deviation scale as $S$.
+
+### From SAx to CSAx
+
+The intuitive candidate is size above expected, $SAx_{it}=xS_{it}-S_{it}$. Unfortunately, prediction shrinkage makes that difference unusable as a player ranking. If
+
+$$
+E(xS_{it}\mid S_{it})=a_t+b_tS_{it}, \qquad b_t<1,
+$$ {#eq-shrinkage}
+
+then $E(SAx_{it}\mid S_{it})=a_t+(b_t-1)S_{it}$. A forward whose behavior is ordinary for his body receives positive SAx when small and negative SAx when large. The fitted xS-on-$S$ slopes are only `r format_number(calibration_slope_range[1L])` to `r format_number(calibration_slope_range[2L])`, and SAx consequently correlates `r format_number(sax_correlation)` with listed size. We therefore must calibrate: within every outer training sample, a linear function $\hat m$ regresses inner held-out xS on listed size. That training-only function is applied to the excluded outer fold, and the calibrated residual is averaged across repetitions and standardized within season:
+
+$$
+CSAx_{it}=z_t\left[
+\frac{1}{R}\sum_{r=1}^{R}
+\left\{\hat f_{t,r,-k(i,r)}(X_{it})-
+\hat m_{t,r,-k(i,r)}(S_{it})\right\}
+\right], \qquad R=5.
+$$ {#eq-csax}
+
+Here, $\hat f$ denotes the ridge predictor, $X_{it}$ the ten-feature profile, and $-k(i,r)$ exclusion of the outer fold containing player $i$ in repetition $r$; the assessment row enters neither preprocessing, tuning, ridge fitting, nor calibration for its prediction. A CSAx of $+1$ means that the player's recorded actions lie one calibrated-residual standard deviation above the xS expected for his frame; $-1$ means one standard deviation below. Annual CSAx--xS correlations remain `r format_number(csax_xs_correlation_range[1L])` to `r format_number(csax_xs_correlation_range[2L])`, yet CSAx--listed-size correlations range only from `r format_number(size_correlation_range[1L])` to `r format_number(size_correlation_range[2L])`. To sum, the correction retains the behavioral signal while removing the body-size gradient.
+
+![Shrinkage and frame calibration. Each point is one forward-season. Direct xS minus listed size largely reproduces the body scale in reverse (left), whereas nested training-only calibration removes the conditional mean gradient (right).](figures/shrinkage.pdf){#fig-shrinkage width=92% fig-pos="H"}
+
+## Study design
+
+### Contemporary NHL panel
+
+We measure behavior from 2021--22 through 2024--25 using regular-season play, with shootouts excluded, and follow each player into the next season through 2025--26. Only centers and wings enter after at least 300 regular-season NHL minutes and a valid listed height, weight, and birth date. We restrict construction to forwards because their event opportunities and roster roles differ structurally from those of defensemen. The final panel contains `r base::format(roster_sample, big.mark = ',')` forward-seasons from `r base::format(player_sample, big.mark = ',')` players, with annual samples between `r annual_minimum` and `r annual_maximum`. For transparency, the public 2024--25 ranking uses a higher 500-minute floor to stabilize individual rate estimates.
+
+For our data source, the public NHL API and HTML reports provide ice time, game rosters, play-by-play events, shot locations, and scoring, and data retrieval and cleaning use `nhlscraper` `r analysis$provenance$nhlscraperVersion` at pinned Git revision `r base::substr(analysis$provenance$nhlscraperSha, 1L, 7L)` [@nhlscraper2026]. Season-specific models absorb league-wide recording changes, while an away-game reconstruction addresses persistent home-rink scoring tendencies [@schuckers2014]. Held-out xS explains `r format_percent(xs_fit_range[1L])` to `r format_percent(xs_fit_range[2L])` of listed-size variation by season, so these actions recover a modest frame-related signal while leaving most variation unexplained. Adjacent-season CSAx correlations range from `r format_number(stability_range[1L])` to `r format_number(stability_range[2L])`, so CSAx values tend to persist across seasons, without establishing an immutable trait or complete coverage of physical play.
+
+### Roster security and inference
+
+Roster security equals one when a forward records at least 300 regular-season NHL minutes in season $t+1$; overall, `r format_percent(continuation_rate)` of eligible player-seasons reach that mark. Our final conditioning model is
+
+$$
+\operatorname{logit}\{P(Y_{i,t+1}=1)\}
+=\beta_1CSAx_{it}+\beta_2S_{it}+f(Age_{it})
++\boldsymbol{\gamma}^{\mathsf T}\mathbf{Z}_{it}+\alpha_t,
+$$ {#eq-roster}
+
+where $f(Age)$ contains centered age and age squared, $\mathbf{Z}$ contains current games dressed, time on ice per game, five-on-five points per 60, and relative five-on-five shot-attempt share, and $\alpha_t$ denotes season effects. Current games and ice time define the intended within-role comparison, asking whether CSAx separates continuation among forwards occupying comparable roles instead of comparing depth players with stars. Because those measures are contemporaneous with behavior and may partly reflect the same style, they are not pure neutral pretreatment controls. A full-sample sensitivity replaces them with public records from the preceding season and assigns zero to the `r no_prior_appearance` players without an NHL appearance in the preceding season; a same-row comparison then fits current- and prior-role specifications among the `r base::format(same_sample_current_result$sampleSize, big.mark = ',')` forward-seasons with a preceding appearance. In `r bootstrap_replicates` player-cluster bootstrap samples, players are drawn with replacement and all observed seasons for a selected player remain together; here, every replicate rebuilds the size scales, retunes and refits the five-repeat nested ridge models, recalibrates CSAx, and refits @eq-roster.
+
+### External language
+
+We use official NHL Central Scouting reports for a pre-window comparison. Among `r scouting_candidate_count` forwards with at least two eligible CSAx seasons, we identify every verified draft-year match across `r scouting_source_count` official report sources from 2018 through 2023, producing 40 reports that predate the player's first measured CSAx season. Random study IDs conceal the player key, identifying details are redacted, and one author codes every passage while blinded to player identities, CSAx, and the rankings. The codebook records an overall frame-relative physicality rating and flags explicit plays-bigger language, active physical engagement, and wall or interior play.
+
+## Results
+
+### The physical backbone
+
+To understand this from a hockey perspective, let us discuss the coefficient patterns. Hits delivered are the strongest positive feature, followed by fights and penalties taken; net-front activity, tips or deflections, backhands, and shorter shot distance add an interior route. The conditional action pairs are equally informative: for example, holding delivered contact and the remaining profile fixed, more hits received point toward a smaller frame, while penalties drawn point downward once penalties taken and the other actions are held constant. The signs seem to show that not every exchange is size-valuable (@fig-coefficients).
+
+![What behavior predicts listed size? Points and horizontal segments show the median and interquartile range of standardized ridge coefficients across the four season-specific expected-size models. Each season summary averages 50 outer fits, with every fit retaining its own inner-selected penalty.](figures/feature_coefficients.pdf){#fig-coefficients width=90% fig-pos="H"}
+
+Although hits delivered have the strongest direct single-feature correlation with CSAx (`r format_number(hits_correlation)`), they do not explain the multivariable score in its entirety. The six-feature contact reconstruction correlates `r format_number(contact_result$csaxCorrelation)` with primary CSAx and yields a continuation odds ratio of `r format_interval(contact_result$effect, contact_result$effectLow, contact_result$effectHigh)`. The four interior-shot features alone correlate `r format_number(interior_result$csaxCorrelation)` with CSAx, although their continuation estimate is `r format_interval(interior_result$effect, interior_result$effectLow, interior_result$effectHigh)`, suggesting that contact supplies the backbone and the difficult-ice shooting expands the construct beyond a hit counter.
+
+### Playing big and staying in the NHL
+
+The raw data initially tell the opposite story. Forwards in the lowest CSAx quartile average `r format_number(low_quartile$pointsPer605v5)` five-on-five points per 60 and `r format_number(low_quartile$toiPerGameMinutes)` minutes per game, compared with `r format_number(high_quartile$pointsPer605v5)` points and `r format_number(high_quartile$toiPerGameMinutes)` minutes in the highest quartile. Their continuation rates are `r format_percent(low_quartile$continuationRate)` and `r format_percent(high_quartile$continuationRate)`. In simple terms, higher-CSAx forwards tend to occupy lower-production, lower-opportunity roles where baseline continuation is harder in the first place.
+
+```{r}
+#| label: tbl-quartiles
+#| tbl-cap: "Descriptive profiles by within-season CSAx quartile. Values are unadjusted group averages; relative shot-attempt share (SAT) is in percentage points and ice time in minutes per game."
+#| tbl-pos: H
+quartile_table <- quartile_profiles |>
+  dplyr::transmute(
+    Quartile = base::paste0('Q', csaxQuartile),
+    N = base::format(forwardSeasons, big.mark = ','),
+    `5v5 points/60` = format_number(pointsPer605v5),
+    `Rel. SAT (pp)` = format_number(100 * satRelative5v5),
+    `TOI/game` = format_number(toiPerGameMinutes),
+    `Continuation` = format_percent(continuationRate)
+  )
+knitr::kable(quartile_table, format = 'latex', booktabs = TRUE, escape = FALSE, align = base::c('l', 'r', 'r', 'r', 'r', 'r'), linesep = '')
+```
+
+That confounding gradually becomes more clear as controls enter: CSAx begins with an odds ratio of `r format_number(conditioning_results$effect[1L])`; games dressed move it toward one, and current ice time moves it above one. After conventional production and season enter, the estimate is `r format_number(conditioning_results$effect[6L])`. CSAx therefore seems to distinguish staying power among forwards occupying comparable current roles more than it describes unconditional career advantage.
+
+```{r}
+#| label: tbl-conditioning
+#| tbl-cap: "CSAx odds ratio across conditioning and role-timing specifications. Steps 1--6 use the full sample; the final rows compare identical prior-appearance observations. Intervals are player-clustered."
+#| tbl-pos: H
+conditioning_table <- conditioning_results |>
+  dplyr::transmute(
+    Specification = label,
+    N = base::format(sampleSize, big.mark = ','),
+    `Odds ratio (95% interval)` = format_interval(effect, effectLow, effectHigh)
+  )
+timing_table <- role_timing_results |>
+  dplyr::transmute(
+    Specification = dplyr::recode(specification, 'Current games and ice time' = 'Same rows: current role', 'Prior games and ice time' = 'Same rows: prior role'),
+    N = base::format(sampleSize, big.mark = ','),
+    `Odds ratio (95% interval)` = format_interval(effect, effectLow, effectHigh)
+  )
+conditioning_table <- dplyr::bind_rows(conditioning_table, timing_table)
+knitr::kable(conditioning_table, format = 'latex', booktabs = TRUE, escape = TRUE, align = base::c('l', 'r', 'r'), linesep = '')
+```
+
+Among the `r base::format(same_sample_current_result$sampleSize, big.mark = ',')` forward-seasons with a prior NHL appearance, current role produces `r format_interval(same_sample_current_result$effect, same_sample_current_result$effectLow, same_sample_current_result$effectHigh)`, while moving both games and ice time to the preceding season gives `r format_interval(same_sample_prior_result$effect, same_sample_prior_result$effectLow, same_sample_prior_result$effectHigh)`. As such, timing barely changes the magnitude on identical rows, albeit precision declines. On the full sample, prior-role conditioning gives `r format_interval(prior_role_result$effect, prior_role_result$effectLow, prior_role_result$effectHigh)`; the difference also reflects the `r no_prior_appearance` players without a preceding-season NHL appearance. What is more, information is concentrated near the roster margin: `r role_margin_summary$lowerHalfNoncontinuations` of `r role_margin_summary$noncontinuations` noncontinuations (`r format_percent(role_margin_summary$lowerHalfNoncontinuationShare)`) occur in the lower half of current ice time, while continuation already reaches `r format_percent(role_margin_summary$thirdQuartileContinuationRate)` and `r format_percent(role_margin_summary$fourthQuartileContinuationRate)` in the upper two quartiles. The CSAx-by-current-ice-time interaction is `r format_interval(role_time_interaction_result$effect, role_time_interaction_result$effectLow, role_time_interaction_result$effectHigh)` ($p=`r format_p_value(role_time_interaction_result$pValue)`$), but only `r role_margin_summary$thirdQuartileNoncontinuations` and `r role_margin_summary$fourthQuartileNoncontinuations` noncontinuations inform those groups. Intuitively, the comparison is underpowered at high-minute roles and does not establish uniformity.
+
+\clearpage
+
+In the final model, a one-standard-deviation increase in CSAx corresponds to `r format_number(continuation_result$effect)` times the odds of at least 300 NHL minutes the following season, with a full-pipeline bootstrap 95% interval from `r format_number(continuation_result$effectLow)` to `r format_number(continuation_result$effectHigh)`. Average continuation moves from `r format_percent(probability_low$probability)` at CSAx $=-1$ to `r format_percent(probability_high$probability)` at $+1$, a `r format_number(100 * probability_contrast$estimate)`-percentage-point contrast (`r format_number(100 * probability_contrast$confLow)`, `r format_number(100 * probability_contrast$confHigh)`). @fig-continuation traces that conditional change across CSAx values from $-2$ to $+2$.
+
+![CSAx and next-season roster security. Average modeled probability of at least 300 NHL minutes in the following season, with other covariates retained at their observed values. Shading shows full-pipeline player-bootstrap 95% intervals.](figures/roster_continuation.pdf){#fig-continuation width=86% fig-pos="!htbp"}
+
+Beyond the threshold, one CSAx standard deviation accompanies `r format_number(appearance_result$effect)` times the odds of any next-season NHL appearance and `r format_number(games_result$effect)` additional games dressed. Among returners, ice time changes by `r format_number(toi_result$effect)` minutes per game. This suggests that the pattern separates who remains in the league picture more clearly than the size of the role waiting after a player returns.
+
+```{r}
+#| label: tbl-associations
+#| tbl-cap: "Roster and organizational associations per one-standard-deviation increase in CSAx. The primary continuation interval uses the full-pipeline player bootstrap; all other intervals are player-clustered."
+#| tbl-pos: H
+association_results <- dplyr::bind_rows(continuation_result, appearance_result, games_result, toi_result, contract_term_result, playoff_dress_result, playoff_toi_result) |>
+  dplyr::mutate(
+    Outcome = dplyr::recode(
+      outcome,
+      'Next-season 300-minute continuation' = 'At least 300 next-season minutes',
+      'Any next-season NHL appearance' = 'Any next-season appearance',
+      'Next-season games dressed' = 'Next-season games dressed',
+      'Next-season TOI/game' = 'TOI/game among returners',
+      'External-contract term' = 'External veteran contract term',
+      'Playoff games-dressed share' = 'Playoff games-dressed share',
+      'Playoff TOI/team game' = 'Playoff TOI per team game'
+    ),
+    Scale = dplyr::case_when(
+      scale == 'odds ratio' ~ 'Odds ratio',
+      outcome == 'Next-season games dressed' ~ 'Games',
+      outcome == 'External-contract term' ~ 'Years',
+      outcome == 'Playoff games-dressed share' ~ 'Percentage points',
+      TRUE ~ 'Minutes'
+    ),
+    displayEffect = dplyr::if_else(outcome == 'Playoff games-dressed share', 100 * effect, effect),
+    displayLow = dplyr::if_else(outcome == 'Playoff games-dressed share', 100 * effectLow, effectLow),
+    displayHigh = dplyr::if_else(outcome == 'Playoff games-dressed share', 100 * effectHigh, effectHigh),
+    N = base::format(sampleSize, big.mark = ','),
+    Estimate = format_interval(displayEffect, displayLow, displayHigh)
+  ) |>
+  dplyr::select(Outcome, N, Scale, `Estimate (95% interval)` = Estimate)
+knitr::kable(association_results, format = 'latex', booktabs = TRUE, escape = TRUE, align = base::c('l', 'r', 'l', 'r'), linesep = '')
+```
+
+\FloatBarrier
+
+\clearpage
+
+### Career stage and robustness
+
+From a more nuanced understanding, the conditional association changes with career stage. The CSAx odds ratio is `r format_interval(stage_early_result$effect, stage_early_result$effectLow, stage_early_result$effectHigh)` for forwards with 0--2 completed NHL seasons, `r format_interval(stage_mid_result$effect, stage_mid_result$effectLow, stage_mid_result$effectHigh)` for those with 3--6, and `r format_interval(stage_veteran_result$effect, stage_veteran_result$effectLow, stage_veteran_result$effectHigh)` for those with at least 7; the slopes differ jointly ($\chi^2_2=`r format_number(career_stage_wald$statistic)`$, $p=`r format_p_value(career_stage_wald$pValue)`$). One possible explanation is that draft investment and development runway may dominate early decisions, whereas a recognizable physical role becomes more informative after those *protections* fade.
+
+The following targeted checks further clarify robustness and scope. Requiring 500 behavior-season minutes gives `r format_interval(minutes_result$effect, minutes_result$effectLow, minutes_result$effectHigh)`; omitting one season at a time yields `r format_number(base::min(leave_one_results$effect))` to `r format_number(base::max(leave_one_results$effect))`; two-way player and team-season clustering gives `r format_interval(two_way_result$effect, two_way_result$effectLow, two_way_result$effectHigh)`; an away-game reconstruction gives `r format_interval(away_result$effect, away_result$effectLow, away_result$effectHigh)`; and natural-spline calibration gives `r format_interval(flexible_result$effect, flexible_result$effectLow, flexible_result$effectHigh)`. Listed size itself has an odds ratio of `r format_interval(size_main_result$effect, size_main_result$effectLow, size_main_result$effectHigh)` at mean CSAx, while the CSAx-by-size interaction is `r format_interval(size_interaction_result$effect, size_interaction_result$effectLow, size_interaction_result$effectHigh)` ($p=`r format_p_value(size_interaction_result$pValue)`$), offering no clear evidence that the CSAx association changes across listed frames.
+
+### Players, rankings, and scouting reports
+
+The 2024--25 ranking makes those combinations tangible to the regular fan. `r olivier$Player` (`r format_number(olivier$CSAx)`), `r lomberg$Player` (`r format_number(lomberg$CSAx)`), and `r jeannot$Player` (`r format_number(jeannot$CSAx)`) occupy the highest three positions among `r ranking_cohort_size` qualified forwards, whereas `r laine$Player` (`r format_number(laine$CSAx)`), `r burakovsky$Player` (`r format_number(burakovsky$CSAx)`), and `r protas$Player` (`r format_number(protas$CSAx)`) sit at the other extreme. Interestingly enough, Lomberg and Protas also show why calibration is essential as Lomberg moves from $S=`r format_number(lomberg$S)`$ to xS $=`r format_number(lomberg$xS)`$ and CSAx $=`r format_number(lomberg$CSAx)`$ while Protas begins at $S=`r format_number(protas$S)`$ but records xS $=`r format_number(protas$xS)`$ and CSAx $=`r format_number(protas$CSAx)`$. We once again emphasize that these rankings describe recorded style relative to frame, not overall player value, character, or success in physical exchanges.
+
+Moreover, the blinded scouting exercise supplies focused convergent evidence. Mean later CSAx rises by `r format_number(validation_trend$effect)` per overall physicality category (95% interval: `r format_number(validation_trend$effectLow)`, `r format_number(validation_trend$effectHigh)`), with a Spearman correlation of `r format_number(validation_summary$ordinalSpearman)`. Notably, active-engagement language provides the clearest cue: positive reports precede mean CSAx `r format_number(validation_engagement$effect)` points higher (`r format_number(validation_engagement$effectLow)`, `r format_number(validation_engagement$effectHigh)`; Holm $p=`r format_p_value(validation_engagement$holmPValue)`$). Explicit plays-bigger language gives a `r format_number(validation_explicit$effect)` difference (`r format_number(validation_explicit$effectLow)`, `r format_number(validation_explicit$effectHigh)`; Holm $p=`r format_p_value(validation_explicit$holmPValue)`$), although only `r validation_explicit$positiveReports` reports use that phrase. Wall or interior language alone, however, does not distinguish later CSAx as the difference is `r format_number(validation_interior$effect)` (`r format_number(validation_interior$effectLow)`, `r format_number(validation_interior$effectHigh)`; $p=`r format_p_value(validation_interior$pValue)`$).
+
+Looking at some specific players, Zach Benson is the strongest concordant example. NHL Central Scouting writes "Plays bigger than his size" and describes him as "Hard to contain with his second and third efforts" [@nhl2023prospects, p. 9]. His small listed frame averages $S=`r format_number(benson$meanS)`$, yet mean xS reaches `r format_number(benson$meanXS)` and CSAx `r format_number(benson$meanCSAx)`, rising from `r format_number(benson$firstCSAx)` to `r format_number(benson$lastCSAx)` over two seasons. His delivered-hit rate is only around the `r format_number(benson$hitsDeliveredPercentile, 0L)`th percentile, but net-front attempts, tips or deflections, and close-range shots average around the `r format_number(benson$netFrontPercentile, 0L)`th, `r format_number(benson$deflectionPercentile, 0L)`th, and `r format_number(benson$closeShotPercentile, 0L)`th percentiles. Even the Sabres' later description of a "physical sparkplug" who finds hard areas reinforces why playing big is broader than credited contact [@alpert2025benson].
+
+\clearpage
+
+Jake Neighbours supplies the more multiseason version of this. His draft-year report says he "competes hard in all three zones" and adds, "Hard to knock off the puck" [@nhl2020draftguide, p. 48]. His mean $S$ is `r format_number(neighbours$meanS)`, while CSAx averages `r format_number(neighbours$meanCSAx)` and moves from `r format_number(neighbours$firstCSAx)` in his first eligible season to `r format_number(neighbours$lastCSAx)` in his third, the `r neighbours$latestRank`th-highest qualified 2024--25 score. Hits delivered and received, blocks, fights, and close-range shooting all average above roughly the 65th percentile, producing a broad engagement profile rather than one dominant event.
+
+William Eklund, meanwhile, supplies a useful mismatch as well as a calibration example. His report says he "plays bigger than his size and plays to win" [@nhl2021prospects, p. 61]. His xS of `r format_number(eklund$meanXS)` lies well above a small listed frame of $S=`r format_number(eklund$meanS)`$, but mean CSAx is `r format_number(eklund$meanCSAx)`: raw xS-minus-size would mistake ordinary shrinkage among small players for exceptional frame-relative behavior. Near-zero CSAx describes an ordinary profile for his frame, so it does not establish that Eklund plays soft. The scouting assessment could be mistaken, CSAx could miss qualities the scout recognized, a style that stood out in the Swedish Hockey League might translate differently against NHL competition, or San Jose's development and deployment could have changed his game; in the current scope, our analysis cannot distinguish among these explanations.
+
+### Organizational and team-level clues
+
+Public Spotrac records define `r contract_term_result$sampleSize` external-team contracts signed by forwards aged 27 or older [@spotrac2026]. One prior-season CSAx standard deviation accompanies `r format_number(contract_term_result$effect)` additional contract years (`r format_number(contract_term_result$effectLow)`, `r format_number(contract_term_result$effectHigh)`), about four months, while the salary estimate remains positive but uncertain. Among forwards whose final regular-season team qualifies for the playoffs, one CSAx standard deviation accompanies a `r format_number(100 * playoff_dress_result$effect)`-percentage-point increase in games-dressed share and `r format_number(playoff_toi_result$effect)` additional minutes per team game. Again, availability carries the clearer signal compared to usage.
+
+Through a more exploratory lens, across `r team_seasons` team-seasons, team CSAx correlates `r format_number(team_gax_correlation)` with goals above expected after standardizing both measures within season, where team CSAx is the games-dressed-weighted mean among eligible forwards and team expected goals come from the same public play-by-play, scored with a pinned rolling XGBoost model [@nhlxg2026]. Moreover, among `r team_shot_sample` teams in the 2024--25 playoffs, CSAx correlates `r format_number(team_shot_correlation)` with the absolute change in five-on-five expected goals per unblocked attempt from the regular season to the postseason. These observations motivate hypotheses about goal-generation repeatability and offensive-process stability among higher-CSAx rosters, although none of the results in this regard are causal.
+
+\clearpage
+
+## Conclusion, limitations, and discussion
+
+All in all, *plays bigger than his size* can be measured without allowing prediction shrinkage to turn the result into a small-player ranking; by calibrating predicted frame against the value normally produced by forwards of the same listed size, CSAx places small and large players on a common frame-relative scale. Ryan Lomberg and the much larger Brady Tkachuk, for example, can both grade as playing big through different behavioral profiles. Contact carries most of the expected-size signal, while close-range shooting extends the construct beyond hit counts alone. Among forwards with comparable current roles and conventional performance, higher CSAx also accompanies a greater probability of logging at least 300 NHL minutes in the following season. The association is modest relative to the `r format_percent(continuation_rate)` baseline, strongest among established forwards, and most informative near the roster margin. Blinded pre-NHL ratings of physicality and active engagement align most clearly with later CSAx, while contract duration and playoff availability point in the same direction. Within its present scope, CSAx gives hockey fans, analysts, and decision-makers a common statistical language for asking not simply how big a player is, but how big he plays and, among forwards in comparable current roles, whether that identity accompanies staying in the NHL picture, while opening new questions about the repeatability of roster-level goal generation and the stability of offensive process from the regular season to the playoffs.
+
+Important limitations bound that conclusion, however. Listed height and weight do not capture body composition, leverage, balance, reach, or strength, and reusing one registry pair across seasons misses growth or listing changes. Public event data record only selected forms of engagement and seldom reveal who initiated or won a contest. The NHL's 2023--24 audit of hit statistics further shows that measured physicality can shift with review practice, and rare and era-sensitive events such as fights may change as the sport evolves [@nhl2024hitsaudit]. Season-specific fitting and the away-game check reduce, but cannot eliminate these drifts. Estimates are also noisier near the 300-minute floor, and 40 scouting reports graded by one blinded author provide focused convergent evidence rather than a definitive study of scouting language. Contract status, playoff use, and continuation can likewise reflect injury, retirement, suspension, assignment, overseas movement, or personal choice, so these observational comparisons cannot establish a causal effect of changing style.
+
+These limitations provide clear directions for further work, the most straightforward being that tracking data could distinguish initiated from absorbed contact and capture puck protection, recoveries, screens, rebounds, and repeated interior routes. Adding on, longer panels could test temporal stability, build and validate a defenseman scale, validate team-level patterns out of sample, and examine whether pre-NHL descriptions persist as players encounter new roles and competition.
+
+\clearpage

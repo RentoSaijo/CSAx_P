@@ -1,0 +1,35 @@
+
+
+\def\spacingset#1{\renewcommand{\baselinestretch}{#1}\small\normalsize}
+\spacingset{1}
+
+\begin{titlepage}
+\thispagestyle{empty}
+\vspace*{0.55in}
+
+\begin{center}
+  {\LARGE\bfseries $title$\par}
+  \vspace{0.9cm}
+  {\large Anonymous authors\par}
+  \vspace{0.18cm}
+  {\normalsize Affiliations withheld for anonymous review\par}
+$if(date)$
+  \vspace{0.45cm}
+  {\normalsize $date$\par}
+$endif$
+\end{center}
+
+\vspace{0.55in}
+\begin{abstract}
+$abstract$
+\end{abstract}
+
+$if(keywords)$
+\noindent{\it Keywords:} $for(keywords)$$it$$sep$, $endfor$
+$endif$
+
+\vfill
+\end{titlepage}
+
+\setcounter{page}{1}
+\spacingset{1}

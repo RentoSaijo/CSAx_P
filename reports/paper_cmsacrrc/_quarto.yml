@@ -1,0 +1,10 @@
+project:
+  type: manuscript
+
+notebook-links: false
+
+execute:
+  freeze: false
+
+format:
+  jasa-pdf: default
