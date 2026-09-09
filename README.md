@@ -4,7 +4,7 @@ Playing big for one's size means showing a pattern of direct physical engagement
 
 CSAx_P extends the forward study accepted for presentation at the Carnegie Mellon Sports Analytics Conference. We fit separate expected-size models for forwards and defensemen, and compare centers through wing and defenseman reference models that exclude centers from training. Defenseman spatial takeaway measures are exploratory proxies whose construct validity remains unresolved.
 
-Read the methods, findings, and research roadmap in [research_summary.md](reports/paper_mit_ssac/research_summary.md).
+Read the methods, findings, and research roadmap in [research_summary.md](reports/paper_mitssacrpc/research_summary.md).
 
 ## Reproduce
 
@@ -27,7 +27,7 @@ To retrieve fresh play-by-play, roster, and shift records for the frozen cohort,
 ## Files
 
 - `data/analysis_data.rds`: scientific inputs, predictions, compact model summaries, application estimates, and bootstrap summaries.
-- `reports/paper_mit_ssac/`: research summary, player rankings, paired center comparisons, team summaries, application estimates, and figures.
+- `reports/paper_mitssacrpc/`: research summary, player rankings, paired center comparisons, team summaries, application estimates, and figures.
 - `scripts/01_prepare_data.R` through `scripts/04_write_summary.R`: ordered preparation, modeling, analysis, and reporting.
 - `R/`: shared settings, event aggregation, positional estimation, and application helpers.
 - `validation/`: frozen forward scouting codes, codebook, and source catalog; derived score associations reside in the analysis object.

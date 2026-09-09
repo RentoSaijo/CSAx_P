@@ -5,7 +5,7 @@ base::source('R/functions.R')
 base::source('R/models.R')
 a <- base::readRDS('data/analysis_data.rds')
 if (base::is.null(a$inference) || a$bootstrap$replicates != 499L) base::stop('Completed positional analysis is required.', call. = FALSE)
-report_directory <- 'reports/paper_mit_ssac'
+report_directory <- 'reports/paper_mitssacrpc'
 figure_directory <- base::file.path(report_directory, 'figures')
 base::dir.create(figure_directory, recursive = TRUE, showWarnings = FALSE)
 
