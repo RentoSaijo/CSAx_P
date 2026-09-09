@@ -86,10 +86,11 @@ inputs <- base::list(
   contracts = base::readRDS('data/cache/contracts.rds'),
   transactions = base::readRDS('data/cache/transactions.rds'),
   players = base::readRDS('data/cache/players.rds') |> dplyr::filter(playerId %in% features$playerId),
+  teamPlayerPositions = base::readRDS('data/cache/players.rds') |> dplyr::select(playerId, positionCode),
   teams = base::readRDS('data/cache/teams.rds'),
   seasons = base::readRDS('data/cache/seasons.rds'),
   scoutingCodes = scouting_codes,
-  provenance = base::list(featureVersion = xs_feature_version, packageSha = xs_package_sha, inherited = base::readRDS('data/cache/provenance.rds'), sourceInventory = purrr::map(season_parts, function(part) part[base::c('playByPlaySha256', 'rosterSha256', 'shiftSha256', 'sourceRows', 'collectedAt')]), locationQuality = purrr::map_dfr(season_parts, 'locationQuality'), penaltyInventory = purrr::map_dfr(season_parts, 'penalties'))
+  provenance = base::list(featureVersion = xs_feature_version, packageSha = xs_package_sha, inherited = base::readRDS('data/cache/provenance.rds'), sourceInventory = stats::setNames(purrr::map(season_parts, function(part) part[base::c('playByPlaySha256', 'rosterSha256', 'shiftSha256', 'sourceRows', 'collectedAt')]), xs_behavior_seasons), locationQuality = purrr::map_dfr(season_parts, 'locationQuality'), penaltyInventory = purrr::map_dfr(season_parts, 'penalties'), eventAttribution = purrr::map_dfr(season_parts, 'eventAttribution'), penaltyAttribution = purrr::map_dfr(season_parts, 'penaltyAttribution'), teammateBlocksExcluded = tibble::tibble(seasonId = xs_behavior_seasons, events = purrr::map_int(season_parts, 'teammateBlocksExcluded')))
 )
 base::saveRDS(inputs, 'data/cache/positional_inputs.rds', compress = 'xz')
 base::message('Prepared ', base::nrow(features) / 3L, ' skater-seasons across three event scopes.')

@@ -26,12 +26,25 @@ prepare_coordinates <- function(plays) {
     )
 }
 
+# Summarize recorded actor attribution against game rosters.
+summarize_event_attribution <- function(plays, team_keys, season_id) {
+  definitions <- tibble::tribble(~actor, ~event, ~sameTeam, 'hittingPlayerId', 'hit', TRUE, 'hitteePlayerId', 'hit', FALSE, 'blockingPlayerId', 'blocked-shot', FALSE, 'committedByPlayerId', 'penalty', TRUE, 'drawnByPlayerId', 'penalty', FALSE)
+  purrr::map_dfr(base::seq_len(base::nrow(definitions)), function(index) {
+    actor <- definitions$actor[index]
+    events <- plays |> dplyr::filter(eventTypeDescKey == definitions$event[index])
+    if (definitions$event[index] == 'penalty') events <- events |> dplyr::filter(penaltyTypeDescKey %in% xs_contact_penalties)
+    if (definitions$event[index] == 'blocked-shot') events <- events |> dplyr::filter(base::is.na(reason) | reason != 'teammate-blocked')
+    events <- events |> dplyr::filter(!base::is.na(.data[[actor]])) |> dplyr::mutate(actorId = .data[[actor]]) |> dplyr::left_join(team_keys, by = base::c('gameId', 'actorId' = 'playerId'))
+    tibble::tibble(seasonId = season_id, actor = actor, events = base::nrow(events), missingRoster = base::sum(base::is.na(events$rosterTeamId)), wrongTeam = base::sum((events$rosterTeamId == events$eventOwnerTeamId) != definitions$sameTeam[index], na.rm = TRUE))
+  })
+}
+
 # Aggregate direct and positional indirect event measures.
 aggregate_behavior <- function(plays, exposure, season_id, scope) {
   event_counts <- base::list(
     count_events(plays |> dplyr::filter(eventTypeDescKey == 'hit'), 'hittingPlayerId', 'hits'),
     count_events(plays |> dplyr::filter(eventTypeDescKey == 'hit'), 'hitteePlayerId', 'hitsReceived'),
-    count_events(plays |> dplyr::filter(eventTypeDescKey == 'blocked-shot'), 'blockingPlayerId', 'blockedShots'),
+    count_events(plays |> dplyr::filter(eventTypeDescKey == 'blocked-shot', base::is.na(reason) | reason != 'teammate-blocked'), 'blockingPlayerId', 'blockedShots'),
     count_events(plays |> dplyr::filter(eventTypeDescKey == 'penalty', penaltyTypeDescKey == 'fighting'), 'committedByPlayerId', 'fights'),
     count_events(plays |> dplyr::filter(eventTypeDescKey == 'penalty', penaltyTypeDescKey %in% xs_contact_penalties), 'committedByPlayerId', 'contactPenaltiesTaken'),
     count_events(plays |> dplyr::filter(eventTypeDescKey == 'penalty', penaltyTypeDescKey %in% xs_contact_penalties), 'drawnByPlayerId', 'contactPenaltiesDrawn')
@@ -96,6 +109,8 @@ prepare_behavior_season <- function(season_id) {
   team_keys <- regular_rosters |>
     dplyr::distinct(gameId, playerId, rosterTeamId = teamId)
   assert_unique(team_keys, base::c('gameId', 'playerId'), 'Game player teams')
+  event_attribution <- summarize_event_attribution(plays, team_keys, season_id)
+  if (base::any(event_attribution$missingRoster > 0L | event_attribution$wrongTeam > 0L)) base::stop('Direct-event actor attribution does not match game rosters.', call. = FALSE)
   ownership <- plays |>
     dplyr::filter(eventTypeDescKey == 'takeaway') |>
     dplyr::left_join(team_keys, by = base::c('gameId', 'playerId'))
@@ -148,11 +163,12 @@ prepare_behavior_season <- function(season_id) {
   location_quality <- plays |>
     dplyr::filter(eventTypeDescKey %in% base::c('takeaway', 'goal', 'shot-on-goal', 'missed-shot')) |>
     dplyr::group_by(eventTypeDescKey) |>
-    dplyr::summarise(events = dplyr::n(), missingLocation = base::sum(!base::is.finite(xCoordNorm)), zoneDisagreement = base::sum((zoneCode == 'O' & xCoordNorm < -25) | (zoneCode == 'D' & xCoordNorm > 25), na.rm = TRUE), .groups = 'drop') |>
+    dplyr::summarise(events = dplyr::n(), missingLocation = base::sum(!base::is.finite(xCoordNorm)), zoneDisagreement = base::sum(zoneCode != dplyr::case_when(xCoordNorm < -25 ~ 'D', xCoordNorm > 25 ~ 'O', TRUE ~ 'N'), na.rm = TRUE), .groups = 'drop') |>
     dplyr::mutate(seasonId = season_id, .before = 1L)
   penalty_inventory <- plays |>
     dplyr::filter(eventTypeDescKey == 'penalty') |>
     dplyr::count(penaltyTypeDescKey, name = 'events') |>
     dplyr::mutate(seasonId = season_id, includedContact = penaltyTypeDescKey %in% xs_contact_penalties, .before = 1L)
-  base::list(version = xs_feature_version, features = features, locationQuality = location_quality, penalties = penalty_inventory, playByPlaySha256 = digest::digest(plays_raw, algo = 'sha256'), rosterSha256 = digest::digest(rosters, algo = 'sha256'), shiftSha256 = digest::digest(shifts, algo = 'sha256'), sourceRows = base::nrow(plays_raw), collectedAt = base::format(base::Sys.time(), tz = 'UTC', usetz = TRUE))
+  penalty_attribution <- plays |> dplyr::filter(eventTypeDescKey == 'penalty', penaltyTypeDescKey %in% xs_contact_penalties) |> dplyr::summarise(seasonId = season_id, infractions = dplyr::n(), missingTaken = base::sum(base::is.na(committedByPlayerId)), missingDrawn = base::sum(base::is.na(drawnByPlayerId)))
+  base::list(version = xs_feature_version, features = features, locationQuality = location_quality, penalties = penalty_inventory, eventAttribution = event_attribution, penaltyAttribution = penalty_attribution, teammateBlocksExcluded = base::sum(plays$eventTypeDescKey == 'blocked-shot' & plays$reason == 'teammate-blocked', na.rm = TRUE), playByPlaySha256 = digest::digest(plays_raw, algo = 'sha256'), rosterSha256 = digest::digest(rosters, algo = 'sha256'), shiftSha256 = digest::digest(shifts, algo = 'sha256'), sourceRows = base::nrow(plays_raw), collectedAt = base::format(base::Sys.time(), tz = 'UTC', usetz = TRUE))
 }

@@ -18,7 +18,7 @@ xs_forward_features <- base::c('netFrontAttemptShare', 'deflectionShare', 'media
 xs_defense_features <- base::c('defensiveTakeawaysPer60', 'defensivePerimeterTakeawayShare')
 xs_features         <- base::unique(base::c(xs_direct_features, xs_forward_features, xs_defense_features, 'reboundAttemptShare'))
 xs_contact_penalties <- base::c('boarding', 'charging', 'checking-from-behind', 'clipping', 'elbowing', 'illegal-check-to-head', 'illegal-check-to-the-head', 'checking-to-the-head', 'kneeing', 'roughing', 'roughing-removing-opponents-helmet', 'slew-footing', 'cross-checking', 'high-sticking', 'high-sticking-double-minor', 'holding', 'holding-the-stick', 'hooking', 'tripping')
-xs_feature_version  <- '20260909-positional-v1'
+xs_feature_version  <- '20260909-positional-v2'
 xs_model_version    <- '20260909-nested-v1'
 
 # Validation Helpers -------------------------------------------------------
@@ -373,4 +373,3 @@ read_scouting_validation <- function(ratings_path = 'validation_private/external
   if (base::nrow(joined) != base::nrow(ratings) || base::anyNA(joined$playerId)) base::stop('Scouting ratings did not join completely to the study key.', call. = FALSE)
   base::list(data = joined, lock = lock)
 }
-
