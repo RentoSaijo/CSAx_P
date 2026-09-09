@@ -16,6 +16,7 @@ Imports:
     dplyr,
     forcats,
     ggplot2,
+    glue,
     glmnet,
     hardhat,
     knitr,
@@ -33,6 +34,7 @@ Imports:
     stringi,
     stringr,
     tibble,
+    tidyr,
     tune,
     workflows,
     yardstick

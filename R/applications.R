@@ -201,7 +201,7 @@ analyze_contracts_playoffs <- function(contracts, playoffs) {
 # Keep forward and defenseman team exposures separate.
 analyze_teams <- function(inputs, panel) {
   exposures <- purrr::map_dfr(xs_behavior_seasons, function(season) inputs$rosters[[base::as.character(season)]]$regularPlayerTeam |> dplyr::mutate(seasonId = season))
-  positions <- inputs$players |> dplyr::select(playerId, positionCode)
+  positions <- if (!base::is.null(inputs$teamPlayerPositions)) inputs$teamPlayerPositions else inputs$players |> dplyr::select(playerId, positionCode)
   exposure_positions <- exposures |>
     dplyr::left_join(positions, by = 'playerId')
   if (base::anyNA(exposure_positions$positionCode)) {

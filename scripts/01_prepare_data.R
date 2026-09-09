@@ -23,6 +23,7 @@ if (refresh_events && !base::is.null(snapshot)) {
   }
   for (season_id in xs_roster_seasons) base::saveRDS(snapshot$rosters[[base::as.character(season_id)]], base::file.path('data/cache', base::paste0('outcomes_', season_id, '.rds')))
   for (component in base::c('players', 'teams', 'seasons', 'contracts', 'transactions')) base::saveRDS(snapshot[[component]], base::file.path('data/cache', base::paste0(component, '.rds')))
+  base::saveRDS(dplyr::full_join(snapshot$players, snapshot$teamPlayerPositions, by = base::c('playerId', 'positionCode')), 'data/cache/players.rds')
   base::saveRDS(snapshot$histories, 'data/cache/player_seasons.rds')
   base::saveRDS(snapshot$provenance$inherited, 'data/cache/provenance.rds')
 }
