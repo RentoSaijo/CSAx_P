@@ -31,11 +31,11 @@ summarize_event_attribution <- function(plays, team_keys, season_id) {
   definitions <- tibble::tribble(~actor, ~event, ~sameTeam, 'hittingPlayerId', 'hit', TRUE, 'hitteePlayerId', 'hit', FALSE, 'blockingPlayerId', 'blocked-shot', FALSE, 'committedByPlayerId', 'penalty', TRUE, 'drawnByPlayerId', 'penalty', FALSE)
   purrr::map_dfr(base::seq_len(base::nrow(definitions)), function(index) {
     actor <- definitions$actor[index]
-    events <- plays |> dplyr::filter(eventTypeDescKey == definitions$event[index])
-    if (definitions$event[index] == 'penalty') events <- events |> dplyr::filter(penaltyTypeDescKey %in% xs_contact_penalties)
-    if (definitions$event[index] == 'blocked-shot') events <- events |> dplyr::filter(base::is.na(reason) | reason != 'teammate-blocked')
-    events <- events |> dplyr::filter(!base::is.na(.data[[actor]])) |> dplyr::mutate(actorId = .data[[actor]]) |> dplyr::left_join(team_keys, by = base::c('gameId', 'actorId' = 'playerId'))
-    tibble::tibble(seasonId = season_id, actor = actor, events = base::nrow(events), missingRoster = base::sum(base::is.na(events$rosterTeamId)), wrongTeam = base::sum((events$rosterTeamId == events$eventOwnerTeamId) != definitions$sameTeam[index], na.rm = TRUE))
+    event_rows <- plays |> dplyr::filter(eventTypeDescKey == definitions$event[index])
+    if (definitions$event[index] == 'penalty') event_rows <- event_rows |> dplyr::filter(penaltyTypeDescKey %in% xs_contact_penalties)
+    if (definitions$event[index] == 'blocked-shot') event_rows <- event_rows |> dplyr::filter(base::is.na(reason) | reason != 'teammate-blocked')
+    event_rows <- event_rows |> dplyr::filter(!base::is.na(.data[[actor]])) |> dplyr::mutate(actorId = .data[[actor]]) |> dplyr::left_join(team_keys, by = base::c('gameId', 'actorId' = 'playerId'))
+    tibble::tibble(seasonId = season_id, actor = actor, events = base::nrow(event_rows), missingRoster = base::sum(base::is.na(event_rows$rosterTeamId)), wrongTeam = base::sum((event_rows$rosterTeamId == event_rows$eventOwnerTeamId) != definitions$sameTeam[index], na.rm = TRUE))
   })
 }
 

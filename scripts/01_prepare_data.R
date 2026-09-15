@@ -7,6 +7,17 @@ base::dir.create('data/cache', recursive = TRUE, showWarnings = FALSE)
 package_sha <- utils::packageDescription('nhlscraper')[['RemoteSha']]
 if (!base::identical(package_sha, xs_package_sha)) base::stop('Installed nhlscraper revision does not match research revision.', call. = FALSE)
 
+# Prepare matched A3Z inputs or restore frozen pilot observations.
+if ('--a3z' %in% base::commandArgs(trailingOnly = TRUE)) {
+  base::source('R/a3z.R')
+  analysis <- base::readRDS('data/analysis_data.rds')
+  refresh <- '--refresh-events' %in% base::commandArgs(trailingOnly = TRUE)
+  prepared <- if (!refresh && !base::is.null(analysis$a3z$inputs)) analysis$a3z$inputs else prepare_a3z_inputs(analysis$inputs)
+  base::saveRDS(prepared, 'data/cache/a3z_inputs.rds', compress = 'xz')
+  base::message('Prepared ', base::nrow(prepared$features), ' matched A3Z skater-seasons.')
+  base::quit(save = 'no', status = 0L)
+}
+
 # Restore bundled scientific snapshot when local caches are unavailable.
 refresh_events <- '--refresh-events' %in% base::commandArgs(trailingOnly = TRUE)
 snapshot <- if (base::file.exists('data/analysis_data.rds')) base::readRDS('data/analysis_data.rds')$inputs else NULL
