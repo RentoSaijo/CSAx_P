@@ -316,3 +316,10 @@ Small discrepancies in sums can arise from rounding displayed contributions. Sco
 ', .open = '<<', .close = '>>')
 readr::write_file(report, base::file.path(report_directory, 'research_summary.md'))
 base::message('Wrote research summary, five data products, and three figures.')
+
+# Report A3Z pilot with labeled full-season benchmark products.
+if (!base::is.null(a$a3z)) {
+  base::source('R/a3z.R')
+  base::source('R/a3z_report.R')
+  write_a3z_report(a, report_directory, figure_directory)
+}

@@ -338,7 +338,7 @@ analyze_a3z_models <- function(fits, inputs, benchmark_inputs) {
     indicators <- base::c('overallPhysicality', 'playsBiggerExplicit', 'activePhysicalEngagement', 'interiorPlay')
     estimates <- purrr::map_dfr(indicators, function(indicator) {
       fit <- fit_analysis_workflow(observed, 'meanCSAx', indicator)
-      clustered_term(fit, observed, term = indicator) |> dplyr::mutate(indicator = indicator, n = base::nrow(observed), spearman = stats::cor(observed$meanCSAx, observed[[indicator]], method = 'spearman'))
+      clustered_term(fit, observed, term = indicator) |> dplyr::mutate(indicator = indicator, n = base::nrow(observed), spearman = stats::cor(observed$meanCSAx, observed[[indicator]], method = 'spearman'), intervalMethod = 'Player-clustered HC1; conditional on estimated scores and tracked sample')
     })
     base::list(scores = rated |> dplyr::select(studyId, playerId, meanCSAx, observedSeasons), estimates = estimates, n = base::nrow(observed), unmatched = rated |> dplyr::filter(base::is.na(meanCSAx)) |> dplyr::select(studyId, playerId))
   })
