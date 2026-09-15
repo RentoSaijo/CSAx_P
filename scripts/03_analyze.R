@@ -5,6 +5,29 @@ base::source('R/functions.R')
 base::source('R/models.R')
 base::source('R/applications.R')
 base::Sys.setenv(OMP_NUM_THREADS = '1', OPENBLAS_NUM_THREADS = '1', VECLIB_MAXIMUM_THREADS = '1')
+
+# Estimate pilot relationships while preserving full-season benchmark.
+if ('--a3z' %in% base::commandArgs(trailingOnly = TRUE)) {
+  base::source('R/a3z.R')
+  analysis <- base::readRDS('data/analysis_data.rds')
+  inputs <- base::readRDS('data/cache/a3z_inputs.rds')
+  fits <- base::readRDS('data/cache/a3z_models.rds')
+  pilot <- analyze_a3z_models(fits, inputs, analysis$inputs)
+  pilot$inputs <- inputs
+  pilot$coefficients <- purrr::imap_dfr(fits, function(fit, label) fit$coefficients |> dplyr::mutate(specification = label))
+  pilot$tuning <- purrr::imap_dfr(fits, function(fit, label) fit$tuning |> dplyr::mutate(specification = label))
+  pilot$sizeReference <- fits[['A3Z integrated']]$sizeReference
+  pilot$benchmark <- base::list(specification = 'Full-season play-by-play benchmark', eventScope = 'All situations with labeled sensitivities', components = base::c('inputs', 'primary', 'centers', 'sensitivities', 'applications', 'bootstrap', 'inference'), builtAt = analysis$builtAt)
+  pilot$settings <- base::list(version = a3z_version, definition = a3z_definition, features = purrr::map(fits, 'features'), eligibilityMinutes = xs_minutes, trackedMinutes = a3z_minutes, rankingMinutes = 500, sparseDenominatorThreshold = 20L, outerFolds = xs_outer_folds, innerFolds = xs_inner_folds, penaltyGrid = xs_penalty_grid, seed = xs_seed)
+  pilot$builtAt <- base::format(base::Sys.time(), tz = 'UTC', usetz = TRUE)
+  analysis$a3z <- pilot
+  analysis$definition <- a3z_definition
+  base::saveRDS(analysis, 'data/analysis_data.rds', compress = 'xz')
+  base::message('Saved A3Z pilot and preserved full-season benchmark.')
+  base::quit(save = 'no', status = 0L)
+}
+
+# Read full-season benchmark models and inputs.
 models <- base::readRDS('data/cache/positional_models.rds')
 inputs <- base::readRDS('data/cache/positional_inputs.rds')
 

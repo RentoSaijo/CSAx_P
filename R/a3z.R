@@ -88,9 +88,9 @@ match_a3z_games <- function(source, games, rosters) {
 }
 
 # Download compact schedules and complete game roster identities.
-load_a3z_identity <- function(inputs) {
+load_a3z_identity <- function(inputs, refresh = FALSE) {
   path <- 'data/cache/a3z_identity.rds'
-  if (base::file.exists(path)) {
+  if (!refresh && base::file.exists(path)) {
     cached <- base::readRDS(path)
     if (base::any(cached$rosters$rosterPosition == 'G')) base::return(cached)
   }
@@ -116,9 +116,9 @@ load_a3z_identity <- function(inputs) {
 # Matched NHL Exposure ----------------------------------------------------
 
 # Preserve source-matched events and shift-derived five-on-five minutes.
-load_a3z_events <- function(season, game_ids) {
+load_a3z_events <- function(season, game_ids, refresh = FALSE) {
   path <- base::file.path('data/cache', base::paste0('a3z_nhl_', season, '.rds'))
-  if (base::file.exists(path)) {
+  if (!refresh && base::file.exists(path)) {
     cached <- base::readRDS(path)
     if (base::identical(cached$exposureVersion, 'Union of shift intervals') && base::all(game_ids %in% cached$gameIds)) base::return(cached)
   }
@@ -201,11 +201,11 @@ aggregate_a3z_season <- function(season, rows, nhl, metadata) {
 }
 
 # Prepare frozen source mapping, matched features, and coverage summaries.
-prepare_a3z_inputs <- function(inputs) {
+prepare_a3z_inputs <- function(inputs, refresh = FALSE) {
   source <- read_a3z_source('data/cache/a3z_raw.csv')
-  identity <- load_a3z_identity(inputs)
+  identity <- load_a3z_identity(inputs, refresh = refresh)
   mapping <- match_a3z_games(source, identity$games, identity$rosters)
-  parts <- purrr::map(xs_behavior_seasons, function(season) load_a3z_events(season, base::unique(stats::na.omit(mapping$rows$gameId[mapping$rows$seasonId == season]))))
+  parts <- purrr::map(xs_behavior_seasons, function(season) load_a3z_events(season, base::unique(stats::na.omit(mapping$rows$gameId[mapping$rows$seasonId == season])), refresh = refresh))
   rows <- validate_a3z_rows(mapping, purrr::map_dfr(parts, 'exposure'), identity$rosters)
   metadata <- inputs$features |>
     dplyr::filter(eventScope == 'All situations') |>
@@ -219,6 +219,10 @@ prepare_a3z_inputs <- function(inputs) {
   attribution <- purrr::map_dfr(base::seq_along(parts), function(index) summarize_event_attribution(parts[[index]]$plays, identity$rosters |> dplyr::transmute(gameId, playerId, rosterTeamId = teamId), xs_behavior_seasons[index]))
   if (base::any(attribution$missingRoster > 0L | attribution$wrongTeam > 0L)) base::stop('NHL event attribution disagrees with matched rosters.', call. = FALSE)
   games <- mapping$games |> dplyr::left_join(rows |> dplyr::filter(rowStatus == 'Retained') |> dplyr::count(sourceGame, seasonId, name = 'retainedRows'), by = base::c('sourceGame', 'seasonId'))
-  provenance <- base::list(version = a3z_version, workbookUrl = 'https://public.tableau.com/app/profile/corey.sznajder/viz/transitionstats/Sheet1', sourceLinksUrl = 'https://www.allthreezones.com/links.html', glossaryUrl = 'https://www.allthreezones.com/player-cardsfaq.html', methodologyUrl = 'https://allthreezones.substack.com/p/catch-and-retrieve', workbookSha256 = digest::digest(file = 'data/cache/a3z_transition.twbx', algo = 'sha256'), exportSha256 = digest::digest(file = 'data/cache/a3z_raw.csv', algo = 'sha256'), collectedAt = '2026-09-15', preparedAt = base::format(base::Sys.time(), tz = 'UTC', usetz = TRUE), packageSha = xs_package_sha, sourceInventory = stats::setNames(purrr::map(parts, function(part) part[base::c('sourceHash', 'collectedAt', 'exposureVersion', 'duplicateShiftRows', 'overlappingShiftSeconds')]), xs_behavior_seasons), playerTimeToleranceSeconds = a3z_player_time_tolerance, gameMedianTimeToleranceSeconds = a3z_game_time_tolerance, minimumTrackedMinutes = a3z_minutes)
+  provenance <- base::list(
+    version = a3z_version, workbookUrl = 'https://public.tableau.com/app/profile/corey.sznajder/viz/transitionstats/Sheet1', sourceLinksUrl = 'https://www.allthreezones.com/links.html', glossaryUrl = 'https://www.allthreezones.com/player-cardsfaq.html', methodologyUrl = 'https://allthreezones.substack.com/p/catch-and-retrieve',
+    workbookSha256 = digest::digest(file = 'data/cache/a3z_transition.twbx', algo = 'sha256'), exportSha256 = digest::digest(file = 'data/cache/a3z_raw.csv', algo = 'sha256'), collectedAt = base::as.character(base::as.Date(base::file.info('data/cache/a3z_transition.twbx')$mtime, tz = 'UTC')), preparedAt = base::format(base::Sys.time(), tz = 'UTC', usetz = TRUE), packageSha = xs_package_sha,
+    sourceInventory = stats::setNames(purrr::map(parts, function(part) part[base::c('sourceHash', 'collectedAt', 'exposureVersion', 'duplicateShiftRows', 'overlappingShiftSeconds')]), xs_behavior_seasons), playerTimeToleranceSeconds = a3z_player_time_tolerance, gameMedianTimeToleranceSeconds = a3z_game_time_tolerance, minimumTrackedMinutes = a3z_minutes
+  )
   base::list(features = features, coverage = coverage, sourceRows = rows, games = games, schedules = identity$games, eventAttribution = attribution, provenance = provenance)
 }

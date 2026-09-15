@@ -4,6 +4,18 @@
 base::source('R/functions.R')
 base::source('R/models.R')
 base::Sys.setenv(OMP_NUM_THREADS = '1', OPENBLAS_NUM_THREADS = '1', VECLIB_MAXIMUM_THREADS = '1')
+
+# Fit A3Z pilot and matched component comparisons.
+if ('--a3z' %in% base::commandArgs(trailingOnly = TRUE)) {
+  base::source('R/a3z.R')
+  inputs <- base::readRDS('data/cache/a3z_inputs.rds')
+  fits <- build_a3z_models(inputs)
+  base::saveRDS(fits, 'data/cache/a3z_models.rds', compress = 'xz')
+  base::message('A3Z positional models are complete.')
+  base::quit(save = 'no', status = 0L)
+}
+
+# Read full-season benchmark inputs.
 input_path <- 'data/cache/positional_inputs.rds'
 inputs <- if (base::file.exists(input_path)) base::readRDS(input_path) else base::readRDS('data/analysis_data.rds')$inputs
 if (base::is.null(inputs$features)) base::stop('Prepared positional inputs are unavailable.', call. = FALSE)

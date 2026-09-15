@@ -12,7 +12,7 @@ if ('--a3z' %in% base::commandArgs(trailingOnly = TRUE)) {
   base::source('R/a3z.R')
   analysis <- base::readRDS('data/analysis_data.rds')
   refresh <- '--refresh-events' %in% base::commandArgs(trailingOnly = TRUE)
-  prepared <- if (!refresh && !base::is.null(analysis$a3z$inputs)) analysis$a3z$inputs else prepare_a3z_inputs(analysis$inputs)
+  prepared <- if (!refresh && !base::is.null(analysis$a3z$inputs)) analysis$a3z$inputs else prepare_a3z_inputs(analysis$inputs, refresh = refresh)
   base::saveRDS(prepared, 'data/cache/a3z_inputs.rds', compress = 'xz')
   base::message('Prepared ', base::nrow(prepared$features), ' matched A3Z skater-seasons.')
   base::quit(save = 'no', status = 0L)
