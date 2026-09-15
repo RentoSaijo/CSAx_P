@@ -1,10 +1,10 @@
 # Playing bigger through contact and puck play
 
-A defenseman who retrieves a dump-in and starts a breakout contributes something that a hit count can miss. We bring those puck plays into CSAx alongside physical contact and examine what the resulting score actually measures.
+Players make their presence felt through contact, puck recovery, and plays that create or protect space. We examine these forms of involvement among forwards and defensemen, bringing A3Z puck-play observations into CSAx alongside direct physical engagement.
 
-> **Playing bigger than your size means making your presence felt in battles for the puck and space beyond what your size would suggest.**
+> **Playing bigger than your size means making your presence felt beyond what your size would suggest, through both direct physical contact and indirect signs of physicality in battles for the puck and space. We quantify this with CSAx by predicting listed height-and-weight size from shared direct and position-specific indirect measures, calibrating that prediction against the player’s listed frame, and standardizing the resulting residual within each season and reference population.**
 
-We distinguish involvement in physical contests from effective puck play under pressure. CSAx captures a statistical pattern within that broader idea: we predict listed height-and-weight size from behavior, then measure how far the prediction exceeds the expectation associated with the listed frame. Higher CSAx describes behavior associated with larger players. Its weights are learned from size prediction, so they do not necessarily reward successful execution.
+We distinguish involvement in physical contests from effective puck play under pressure. Higher CSAx describes behavior associated with larger players after accounting for the listed frame. Its weights are learned from size prediction, so they do not necessarily reward successful execution.
 
 ## What the models show
 
@@ -12,7 +12,7 @@ The A3Z-integrated models use **1,485 forward-seasons and 829 defenseman-seasons
 
 The learned weights expose an important conceptual limitation. Defensemen receive a positive median weight for botched retrievals and a negative weight for the possession share of successful exits. These are conditional associations with listed size. They cannot support interpreting higher CSAx as uniformly better puck play under pressure. A3Z expands what we observe, while the size-prediction target continues to determine what the score rewards.
 
-The center comparison has a separate limitation. Across **724 center-seasons**, only **12** remain within both training ranges with complete inputs, and only **1** also has at least 20 opportunities for each modeled share. Thus the positional comparison is predominantly extrapolation. We describe its behavior without treating it as a supported ranking of centers against defensemen.
+Centers belong to the main forward model. In a separate exploratory comparison, **all 724 eligible center-seasons receive both wing-reference and defenseman-reference scores**. Of these, **12** have complete inputs within both training ranges, **51** have at least 20 opportunities for every modeled share under both references, and **1** meets both checks. These diagnostic subsets describe extrapolation and sparse opportunities within the scored sample. The comparison remains descriptive because most centers differ substantially from the defensive reference population.
 
 ## Data, coverage, and opportunity
 
@@ -198,18 +198,32 @@ For the largest upward and downward moves in each position, the following decomp
 
 ## Centers across positional references
 
-We train the forward feature specification on wings and the defensive specification on defensemen, excluding centers from both populations. Each center receives one prediction from matched assessment-fold fits. Reference populations supply size and residual scales; centers are never standardized separately.
+The main forward model includes centers and wings, while the main defensive model contains defensemen. We use centers for an additional cross-position comparison: the forward feature specification trains on wings and the defensive specification trains on defensemen, excluding centers from both reference populations. All 724 eligible center-seasons receive one prediction from each matched assessment-fold fit. Reference populations supply size and residual scales; centers are never standardized separately.
 
-| Season | Centers | Spearman | Mean wing-minus-defenseman percentile | Within ranges and complete | Also ≥20 share opportunities |
-| --- | --- | --- | --- | --- | --- |
-| 2021–22 | 194 | 0.50 | -10.59 | 3 | 0 |
-| 2022–23 | 186 | 0.57 | 9.41 | 3 | 0 |
-| 2023–24 | 170 | 0.57 | 31.05 | 5 | 1 |
-| 2024–25 | 174 | 0.13 | 14.25 | 1 | 0 |
+We apply range, missingness, and opportunity diagnostics to every positional model. A range check compares listed height, weight, and modeled features with the observed minima and maxima in the assigned outer training sample. Complete inputs require no imputation. The opportunity check requires at least 20 recorded opportunities for every modeled share. This threshold identifies sparse denominators; reaching it does not establish reliable estimation. Marginal range overlap also cannot establish support for every combination of features.
+
+| Scored group | Reference | Scored | Complete inputs | Within ranges and complete | Every share ≥20 | Both checks |
+| --- | --- | --- | --- | --- | --- | --- |
+| Forwards | Forwards | 1485 | 1485 | 1395 | 1248 | 1194 |
+| Defensemen | Defensemen | 829 | 829 | 737 | 796 | 711 |
+| Wings | Wings | 761 | 761 | 677 | 672 | 608 |
+| Centers | Wings | 724 | 724 | 622 | 576 | 512 |
+| Centers | Defensemen | 724 | 723 | 12 | 53 | 1 |
+
+The rows represent overlapping applications: forwards include centers and wings, and the same centers appear under both external references. Every row counts scored player-seasons. Range and opportunity columns describe separate checks, while the final column counts their intersection. The checks retain all eligible scores and do not change the training populations.
+
+For paired center comparisons, the following diagnostics require the relevant check to hold under both reference models. Correlations and mean percentile differences use every scored center in each season.
+
+| Season | Centers scored | Spearman | Mean wing-minus-defenseman percentile | Within both ranges and complete | Every share ≥20 in both models | Both checks |
+| --- | --- | --- | --- | --- | --- | --- |
+| 2021–22 | 194 | 0.50 | -10.59 | 3 | 19 | 0 |
+| 2022–23 | 186 | 0.57 | 9.41 | 3 | 12 | 0 |
+| 2023–24 | 170 | 0.57 | 31.05 | 5 | 12 | 1 |
+| 2024–25 | 174 | 0.13 | 14.25 | 1 | 8 | 0 |
 
 ![Center standing under wing and defenseman references](figures/center_standing.png)
 
-Center profiles often lie beyond the defensive training ranges: 638 have an entry denial share outside the corresponding defenseman range, and 545 have an out-of-range botched-retrieval rate. Most also have few targeted entries. The 20-opportunity flag is a descriptive caution, not a claim that 20 observations establish reliability. The scarcity of supported center comparisons prevents a firm interpretation of differences as positional consistency in playing bigger. Percentiles describe relative standing under separate models, not physicality on a common scale.
+Center profiles often lie beyond the defensive training ranges: 638 have an entry denial share outside the corresponding defenseman range, and 545 have an out-of-range botched-retrieval rate. Most also have few targeted entries. Centers have a median of 10 targeted entries, compared with 137 for defensemen. These differences in opportunity and role limit interpretation of the comparison as positional consistency in playing bigger. Percentiles describe relative standing under separate models and do not measure differences in physicality on a common scale.
 
 Shared-direct reconstructions show how much difference exists before position-specific indirect features enter:
 
@@ -222,11 +236,11 @@ Shared-direct reconstructions show how much difference exists before position-sp
 
 The following center examples illustrate the overlap problem in 2024–25. Their percentiles remain descriptive outputs of the reference models, with the defensive opportunity counts shown alongside them.
 
-| Player | Wing percentile | Defenseman percentile | Targeted entries | Within ranges and complete |
-| --- | --- | --- | --- | --- |
-| Aleksander Barkov | 34.64 | 5.80 | 11 | No |
-| Jack Hughes | 26.26 | 0.00 | 6 | No |
-| Sidney Crosby | 30.17 | 53.62 | 4 | No |
+| Player | Wing percentile | Defenseman percentile | Targeted entries | Within both ranges and complete | Every share ≥20 in both models |
+| --- | --- | --- | --- | --- | --- |
+| Aleksander Barkov | 34.64 | 5.80 | 11 | No | No |
+| Jack Hughes | 26.26 | 0.00 | 6 | No | No |
+| Sidney Crosby | 30.17 | 53.62 | 4 | No | No |
 
 ## Scouting and next-season continuation
 
@@ -264,7 +278,7 @@ Short sequences after hits or takeaways provide much weaker foundations for indi
 
 The pilot supports keeping A3Z in the research program, especially for defensive retrieval and exit context. It also gives a concrete reason to separate the broad hockey idea from the present scalar score. Our next decision concerns the target: retain CSAx as size-associated physical style, or develop a separately validated measure of successful play under pressure. The current results do not support presenting the expanded CSAx as both at once.
 
-For an engagement-focused CSAx, we need to establish repeatable signal in the indirect component and understand team-role effects before expanding downstream applications. For a success-focused measure, we need defensible outcome and opportunity definitions, with direction determined by successful execution and an explicit approach to accounting for size. For either direction, center comparisons require better overlap with the reference population or a narrower question about shared behaviors.
+For an engagement-focused CSAx, we need to establish repeatable signal in the indirect component and understand team-role effects before expanding downstream applications. For a success-focused measure, we need defensible outcome and opportunity definitions, with direction determined by successful execution and an explicit approach to accounting for size. The exploratory center comparison requires better overlap with the reference population or a narrower question about shared behaviors. A future study may concentrate on the main forward and defenseman models, keeping centers within forwards and omitting the cross-position comparison. The present analysis retains both applications.
 
 A defensible next step is to present CSAx as size-associated physical style alongside the observed retrieval and exit measures. A separate execution measure becomes worthwhile if successful play under pressure is central to the research question. We can then evaluate its validity directly, without relying on size prediction to establish whether a play is successful.
 
