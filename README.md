@@ -40,7 +40,7 @@ Running the numbered commands without `--a3z` rebuilds the full-season benchmark
 
 ## Files
 
-- `reports/paper_mitssacrpc/`: research summary, three figures, matched player rankings, center comparisons, team coverage, and labeled application estimates
+- `reports/paper_mitssacrpc/`: research summary, A3Z data dictionary, three figures, matched player rankings, center comparisons, team coverage, and labeled application estimates
 - `data/analysis_data.rds`: compact analysis object with frozen A3Z inputs and pilot results under `a3z`, plus the full-season benchmark and its 499 bootstrap summaries
 - `validation/`: public scouting codebook, source catalog, and frozen forward scouting codes
 - `scripts/01_prepare_data.R` through `scripts/04_write_summary.R`: ordered data, metric, analysis, and reporting workflow
@@ -50,6 +50,8 @@ Running the numbered commands without `--a3z` rebuilds the full-season benchmark
 ## Public data
 
 A3Z microstats come from Corey Sznajder's freely downloadable transition workbook, available through the [official A3Z links page](https://www.allthreezones.com/links.html). Definitions follow the [A3Z glossary](https://www.allthreezones.com/player-cardsfaq.html) and [retrieval methodology](https://allthreezones.substack.com/p/catch-and-retrieve). The analysis retains source labels, NHL game and player mappings, exclusions, event counts, opportunity denominators, tracked exposure, retrieval dates, and source hashes.
+
+The [A3Z data dictionary](reports/paper_mitssacrpc/a3z_data_dictionary.md) inventories all 95 fields in the downloaded workbook, with meanings, units, seasonal coverage, current model use, and unresolved definitions. It also outlines opportunities for further feature development.
 
 NHL game, roster, event, shift, and career records are retrieved through the pinned [`nhlscraper`](https://github.com/RentoSaijo/nhlscraper) revision. Benchmark contract records originate from [Spotrac NHL Contracts](https://www.spotrac.com/nhl/contracts/), expected goals use the pinned [NHLxG model store](https://huggingface.co/datasets/RentoSaijo/NHLxG), and the external validation uses official NHL Central Scouting reports identified in `validation/external_validation_source_catalog.csv`. Raw download caches and private scouting prose are excluded from the repository; all 40 frozen scouting ratings remain separate from derived CSAx summaries.
 

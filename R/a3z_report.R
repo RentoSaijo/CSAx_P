@@ -188,7 +188,7 @@ Centers belong to the main forward model. In a separate exploratory comparison, 
 
 ## Data, coverage, and opportunity
 
-We use the freely downloadable [A3Z transition workbook](https://public.tableau.com/app/profile/corey.sznajder/viz/transitionstats/Sheet1), linked from the [official A3Z website](https://www.allthreezones.com/links.html). The extract collected on <<collected_on>> includes game-level microstats for all four behavior seasons. We retain regular-season observations from 2021–22 through 2024–25 and preserve the existing next-season outcome definitions through 2025–26.
+We use the freely downloadable [A3Z transition workbook](https://public.tableau.com/app/profile/corey.sznajder/viz/transitionstats/Sheet1), linked from the [official A3Z website](https://www.allthreezones.com/links.html). The extract collected on <<collected_on>> includes game-level microstats for all four behavior seasons. We retain regular-season observations from 2021–22 through 2024–25 and preserve the existing next-season outcome definitions through 2025–26. The [A3Z data dictionary](a3z_data_dictionary.md) inventories all 95 source fields, including their coverage, current use, and interpretation limits.
 
 <<markdown_table(source_games)>>
 
@@ -318,7 +318,9 @@ For an engagement-focused CSAx, we need to establish repeatable signal in the in
 
 A defensible next step is to present CSAx as size-associated physical style alongside the observed retrieval and exit measures. A separate execution measure becomes worthwhile if successful play under pressure is central to the research question. We can then evaluate its validity directly, without relying on size prediction to establish whether a play is successful.
 
-We defer additional feature searches, another full-pipeline bootstrap campaign, and A3Z-based contract, playoff, career-stage, and team-outcome analyses until the construct and specification are settled. The full-season play-by-play analysis remains a labeled benchmark in the analysis object and accompanying exports; its stored bootstrap intervals belong to that specification.
+The [A3Z feature roadmap](a3z_data_dictionary.md#feature-opportunities) considers defensive workload and execution, dangerous-area passing and shot creation, entry defense beyond denials, and the origins of rush offense. These are research candidates. Some fields have shorter coverage or unresolved attribution, and successful execution can receive a negative size-prediction weight.
+
+We defer model expansion, another full-pipeline bootstrap campaign, and A3Z-based contract, playoff, career-stage, and team-outcome analyses until the construct and specification are settled. The full-season play-by-play analysis remains a labeled benchmark in the analysis object and accompanying exports; its stored bootstrap intervals belong to that specification.
 
 ## Reproduction and source attribution
 
