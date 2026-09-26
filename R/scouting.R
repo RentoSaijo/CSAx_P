@@ -79,8 +79,9 @@ analyze_physicality_scouting <- function(predictions, ratings) {
         fit <- fit_analysis_workflow(data, 'meanCSAx', indicator)
         clustered_term(fit, data, term = indicator)
       } else tibble::tibble(term = indicator, estimate = NA_real_, stdError = NA_real_, confLow = NA_real_, confHigh = NA_real_, pValue = NA_real_)
+      contrast_status <- if (available) 'Available' else if (n == 0L) 'No eligible coded players' else if (positive == 0L || positive == n) 'No code variation' else 'Fewer than two players in at least one code group'
       result |>
-        dplyr::mutate(model = population, referencePopulation = population, indicator = indicator, n = n, positiveReports = positive, absentReports = n - positive, spearman = if (n > 1L && positive > 0L && positive < n && stats::sd(data$meanCSAx) > 0) stats::cor(data$meanCSAx, data[[indicator]], method = 'spearman') else NA_real_, contrastStatus = if (available) 'Available' else 'Insufficient observations or code variation', cohortStatus = ratings$status, intervalMethod = 'Player-clustered HC1; conditional on estimated scores and observed scouting cohort', .before = 1L)
+        dplyr::mutate(model = population, referencePopulation = population, indicator = indicator, n = n, positiveReports = positive, absentReports = n - positive, spearman = if (n > 1L && positive > 0L && positive < n && stats::sd(data$meanCSAx) > 0) stats::cor(data$meanCSAx, data[[indicator]], method = 'spearman') else NA_real_, contrastStatus = contrast_status, cohortStatus = ratings$status, intervalMethod = 'Player-clustered HC1; conditional on estimated scores and observed scouting cohort', .before = 1L)
     })
   })
   ratings$data <- NULL

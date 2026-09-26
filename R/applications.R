@@ -315,43 +315,33 @@ compare_a3z_centers <- function(fit) {
     dplyr::mutate(withinTrainingRanges = supported, supported = supported & !base::nzchar(sparseDenominators_Wings) & !base::nzchar(sparseDenominators_Defensemen))
 }
 
-# Evaluate continuation and frozen scouting ratings without full-pipeline bootstrap.
+# Evaluate positional physicality, scouting, and continuation from primary fits.
 analyze_a3z_models <- function(fits, inputs, benchmark_inputs) {
-  predictions <- purrr::imap_dfr(fits, function(fit, label) fit$predictions |> dplyr::mutate(specification = label, eventScope = a3z_scope, .before = 1L))
-  performance <- purrr::imap_dfr(fits, function(fit, label) fit$performance |> dplyr::mutate(specification = label, eventScope = a3z_scope, scoreCaution = dplyr::case_when(residualSd < 0.02 ~ 'Near-degenerate residual scale', base::abs(residualSizeCorrelation) > 0.10 ~ 'Remaining size gradient', predictiveRSquared <= 0 ~ 'No improvement over mean-size prediction', TRUE ~ ''), .before = 1L))
-  centers <- purrr::imap_dfr(fits[base::c('A3Z integrated', 'Matched play-by-play', 'Direct only', 'Indirect only')], function(fit, label) compare_a3z_centers(fit) |> dplyr::mutate(specification = label, .before = 1L))
-  center_agreement <- centers |> dplyr::group_by(specification) |> dplyr::group_modify(function(data, key) center_statistics(data)) |> dplyr::ungroup() |>
-    dplyr::mutate(sample = dplyr::recode(sample, 'Within observed ranges' = 'Within ranges; at least 20 share opportunities'), intervalMethod = 'Descriptive pilot; no full-pipeline interval')
+  primary <- fits[[a3z_specification]]
+  if (base::is.null(primary) || !base::identical(primary$version, a3z_version) || !base::identical(primary$inputSha256, digest::digest(inputs$features, algo = 'sha256'))) base::stop('Refit current physicality specification before analyzing results.', call. = FALSE)
+  predictions <- primary$predictions |> dplyr::mutate(specification = a3z_specification, eventScope = a3z_scope, .before = 1L)
+  performance <- primary$performance |>
+    dplyr::mutate(specification = a3z_specification, eventScope = a3z_scope, scoreCaution = dplyr::case_when(residualSd < 0.02 ~ 'Near-degenerate residual scale', predictiveRSquared <= 0 ~ 'No improvement over mean-size prediction', base::abs(residualSizeCorrelation) > 0.10 ~ 'Remaining size gradient', TRUE ~ ''), .before = 1L)
+  centers <- compare_a3z_centers(primary) |> dplyr::mutate(specification = a3z_specification, .before = 1L)
+  center_agreement <- center_statistics(centers) |>
+    dplyr::mutate(specification = a3z_specification, sample = dplyr::recode(sample, 'Within observed ranges' = 'Within ranges; at least 20 share opportunities'), intervalMethod = 'Descriptive; no full-pipeline interval')
+  center_components <- centers |>
+    dplyr::group_by(seasonId) |>
+    dplyr::summarise(n = dplyr::n(), directSpearman = stats::cor(directContribution_Wings, directContribution_Defensemen, method = 'spearman'), indirectSpearman = stats::cor(indirectContribution_Wings, indirectContribution_Defensemen, method = 'spearman'), .groups = 'drop')
   outcomes <- prepare_outcomes(benchmark_inputs)
-  panels <- purrr::imap(fits, function(fit, label) application_panel(fit$predictions, outcomes) |> dplyr::mutate(specification = label))
-  continuation <- purrr::imap_dfr(panels[base::c('A3Z integrated', 'Matched play-by-play')], function(panel, label) panel |>
-    dplyr::group_by(model, referencePopulation) |>
-    dplyr::group_modify(function(data, key) {
-      fit <- fit_analysis_workflow(data, 'continued300', primary_predictors, model_type = 'logistic')
-      summarize_analysis_result(fit, data, 'Pilot', 'Next-season continuation', scale = 'odds ratio')
-    }) |> dplyr::ungroup() |> dplyr::mutate(specification = .env$label, eventScope = a3z_scope, intervalMethod = 'Player-clustered HC1; conditional on estimated scores and tracked sample'))
-  codes <- benchmark_inputs$scoutingCodes
-  scouting <- purrr::imap(fits[base::c('A3Z integrated', 'Matched play-by-play')], function(fit, label) {
-    means <- fit$predictions |> dplyr::filter(model == 'Forwards', !isCenterComparison) |> dplyr::group_by(playerId) |> dplyr::summarise(meanCSAx = base::mean(CSAx), observedSeasons = dplyr::n(), .groups = 'drop')
-    rated <- codes |> dplyr::select(-dplyr::any_of('meanCSAx')) |> dplyr::left_join(means, by = 'playerId')
-    observed <- rated |> dplyr::filter(!base::is.na(meanCSAx))
-    indicators <- base::c('overallPhysicality', 'playsBiggerExplicit', 'activePhysicalEngagement', 'interiorPlay')
-    estimates <- purrr::map_dfr(indicators, function(indicator) {
-      fit <- fit_analysis_workflow(observed, 'meanCSAx', indicator)
-      clustered_term(fit, observed, term = indicator) |> dplyr::mutate(indicator = indicator, n = base::nrow(observed), spearman = stats::cor(observed$meanCSAx, observed[[indicator]], method = 'spearman'), intervalMethod = 'Player-clustered HC1; conditional on estimated scores and tracked sample')
-    })
-    base::list(scores = rated |> dplyr::select(studyId, playerId, meanCSAx, observedSeasons), estimates = estimates, n = base::nrow(observed), unmatched = rated |> dplyr::filter(base::is.na(meanCSAx)) |> dplyr::select(studyId, playerId))
+  panel <- application_panel(predictions, outcomes)
+  continuation_parts <- purrr::imap(base::split(panel, panel$model), function(data, population) {
+    fit <- fit_analysis_workflow(data, 'continued300', primary_predictors, model_type = 'logistic')
+    probabilities <- estimate_average_probabilities(fit, data, base::c(-1, 0, 1))
+    label <- function(result) result |>
+      dplyr::mutate(specification = a3z_specification, model = population, referencePopulation = population, eventScope = a3z_scope, intervalMethod = 'Player-clustered HC1; conditional on estimated scores and tracked sample', .before = 1L)
+    base::list(estimates = label(summarize_analysis_result(fit, data, 'Primary application', 'Next-season continuation', scale = 'odds ratio')), probabilities = label(probabilities$curve), contrast = label(probabilities$contrast))
   })
+  scouting <- analyze_physicality_scouting(predictions, read_physicality_scouting())
   native <- predictions |> dplyr::filter(!isCenterComparison)
   stability <- native |> dplyr::select(specification, model, playerId, seasonId, currentCSAx = CSAx) |> dplyr::mutate(nextSeasonId = next_season_id(seasonId)) |>
     dplyr::inner_join(native |> dplyr::select(specification, model, playerId, nextSeasonId = seasonId, nextCSAx = CSAx), by = base::c('specification', 'model', 'playerId', 'nextSeasonId')) |>
-    dplyr::group_by(specification, model, seasonId, nextSeasonId) |> dplyr::summarise(n = dplyr::n(), correlation = stats::cor(currentCSAx, nextCSAx), spearman = stats::cor(currentCSAx, nextCSAx, method = 'spearman'), .groups = 'drop')
-  rank_changes <- native |> dplyr::filter(specification %in% base::c('A3Z integrated', 'Matched play-by-play')) |>
-    dplyr::select(playerId, seasonId, model, playerFullName, timeOnIce, trackedMinutes, trackedGames, specification, CSAx, referencePercentile) |>
-    tidyr::pivot_wider(names_from = specification, values_from = base::c('CSAx', 'referencePercentile'), names_glue = '{.value}_{specification}') |>
-    dplyr::mutate(percentileChange = .data[['referencePercentile_A3Z integrated']] - .data[['referencePercentile_Matched play-by-play']])
-  agreement <- native |> dplyr::select(specification, model, playerId, seasonId, CSAx) |>
-    dplyr::left_join(native |> dplyr::filter(specification == 'A3Z integrated') |> dplyr::select(model, playerId, seasonId, primaryCSAx = CSAx), by = base::c('model', 'playerId', 'seasonId')) |>
-    dplyr::group_by(specification, model, seasonId) |> dplyr::summarise(n = dplyr::n(), pearson = stats::cor(CSAx, primaryCSAx), spearman = stats::cor(CSAx, primaryCSAx, method = 'spearman'), .groups = 'drop')
-  base::list(predictions = predictions, performance = performance, centers = centers, centerAgreement = center_agreement, continuation = continuation, scouting = scouting, stability = stability, rankChanges = rank_changes, specificationAgreement = agreement, primaryPoints = purrr::imap_dfr(panels[base::c('A3Z integrated', 'Matched play-by-play')], function(panel, label) primary_statistics(panel) |> dplyr::mutate(specification = label)))
+    dplyr::group_by(specification, model, seasonId, nextSeasonId) |>
+    dplyr::summarise(n = dplyr::n(), correlation = stats::cor(currentCSAx, nextCSAx), spearman = stats::cor(currentCSAx, nextCSAx, method = 'spearman'), .groups = 'drop')
+  base::list(predictions = predictions, performance = performance, centers = centers, centerAgreement = center_agreement, centerContributions = center_components, continuation = purrr::map_dfr(continuation_parts, 'estimates'), continuationProbabilities = purrr::map_dfr(continuation_parts, 'probabilities'), continuationContrasts = purrr::map_dfr(continuation_parts, 'contrast'), scouting = scouting, stability = stability)
 }
