@@ -20,6 +20,11 @@ read_physicality_scouting <- function() {
     lock <- readr::read_csv('validation/scouting_expansion_lock.csv', show_col_types = FALSE)
     code_path <- 'validation/scouting_expansion_data.csv'
     if (base::nrow(lock) != 1L || !base::file.exists(code_path) || !base::identical(digest::digest(file = code_path, algo = 'sha256'), lock$codesSha256)) base::stop('Expanded scouting codes differ from locked data.', call. = FALSE)
+    private_paths <- base::c(packetSha256 = 'validation_private/scouting_expansion_packet.csv', sourceSha256 = base::file.path('validation_private', lock$sourceFile))
+    for (field in base::names(private_paths)) {
+      path <- private_paths[[field]]
+      if (base::file.exists(path) && !base::identical(digest::digest(file = path, algo = 'sha256'), lock[[field]])) base::stop('A locked expanded-scouting source changed.', call. = FALSE)
+    }
     expanded <- readr::read_csv(code_path, show_col_types = FALSE) |>
       dplyr::select(dplyr::all_of(base::c(columns, 'reportDate'))) |>
       dplyr::mutate(ratingBatch = 'Expanded positional ratings')
@@ -34,17 +39,27 @@ read_physicality_scouting <- function() {
 lock_scouting_expansion <- function() {
   if (base::file.exists('validation/scouting_expansion_lock.csv')) base::stop('Expanded scouting ratings are already locked.', call. = FALSE)
   packet_path <- 'validation_private/scouting_expansion_packet.csv'
+  source_path <- 'validation_private/scouting_expansion_packet.numbers'
   key_path <- 'validation_private/scouting_expansion_key.csv'
   manifest <- readr::read_csv('validation/scouting_expansion_manifest.csv', show_col_types = FALSE)
+  planned <- manifest |> dplyr::filter(artifact == 'Blinded packet')
+  blinded_path <- base::file.path('validation_private', planned$file)
+  if (!base::identical(digest::digest(file = blinded_path, algo = 'sha256'), planned$sha256)) base::stop('Original blinded expansion packet changed.', call. = FALSE)
   key_hash <- manifest$sha256[manifest$artifact == 'Identity key']
   if (!base::identical(digest::digest(file = key_path, algo = 'sha256'), key_hash)) base::stop('Expanded scouting identity key changed.', call. = FALSE)
   ratings <- readr::read_csv(packet_path, col_types = readr::cols(studyId = readr::col_character(), reportText = readr::col_character(), activePhysicalEngagement = readr::col_integer(), notes = readr::col_character()))
   expected <- base::c('studyId', 'reportText', 'activePhysicalEngagement', 'notes')
   if (!base::identical(base::names(ratings), expected)) base::stop('Expanded scouting packet columns changed.', call. = FALSE)
-  key <- readr::read_csv(key_path, show_col_types = FALSE)
+  blinded <- readr::read_csv(blinded_path, show_col_types = FALSE)
   assert_unique(ratings, 'studyId', 'Expanded scouting packet')
-  if (!base::identical(base::sort(ratings$studyId), base::sort(key$studyId)) || base::anyNA(ratings$reportText)) base::stop('Expanded scouting packet does not cover every planned passage.', call. = FALSE)
+  if (base::nrow(ratings) != planned$rows || !base::identical(ratings$studyId, blinded$studyId) || !base::identical(ratings$reportText, blinded$reportText)) base::stop('Expanded scouting packet differs from planned passages or their order.', call. = FALSE)
   if (base::anyNA(ratings$activePhysicalEngagement) || !base::all(ratings$activePhysicalEngagement %in% base::c(0L, 1L))) base::stop('Complete activePhysicalEngagement with 0 or 1 for every passage before locking ratings.', call. = FALSE)
+  # Freeze human ratings and source provenance before joining identities.
+  lock <- tibble::tibble(rows = base::nrow(ratings), raters = 1L, sourceFile = base::basename(source_path), sourceSha256 = digest::digest(file = source_path, algo = 'sha256'), packetSha256 = digest::digest(file = packet_path, algo = 'sha256'), blindedPacketSha256 = planned$sha256, keySha256 = key_hash, codesSha256 = NA_character_, lockedAt = base::format(base::Sys.time(), tz = 'UTC', usetz = TRUE))
+  readr::write_csv(lock, 'validation/scouting_expansion_lock.csv')
+  key <- readr::read_csv(key_path, show_col_types = FALSE)
+  assert_unique(key, 'studyId', 'Expanded scouting identity key')
+  if (!base::identical(base::sort(ratings$studyId), base::sort(key$studyId))) base::stop('Expanded scouting identities do not cover locked ratings.', call. = FALSE)
   checked <- ratings |>
     dplyr::mutate(observedTextSha256 = base::vapply(reportText, digest::digest, base::character(1L), algo = 'sha256', serialize = FALSE)) |>
     dplyr::inner_join(key, by = 'studyId')
@@ -54,7 +69,7 @@ lock_scouting_expansion <- function() {
     dplyr::arrange(studyId)
   code_path <- 'validation/scouting_expansion_data.csv'
   readr::write_csv(codes, code_path)
-  lock <- tibble::tibble(rows = base::nrow(codes), raters = 1L, packetSha256 = digest::digest(file = packet_path, algo = 'sha256'), keySha256 = key_hash, codesSha256 = digest::digest(file = code_path, algo = 'sha256'), lockedAt = base::format(base::Sys.time(), tz = 'UTC', usetz = TRUE))
+  lock$codesSha256 <- digest::digest(file = code_path, algo = 'sha256')
   readr::write_csv(lock, 'validation/scouting_expansion_lock.csv')
   base::message('Locked ', base::nrow(codes), ' expanded scouting ratings.')
   base::invisible(codes)
