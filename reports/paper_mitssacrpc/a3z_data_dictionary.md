@@ -13,7 +13,7 @@ Corey Sznajder / All Three Zones supplies the [transition workbook](https://publ
 | Tableau workbook | `0ed9c09819854e6f4b281730ba2d0b3e2dcc629a48ce6fc6fbf9bc35331907fd` |
 | Full CSV extract | `18e4d4d49ec3c94e47efda22ee6834a527a21c5c936deb82e9ac244df051d23e` |
 
-The extract contains 67,137 rows. We describe field availability in the 61,098 source skater rows labeled 2021–22 through 2024–25, before NHL identity reconciliation, exposure checks, and player eligibility. Source goalie rows remain outside this coverage calculation. The extract also contains 3,285 rows labeled 2024–25p, 38 rows from one game labeled 2025–26, and one row without a season label. Those records do not extend the four-season pilot population.
+The extract contains 67,137 rows. We describe field availability in the 61,098 source skater rows labeled 2021–22 through 2024–25, before NHL identity reconciliation, exposure checks, and player eligibility. Source goalie rows remain outside this coverage calculation. The extract also contains 3,285 rows labeled 2024–25p, 38 rows from one game labeled 2025–26, and one row without a season label. Those records do not extend the four-season study population.
 
 The coverage labels below count populated cells, including recorded zeros. They do not establish complete game tracking, correct event coding, or an opportunity to perform the behavior.
 
@@ -23,19 +23,19 @@ The coverage labels below count populated cells, including recorded zeros. They 
 | Zone context | 0 / 17,885 | 2,268 / 15,292 | 14,071 / 14,071 | 13,850 / 13,850 |
 | Rush context | 0 / 17,885 | 0 / 15,292 | 14,071 / 14,071 | 13,850 / 13,850 |
 
-The source sweater-number field has three missing values in 2021–22 and one in 2024–25. All other identification fields are populated in the study skater rows. Six rows contain negative defensive retrieval counts; two of those also contain negative defensive puck-touch counts. These six rows are excluded from the pilot. A populated count therefore still requires source checks.
+The source sweater-number field has three missing values in 2021–22 and one in 2024–25. All other identification fields are populated in the study skater rows. Six rows contain negative defensive retrieval counts; two of those also contain negative defensive puck-touch counts. These six rows are excluded from the analysis. A populated count therefore still requires source checks.
 
 ## Reading the inventory
 
 **Basis** distinguishes the evidence behind each description. **Documented** refers to a tracking concept described in the [A3Z glossary](https://www.allthreezones.com/player-cardsfaq.html) or [retrieval methodology](https://allthreezones.substack.com/p/catch-and-retrieve). **Observed** identifies a relationship verified in the extract. **Label** gives the ordinary interpretation of the source name without claiming a complete tracking protocol. **Unresolved** identifies ambiguity that affects interpretation or feature construction. The public descriptions do not provide a field-by-field schema for every exported column.
 
-**Pilot use** identifies the existing specification. **F/W** means the forward and wing models; **D** means the defensive model, including its exploratory application to centers. **Retained** means the counter is available for explanation in the compact analysis object but is not a model predictor. **Unused** means it remains available in the full raw extract. The pilot retains 27 behavior counters and the source ice-time field, alongside source identity and mapping records.
+**Model use** identifies the positional physicality specification. **F/W** means the forward and wing models; **D** means the defensive model, including its exploratory application to centers. **Retained** means the counter is available for explanation in the compact analysis object but is not a model predictor. **Unused** means it remains available in the full raw extract. The analysis retains 27 behavior counters and the source ice-time field, alongside source identity and mapping records.
 
-Unless a special-teams state is explicit, the pilot treats its selected offense and transition counters as five-on-five observations. Its count rates use matched NHL shift-derived five-on-five minutes; source ice time is retained for comparison. Special-teams counters require their own exposure and tracking-scope checks. A **count** below means recorded occurrences per player-game, not a percentage or rate. Provider counters can overlap, and a zero count cannot establish that a player had an opportunity.
+Unless a special-teams state is explicit, the analysis treats its selected offense and transition counters as five-on-five observations. Its count rates use matched NHL shift-derived five-on-five minutes; source ice time is retained for comparison. Special-teams counters require their own exposure and tracking-scope checks. A **count** below means recorded occurrences per player-game, not a percentage or rate. Provider counters can overlap, and a zero count cannot establish that a player had an opportunity.
 
 ### Identification and exposure
 
-| Source field | Meaning and interpretation | Basis | Unit | Coverage | Pilot use |
+| Source field | Meaning and interpretation | Basis | Unit | Coverage | Model use |
 | --- | --- | --- | --- | --- | --- |
 | `#` | Source sweater number; roster matching resolves missing or inconsistent values. It is not a player identifier. | Label | Number label | All except 4 missing | Player matching |
 | `Player` | Source player name; names require roster reconciliation and can be shared by different players. | Label | Text | All | Player matching |
@@ -47,7 +47,7 @@ Unless a special-teams state is explicit, the pilot treats its selected offense 
 
 ### Shooting and shot assists
 
-| Source field | Meaning and interpretation | Basis | Unit | Coverage | Pilot use |
+| Source field | Meaning and interpretation | Basis | Unit | Coverage | Model use |
 | --- | --- | --- | --- | --- | --- |
 | `Shots` | Recorded shot counter; correspondence with NHL shot-attempt categories requires checking. | Label | Count | All | Retained |
 | `Shots On Goal` | Recorded shots reaching the goal; source event exclusions require confirmation. | Label | Count | All | Unused |
@@ -60,7 +60,7 @@ Unless a special-teams state is explicit, the pilot treats its selected offense 
 
 ### Passing locations and types
 
-| Source field | Meaning and interpretation | Basis | Unit | Coverage | Pilot use |
+| Source field | Meaning and interpretation | Basis | Unit | Coverage | Model use |
 | --- | --- | --- | --- | --- | --- |
 | `Home Plate` | Passing-related home-plate counter; exact geometry and overlap with other passing categories remain unconfirmed. | Unresolved | Count | All | Retained |
 | `Low-to-High` | Shot assists setting up shots from the point. | Documented | Count | All | Unused |
@@ -71,19 +71,19 @@ Unless a special-teams state is explicit, the pilot treats its selected offense 
 
 ### Offensive sequence context
 
-| Source field | Meaning and interpretation | Basis | Unit | Coverage | Pilot use |
+| Source field | Meaning and interpretation | Basis | Unit | Coverage | Model use |
 | --- | --- | --- | --- | --- | --- |
 | `Shots off Rush` | Shots immediately following controlled entries. | Documented | Count | All | Unused |
 | `Assists off Rush` | Shot-assist contributions during rush sequences; included assist orders require confirmation. | Label | Count | All | Unused |
 | `Shots off Forecheck or Cycle` | Forecheck/cycle shot-context counter; confirm overlap with the separate cycle field before adding them. | Unresolved | Count | All | Retained |
-| `Assists off Forecheck` | Shot assists attributed to forechecking sequences; attribution does not itself confirm contact or pressure on the passer. | Label | Count | All | F/W rate, summed with cycle assists |
+| `Assists off Forecheck` | Shot assists attributed to forechecking sequences; attribution does not itself confirm contact or pressure on the passer. | Label | Count | All | Retained |
 | `Shots off Cycle` | Shots attributed to cycle sequences; overlap with the combined-label field needs confirmation. | Label | Count | All | Unused |
-| `Assists off Cycle` | Shot assists attributed to cycle sequences; an offensive context measure. | Label | Count | All | F/W rate, summed with forecheck assists |
+| `Assists off Cycle` | Shot assists attributed to cycle sequences; an offensive context measure. | Label | Count | All | Retained |
 | `Shots off HD Passes` | Shots following passes classified as high danger; the precise relationship to exported passing categories needs confirmation. | Label | Count | All | Unused |
 
 ### Zone entries and forechecking
 
-| Source field | Meaning and interpretation | Basis | Unit | Coverage | Pilot use |
+| Source field | Meaning and interpretation | Basis | Unit | Coverage | Model use |
 | --- | --- | --- | --- | --- | --- |
 | `Zone Entries` | Entry-volume counter; confirm treatment of failed entries before constructing attempt shares. | Label | Count | All | Unused |
 | `Carries` | Carry-in counter; confirm how controlled pass-ins are credited before interpreting it as all controlled entries. | Label | Count | All | Unused |
@@ -96,17 +96,17 @@ Unless a special-teams state is explicit, the pilot treats its selected offense 
 
 ### Defensive retrievals and exits
 
-| Source field | Meaning and interpretation | Basis | Unit | Coverage | Pilot use |
+| Source field | Meaning and interpretation | Basis | Unit | Coverage | Model use |
 | --- | --- | --- | --- | --- | --- |
 | `DZ Puck Touches` | Defensive-zone touches made while attempting a breakout or exit. | Documented | Count | All | Retained |
-| `DZ Retrievals` | Clean recoveries moved to a teammate or out of the zone. | Documented | Count | All | Retained |
-| `Zone Exits` | Successful exits; equals possession exits plus clears in every inspected row. | Documented; observed | Count | All | D possession-exit share denominator |
-| `Exits w/ Possession` | Controlled exits leading to an entry attempt or line change. | Documented | Count | All | D possession-exit share numerator |
+| `DZ Retrievals` | Clean recoveries moved to a teammate or out of the zone. | Documented | Count | All | D rate |
+| `Zone Exits` | Successful exits; equals possession exits plus clears in every inspected row. | Documented; observed | Count | All | Retained |
+| `Exits w/ Possession` | Controlled exits leading to an entry attempt or line change. | Documented | Count | All | Retained |
 | `Carried Exits` | Exits credited as carries; the carried and passed counters do not exhaust recorded possession exits. | Label; observed | Count | All | Retained |
 | `Passed Exits` | Exits credited as passes; the carried and passed counters do not exhaust recorded possession exits. | Label; observed | Count | All | Retained |
 | `Clears` | Recorded clear counter; the observed exit identity places these within successful exits. | Observed | Count | All | Retained |
 | `Missed Passes` | Unsuccessful passing exits recorded separately from failed exits. | Documented | Count | All | Retained |
-| `Retrievals Leading to Exits` | Retrievals credited with starting a subsequently successful exit. | Documented | Count | All | D rate |
+| `Retrievals Leading to Exits` | Retrievals credited with starting a subsequently successful exit. | Documented | Count | All | Retained |
 | `Botched Retrievals` | Retrieval-related errors; attribution can involve the receiver as well as the retriever. | Documented | Count | All | D rate |
 | `Exchanges` | Puck exchanges within exit sequences; direction, outcome, and credit rules need confirmation. | Label | Count | All | Unused |
 | `Failed Exit` | Failed clears or turnovers meeting the provider’s exit-failure rules. | Documented | Count | All | Retained |
@@ -115,9 +115,9 @@ Unless a special-teams state is explicit, the pilot treats its selected offense 
 
 ### Entry defense
 
-| Source field | Meaning and interpretation | Basis | Unit | Coverage | Pilot use |
+| Source field | Meaning and interpretation | Basis | Unit | Coverage | Model use |
 | --- | --- | --- | --- | --- | --- |
-| `Targets` | Recorded entry targets; supplies the pilot entry-denial denominator. Targeting volume depends strongly on position and role. | Label | Count | All | D entry-denial share denominator |
+| `Targets` | Recorded entry targets; supplies the analysis entry-denial denominator. Targeting volume depends strongly on position and role. | Label | Count | All | D entry-denial share denominator |
 | `Carries 1` | Carry counter in the entry-defense block; exact mapping to controlled entries allowed requires confirmation. | Unresolved | Count | All | Unused |
 | `Denials` | Entry attempts stopped, corresponding to failed attacking entries. | Documented | Count | All | D entry-denial share numerator |
 | `Passes Allowed` | Passing plays allowed in entry-defense contexts; qualifying passes and attribution need confirmation. | Label | Count | All | Unused |
@@ -126,7 +126,7 @@ Unless a special-teams state is explicit, the pilot treats its selected offense 
 
 ### Special-teams transition
 
-| Source field | Meaning and interpretation | Basis | Unit | Coverage | Pilot use |
+| Source field | Meaning and interpretation | Basis | Unit | Coverage | Model use |
 | --- | --- | --- | --- | --- | --- |
 | `5v4 Entries` | Entries recorded at five-on-four; denominator treatment of failed entries needs confirmation. | Label | Count | All | Unused |
 | `5v4 Carries` | Carry-ins recorded at five-on-four; verify pass-in credit and the corresponding opportunity set. | Label | Count | All | Unused |
@@ -136,7 +136,7 @@ Unless a special-teams state is explicit, the pilot treats its selected offense 
 
 ### Special-teams offense
 
-| Source field | Meaning and interpretation | Basis | Unit | Coverage | Pilot use |
+| Source field | Meaning and interpretation | Basis | Unit | Coverage | Model use |
 | --- | --- | --- | --- | --- | --- |
 | `5v4 Shots` | Shots recorded at five-on-four; requires matching five-on-four exposure for rates. | Label | Count | All | Unused |
 | `5v4 Passes` | Passing contribution counter at five-on-four; do not assume it includes all passes. | Label | Count | All | Unused |
@@ -149,7 +149,7 @@ Unless a special-teams state is explicit, the pilot treats its selected offense 
 
 ### Shot types and associated assists
 
-| Source field | Meaning and interpretation | Basis | Unit | Coverage | Pilot use |
+| Source field | Meaning and interpretation | Basis | Unit | Coverage | Model use |
 | --- | --- | --- | --- | --- | --- |
 | `One-timer` | One-timer shot counter; exact handling and timing criteria are unspecified. | Label | Count | All | Unused |
 | `Rebounds` | Rebound-shot counter; the permitted time window and retained-possession rule need confirmation. | Label | Count | All | Retained |
@@ -162,7 +162,7 @@ Unless a special-teams state is explicit, the pilot treats its selected offense 
 
 These six counters have shorter coverage and limited field-specific documentation. Offensive, neutral, and defensive zone labels identify context, but they do not establish where a particular player makes contact or handles the puck.
 
-| Source field | Meaning and interpretation | Basis | Unit | Coverage | Pilot use |
+| Source field | Meaning and interpretation | Basis | Unit | Coverage | Model use |
 | --- | --- | --- | --- | --- | --- |
 | `OZ` | Offensive-zone context counter; the event being credited and zone-assignment rule need confirmation. | Unresolved | Count | Zone context | Unused |
 | `NZ` | Neutral-zone context counter; the event being credited and zone-assignment rule need confirmation. | Unresolved | Count | Zone context | Unused |
@@ -175,7 +175,7 @@ These six counters have shorter coverage and limited field-specific documentatio
 
 A3Z discusses classifying rush offense by where and how a sequence begins, including retrievals, turnovers, and regrouping. This supports examining the broader context, while the precise mapping of each exported field to credited events still requires confirmation. [A3Z discussion of rush origins](https://allthreezones.substack.com/p/better-late-than-never-playoffs-post).
 
-| Source field | Meaning and interpretation | Basis | Unit | Coverage | Pilot use |
+| Source field | Meaning and interpretation | Basis | Unit | Coverage | Model use |
 | --- | --- | --- | --- | --- | --- |
 | `DZ Retrieval` | Rush-context count labeled defensive-zone retrieval; distinct from the clean-retrieval counter in the exit block. | Unresolved | Count | Rush context | Unused |
 | `DZ Counter` | Defensive-zone counterattack context; qualifying events and player credit need confirmation. | Unresolved | Count | Rush context | Unused |
@@ -188,7 +188,7 @@ A3Z discusses classifying rush offense by where and how a sequence begins, inclu
 
 These eight fields use source-score units. Their decimal and sometimes negative values distinguish them from occurrence counts. A3Z describes weighting microstat components to form a game score; the complete formulas for this snapshot are not supplied in the downloaded workbook. [Microstat game-score description](https://allthreezones.substack.com/p/catch-and-retrieve).
 
-| Source field | Meaning and interpretation | Basis | Unit | Coverage | Pilot use |
+| Source field | Meaning and interpretation | Basis | Unit | Coverage | Model use |
 | --- | --- | --- | --- | --- | --- |
 | `Microstat Game Score` | Provider’s weighted multi-component game score; it combines multiple behaviors. | Documented | Source score | All | Unused |
 | `Offense` | Offensive score component; exact weights require confirmation. | Label | Source score | All | Unused |
@@ -203,7 +203,7 @@ These eight fields use source-score units. Their decimal and sometimes negative 
 
 The field list describes 80 behavioral counters, not 80 independent dimensions. In all 61,098 inspected study skater rows, total shot assists equal the sum of the three assist orders, and successful exits equal possession exits plus clears. However, carried and passed exits sum to possession exits in only 38,899 rows; the remaining 22,199 have larger recorded possession-exit totals. That relationship prevents treating the two narrower counters as an exhaustive partition without clarifying credit rules. We preserve the source totals.
 
-The pilot possession-exit share uses recorded successful exits as its denominator, so it describes the manner of a successful exit. It does not measure the probability of completing an attempted exit. Botched retrievals, missed passes, and failed exits cannot automatically be combined into a common failure denominator. Similarly, dump-in recoveries cannot be divided by a player’s own dump-ins to obtain a recovery success rate: the player who recovers a puck may differ from the player who sends it in.
+A possession-exit share with recorded successful exits as its denominator describes how completed exits occur. It does not measure the probability of completing an attempted exit. The physicality model uses clean-retrieval and botched-retrieval rates, together with entry denials divided by targeted entries. Botched retrievals, missed passes, and failed exits cannot automatically be combined into a common failure denominator. Similarly, dump-in recoveries cannot be divided by a player’s own dump-ins to obtain a recovery success rate: the player who recovers a puck may differ from the player who sends it in.
 
 Some promising behaviors involve a play occurring under pressure, yet the workbook supplies no event-level timestamps, puck trajectories, contact sequence, continuous possession history, or explicit pressure-intensity variable. The public tracking description gives context to exit observations, but player-game aggregates cannot match one recovery to one exit, identify every contested opportunity, or establish the duration of puck protection. The glossary also describes exit disruptions, while this extract has no separate field with that name.
 
@@ -211,11 +211,11 @@ The additional zone fields and rush-context fields require their own observed-ga
 
 ## Feature opportunities
 
-We evaluate new features by the behavior they represent, their opportunity structure, and their repeatability. The following questions concern possible extensions; the current model specification remains the reference for the pilot findings.
+We evaluate new features by the behavior they represent, their opportunity structure, and their repeatability. The following questions concern possible extensions; the current model specification remains the reference for the analysis findings.
 
 | Area | Candidate measures | Research question and qualification |
 | --- | --- | --- |
-| Defensive workload and execution | Successful retrievals and defensive puck touches per 60; missed passes, failed exits, and exchanges as separate rates | How much breakout work does a player undertake, and what happens during those plays? Separate workload from execution. Confirm the exchange definition and attempt structure before constructing success percentages. |
+| Defensive workload and execution | Defensive puck touches, missed passes, failed exits, and exchanges as separate rates | How much breakout work does a player undertake, and what happens during those plays? Separate workload from execution. Confirm the exchange definition and attempt structure before constructing success percentages. |
 | Creating offense in contested space | Behind-net and center-lane assists per 60; forecheck/cycle shooting; rebound and deflection setup contributions | Does a player create offense in areas where space is limited? Location and sequence context do not establish physical pressure. Confirm overlaps and setup credit before summing counters. |
 | Entry defense beyond denials | Passing plays and chances allowed following entries, initially considered separately | What happens after an attacker reaches the line? Establish a common targeted-entry opportunity set before using shares. Defensive systems, partners, and position affect both exposure and outcomes. |
 | Turning defense into offense | Retrieval, counterattack, turnover, and regroup context | Which origins of offense reflect a player’s contribution under resistance? Confirm whether credit belongs to the initiator, passer, or shooter, and restrict comparisons to games with observed fields. |

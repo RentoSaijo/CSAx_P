@@ -1,33 +1,18 @@
-# Playing bigger through contact and puck play
+# Playing tough for your size
 
-Players make their presence felt through contact, puck recovery, and plays that create or protect space. We examine these forms of involvement among forwards and defensemen, bringing A3Z puck-play observations into CSAx alongside direct physical engagement.
+Physical play takes several forms, from delivering contact to competing for possession in crowded areas. We study those behaviors relative to a player’s listed frame, using separate forward and defenseman references.
 
-> **Playing bigger than your size means making your presence felt beyond what your size would suggest, through both direct physical contact and indirect signs of physicality in battles for the puck and space. We quantify this with CSAx by predicting listed height-and-weight size from shared direct and position-specific indirect measures, calibrating that prediction against the player’s listed frame, and standardizing the resulting residual within each season and reference population.**
+> **Playing tough or soft for your size means showing more or less physical presence than your size suggests, through direct contact and indirect signs of physicality in battles for the puck and space. We quantify this with CSAx by predicting listed height-and-weight size from shared direct and position-specific indirect measures, calibrating that prediction against the player’s listed frame, and standardizing the resulting residual within each season and reference population.**
 
-We distinguish involvement in physical contests from effective puck play under pressure. Higher CSAx describes behavior associated with larger players after accounting for the listed frame. Its weights are learned from size prediction, so they do not necessarily reward successful execution.
+Higher and lower CSAx describe a frame-relative measured physical profile. The score does not establish courage, overall ability, or successful play under pressure. Its weights identify behaviors associated with listed size, so an error count can receive a positive coefficient and a useful skill can receive a negative one.
 
-## What the models show
+## Study population and observations
 
-The A3Z-integrated models use **1,485 forward-seasons and 829 defenseman-seasons**. Compared with play-by-play models fitted on identical players and games, pooled predictive R² rises from **7.54% to 9.53% for defensemen** and changes from **8.73% to 8.58% for forwards**. The forward difference offers no predictive gain. Defensive performance varies substantially by season: the 2024–25 model reduces squared prediction error relative to the training-mean baseline by only **0.25%**, with a remaining CSAx–size correlation of **-0.10**.
+We combine NHL events and shift-derived five-on-five exposure with Corey Sznajder’s All Three Zones (A3Z) player-game records. Behavior seasons span 2021–22 through 2024–25, with next-season continuation observed through 2025–26. Eligibility requires 300 full-season NHL minutes and 150 matched tracked minutes. Published rankings require 500 full-season minutes.
 
-The learned weights expose an important conceptual limitation. Defensemen receive a positive median weight for botched retrievals and a negative weight for the possession share of successful exits. These are conditional associations with listed size. They cannot support interpreting higher CSAx as uniformly better puck play under pressure. A3Z expands what we observe, while the size-prediction target continues to determine what the score rewards.
+The analysis contains **1485 forward-seasons** and **829 defenseman-seasons**. Centers remain in the main forward model. All 724 eligible center-seasons also receive the two exploratory reference scores.
 
-Centers belong to the main forward model. In a separate exploratory comparison, **all 724 eligible center-seasons receive both wing-reference and defenseman-reference scores**. Of these, **12** have complete inputs within both training ranges, **51** have at least 20 opportunities for every modeled share under both references, and **1** meets both checks. These diagnostic subsets describe extrapolation and sparse opportunities within the scored sample. The comparison remains descriptive because most centers differ substantially from the defensive reference population.
-
-## Data, coverage, and opportunity
-
-We use the freely downloadable [A3Z transition workbook](https://public.tableau.com/app/profile/corey.sznajder/viz/transitionstats/Sheet1), linked from the [official A3Z website](https://www.allthreezones.com/links.html). The extract collected on September 15, 2026 includes game-level microstats for all four behavior seasons. We retain regular-season observations from 2021–22 through 2024–25 and preserve the existing next-season outcome definitions through 2025–26. The [A3Z data dictionary](a3z_data_dictionary.md) inventories all 95 source fields, including their coverage, current use, and interpretation limits.
-
-| Season | Retained NHL games | Teams | Tracked games per team | Median absolute time difference (seconds) |
-| --- | --- | --- | --- | --- |
-| 2021–22 | 491 | 32 | 20 to 41 | 12.00 |
-| 2022–23 | 414 | 32 | 20 to 32 | 11.00 |
-| 2023–24 | 390 | 32 | 17 to 38 | 11.00 |
-| 2024–25 | 383 | 32 | 16 to 41 | 10.00 |
-
-Eligibility requires 300 full-season NHL minutes and 150 matched five-on-five minutes. Published rankings additionally require 500 full-season minutes. NHL shift-derived time supplies the common denominator for NHL and A3Z count rates. Event numerators cover the same retained player-games; untracked observations are never filled with zero.
-
-| Season | Position | Full-season eligible | Pilot eligible | Retained (%) | Median tracked games | Median tracked minutes |
+| Season | Position | Full-season eligible | Included | Included (%) | Median tracked games | Median tracked minutes |
 | --- | --- | --- | --- | --- | --- | --- |
 | 2021–22 | Defensemen | 241 | 215 | 89.21 | 25 | 417.50 |
 | 2021–22 | Forwards | 451 | 399 | 88.47 | 27 | 317.38 |
@@ -38,18 +23,23 @@ Eligibility requires 300 full-season NHL minutes and 150 matched five-on-five mi
 | 2024–25 | Defensemen | 244 | 207 | 84.84 | 19 | 310.78 |
 | 2024–25 | Forwards | 428 | 353 | 82.48 | 21 | 266.25 |
 
-The tracked sample retains **84.73%** of the full-season eligible panel. Tracking covers every team but follows an uneven selection of games. Included skaters also have substantially greater full-season playing time. The pilot therefore represents a more established group, and its associations need not extend to players with limited NHL exposure.
+| Season | Matched games | Teams | Tracked games per team | Median exposure difference (seconds) |
+| --- | --- | --- | --- | --- |
+| 2021–22 | 491 | 32 | 20 to 41 | 12.00 |
+| 2022–23 | 414 | 32 | 20 to 32 | 11.00 |
+| 2023–24 | 390 | 32 | 17 to 38 | 11.00 |
+| 2024–25 | 383 | 32 | 16 to 41 | 10.00 |
+
+Tracked games cover all 32 teams in each season, with uneven selection and exposure. Listed frame and playing time also differ between included and excluded observations:
 
 | Position | Sample | Player-seasons | Mean height (in) | Mean weight (lb) | Median full-season minutes |
 | --- | --- | --- | --- | --- | --- |
-| Defensemen | Outside tracked-minute sample | 139 | 73.83 | 202.24 | 489.50 |
+| Defensemen | Below tracking eligibility | 139 | 73.83 | 202.24 | 489.50 |
 | Defensemen | Included | 829 | 73.96 | 205.52 | 1384.10 |
-| Forwards | Outside tracked-minute sample | 278 | 73.01 | 199.90 | 460.43 |
+| Forwards | Below tracking eligibility | 278 | 73.01 | 199.90 | 460.43 |
 | Forwards | Included | 1485 | 72.98 | 199.51 | 1156.78 |
 
-We match source labels to NHL schedules and game rosters. Exact names take precedence over sweater numbers; roster names, surnames, and numbers resolve aliases and distinguish players with shared names, including both Sebastian Ahos and both Elias Petterssons. A nearby date is accepted only when a unique candidate within three days has at least 90% roster agreement. Ambiguous games remain excluded. Two December 14, 2024 labels contain opposite teams from the same Chicago–New Jersey game; their distinct player rows share one NHL game identifier. We collapse identical player-game duplicates and exclude conflicting copies. Original labels, match decisions, and row dispositions are retained in the analysis object.
-
-We calculate time from the union of overlapping NHL shift intervals, preventing duplicate records from multiplying exposure. A player-game is excluded when its A3Z and NHL totals differ by more than 120 seconds; a game is excluded when the median absolute difference exceeds 60 seconds. These are source-consistency filters set before model fitting. They do not establish that every manually tracked event is complete or correctly classified.
+Game identities use NHL schedules and rosters. Player matching uses names, teams, and sweater numbers, including distinct players with shared names. Identical duplicate player-game records collapse; conflicting duplicates and unresolved or incompatible records remain excluded. Counts, original labels, exposure differences, and exclusions remain in the analysis object.
 
 | Disposition | Player-game rows |
 | --- | --- |
@@ -60,236 +50,209 @@ We calculate time from the union of overlapping NHL shift intervals, preventing 
 | Unresolved game | 540 |
 | Unresolved player | 1 |
 
-## Direct engagement and positional indirect measures
+The [A3Z data dictionary](a3z_data_dictionary.md) inventories all 95 source fields, their coverage, definitions, and unresolved labels. These records are player-game aggregates without linked possession sequences or event timestamps.
 
-Both positions use hits delivered, hits received, opponent shots blocked, fights, contact penalties taken, and contact penalties drawn per 60 matched five-on-five minutes. Contact penalties follow the existing whitelist: boarding, charging, checking from behind, clipping, elbowing, illegal head checks, kneeing, roughing, slew-footing, cross-checking, high-sticking, holding, holding the stick, hooking, and tripping, including recorded helmet-removal and double-minor variants. We count infractions; fighting has its own variable. Generic interference, slashing, attempted-contact categories, and administrative penalties remain excluded. Event-team attribution agrees with game rosters for the checked contact measures.
+## Direct and indirect physicality
 
-Forwards retain net-front unblocked-attempt share, tip/deflection share, median unblocked-shot distance, and backhand share. Net-front attempts lie between normalized x = 82 and 89 feet with |y| ≤ 8 feet; the denominator is all located unblocked attempts. Tips, deflections, and backhands use typed shots on net. The added A3Z measures are:
+The six direct measures are shared across positions. Forwards and wings use six indirect measures; defensemen use three. Count rates use matched NHL five-on-five minutes, and undefined shares remain missing before training-sample imputation.
 
-| Population | Measure | Calculation |
+| Component | Population | Measure | Source and denominator | Rationale and qualification |
+| --- | --- | --- | --- | --- |
+| Direct | Both | Hits delivered | NHL hits credited to hitter, per 60 | Initiating recorded contact; opportunities depend on possession and deployment. |
+| Direct | Both | Hits received | NHL hits credited to recipient, per 60 | Exposure to contact; receiving a hit does not establish active engagement. |
+| Direct | Both | Opponent shots blocked | NHL opponent attempts credited to blocker, per 60 | Intervention in a shot path; recorded blocks do not uniformly imply body contact. |
+| Direct | Both | Fights | Recorded fighting infractions, per 60 | Confrontation with an opponent; counts are sparse. |
+| Direct | Both | Contact penalties taken | Whitelisted infractions credited to offender, per 60 | Contact-related behavior; disciplinary acts are distinct from effective play. |
+| Direct | Both | Contact penalties drawn | Whitelisted infractions credited to recipient, per 60 | Opponents’ contact-related infractions; puck possession and skill affect exposure. |
+| Indirect | Forwards | Net-front attempt share | Unblocked attempts in 82 ≤ x ≤ 89 and absolute y ≤ 8 feet / located unblocked attempts | Shooting involvement near interior space; location alone does not confirm pressure. |
+| Indirect | Forwards | Tip/deflection share | Tips and deflections / typed shots on goal, including goals | Redirection opportunities often involve traffic; tactical role affects opportunities. |
+| Indirect | Forwards | Median shot distance | Median distance from net for located unblocked attempts, in feet | Proximity of shooting involvement to net; this is a broad positional proxy. |
+| Indirect | Forwards | Backhand share | Backhands / typed shots on goal, including goals | Possible constrained shooting situations; open-ice backhands also contribute. |
+| Indirect | Forwards | Dump-in recoveries | A3Z Recoveries, per 60 | Recovering possession and making a subsequent play during forechecking sequences. |
+| Indirect | Forwards | Forecheck pressures | A3Z Forecheck Pressures, per 60 | Forcing an exiting opponent to act; a hit is not required. |
+| Indirect | Defensemen | Clean defensive-zone retrievals | A3Z DZ Retrievals, per 60 | Recovering possession and making a subsequent play; workload and team systems affect frequency. |
+| Indirect | Defensemen | Botched retrievals | A3Z Botched Retrievals, per 60 | Retrieval-related breakdowns reflect execution and workload; attribution can involve a receiver. |
+| Indirect | Defensemen | Entry denial share | A3Z Denials / Targets | Preventing zone entry; gap control, skating, and tactics also contribute. |
+
+Shot coordinates are normalized to attacking direction. The net-front region extends seven feet in front of the goal line and eight feet to either side of the center line. Located unblocked attempts include goals, saved shots, and misses; shot-type shares use only typed goals and shots on goal.
+
+The contact-penalty whitelist covers boarding, charging, checking from behind, clipping, elbowing, illegal checks to the head, kneeing, roughing, slew-footing, cross-checking, high-sticking, holding, holding the stick, hooking, and tripping, including the corresponding helmet-removal and double-minor variants. We count recorded infractions and keep fighting separate. Generic interference, slashing, attempted contact, and administrative infractions fall outside this definition. [NHL rules](https://media.nhl.com/site/asset/public/ext/2023-24/2023-24Rulebook.pdf).
+
+A3Z retrieval and forechecking measures provide information about recovering possession and responding to pressure. Their counts also reflect deployment, team systems, and opportunities. Clean and botched retrievals do not supply an established common attempt denominator, and a botched event can be attributed to a receiver. Entry denial can result from skating, anticipation, and stick positioning. We therefore treat defensive indirect physicality as a construct requiring external evidence. [A3Z glossary](https://www.allthreezones.com/player-cardsfaq.html), [retrieval methodology](https://allthreezones.substack.com/p/catch-and-retrieve).
+
+## Estimation and predictive performance
+
+We fit one selected specification for each reference population and season. Listed size combines standardized height and weight within the native reference. Five outer folds yield one excluded-sample prediction per player-season; five inner folds select ridge penalties from the fixed 20-value grid. Preprocessing, imputation, predictor transformations, and linear frame calibration use training observations. Calibration uses inner held-out predictions within the outer training sample.
+
+Native excluded-sample residuals provide seasonal score means, standard deviations, and percentile references. Centers receive these reference scales without separate centering or standardization. Feature weights and additive contributions come from the same fitted models; component-only and alternative-specification fits are outside the active workflow.
+
+| Reference | Player-seasons | RMSE | Predictive R² (%) |
+| --- | --- | --- | --- |
+| Defensemen | 829 | 0.95 | 9.68 |
+| Forwards | 1485 | 0.96 | 8.69 |
+| Wings | 761 | 0.93 | 13.55 |
+
+Predictive R² compares held-out squared error with an outer-training mean-size prediction. A value below zero means the model performs worse than that baseline. Across seasons, forward and defenseman models explain **8.69%** and **9.68%** of held-out variation by this measure. These are checks on the expected-size model, not independent proof of toughness.
+
+| Season | Reference | Predictive R² (%) | CSAx–size correlation |
+| --- | --- | --- | --- |
+| 2021–22 | Forwards | 12.08 | 0.02 |
+| 2021–22 | Wings | 15.77 | 0.04 |
+| 2021–22 | Defensemen | 15.84 | 0.01 |
+| 2022–23 | Forwards | 8.79 | 0.00 |
+| 2022–23 | Wings | 15.40 | 0.04 |
+| 2022–23 | Defensemen | 8.94 | -0.02 |
+| 2023–24 | Forwards | 6.57 | -0.01 |
+| 2023–24 | Wings | 8.33 | 0.00 |
+| 2023–24 | Defensemen | 14.17 | 0.06 |
+| 2024–25 | Forwards | 6.89 | -0.01 |
+| 2024–25 | Wings | 14.49 | 0.03 |
+| 2024–25 | Defensemen | -0.41 | -0.11 |
+
+The 2024–25 defenseman model has predictive R² of **-0.41%**, with CSAx–size correlation **-0.11**. Its weak size prediction and remaining size gradient limit confidence in that season’s defensive ordering.
+
+| Reference | Players per annual comparison | Annual Spearman range |
 | --- | --- | --- |
-| Forwards and wing reference | Dump-in recoveries | Recorded recoveries per 60 |
-| Forwards and wing reference | Forecheck pressures | Recorded pressures per 60 |
-| Forwards and wing reference | Forecheck/cycle shot assists | Recorded forecheck assists plus cycle assists, per 60 |
-| Defensemen | Retrievals leading to exits | Recorded count per 60 |
-| Defensemen | Botched retrievals | Recorded count per 60 |
-| Defensemen | Possession exit share | Exits with possession / recorded successful exits |
-| Defensemen | Entry denial share | Denials / targeted entries |
+| Defensemen | 168 to 175 | 0.47 to 0.56 |
+| Forwards | 294 to 310 | 0.55 to 0.62 |
+| Wings | 148 to 156 | 0.55 to 0.64 |
 
-A3Z credits dump-in recoveries when a subsequent play follows recovery, and its exit tracking focuses on resistance from a forecheck. The possession-exit share describes how successful exits occur; failed exits are outside its denominator. Botched retrievals remain a rate because the failure categories do not provide an interchangeable set of attempt denominators. Forecheck/cycle assists can reflect skill and offensive role without establishing physical contact. [A3Z glossary](https://www.allthreezones.com/player-cardsfaq.html), [retrieval methodology](https://allthreezones.substack.com/p/catch-and-retrieve).
+Annual correlations describe rank persistence among players eligible in consecutive seasons. Persistence can reflect stable role and opportunity as well as behavior; it does not estimate the precision of every individual score.
 
-For defensemen, these four features replace the takeaway-location proxies. The matched play-by-play comparator retains those proxies and uses the same five-on-five observations. All undefined shares remain missing until training-sample imputation. Counts and denominators remain available alongside scores.
-
-| Position | Median successful exits | Median targeted entries | Median retrievals leading to exits | Median dump-in recoveries |
-| --- | --- | --- | --- | --- |
-| Centers | 39.00 | 10.00 | 23.00 | 12.00 |
-| Defensemen | 53.00 | 137.00 | 55.00 | 0.00 |
-| Wings | 39.00 | 8.00 | 21.00 | 13.00 |
-
-## Estimation and held-out performance
-
-We fit separate seasonal ridge models for all forwards, wings, and defensemen. Each system uses five outer folds and five inner tuning folds over the same 20 penalties from 0.0001 to 100. Training samples supply median imputation, zero-variance removal, Yeo–Johnson transformations, and normalization. Within each outer training sample, inner held-out predictions supply the linear frame calibration. Each reference player receives one excluded-sample prediction.
-
-Listed size is the standardized combination of listed height and weight within the native season and reference population. CSAx is the calibrated prediction residual standardized against native held-out residuals. The A3Z and matched play-by-play models share players, games, folds, preprocessing procedures, and listed-size references; their fitted preprocessing parameters and residual scales belong to their respective specifications. Predictive R² compares held-out squared error with prediction by the outer-training mean. The pooled values below combine squared errors across seasons.
-
-| Specification | Reference | Player-seasons | RMSE | Predictive R² (%) |
-| --- | --- | --- | --- | --- |
-| A3Z integrated | Defensemen | 829 | 0.95 | 9.53 |
-| A3Z integrated | Forwards | 1485 | 0.96 | 8.58 |
-| A3Z integrated | Wings | 761 | 0.93 | 14.69 |
-| Matched play-by-play | Defensemen | 829 | 0.96 | 7.54 |
-| Matched play-by-play | Forwards | 1485 | 0.96 | 8.73 |
-| Matched play-by-play | Wings | 761 | 0.93 | 14.15 |
-
-| Season | Reference | A3Z R² (%) | Matched PBP R² (%) | A3Z CSAx–size correlation | PBP CSAx–size correlation |
-| --- | --- | --- | --- | --- | --- |
-| 2021–22 | Forwards | 12.47 | 11.47 | 0.02 | 0.02 |
-| 2021–22 | Wings | 20.00 | 16.05 | 0.05 | 0.05 |
-| 2021–22 | Defensemen | 13.83 | 15.93 | -0.01 | 0.01 |
-| 2022–23 | Forwards | 8.57 | 8.71 | 0.01 | 0.00 |
-| 2022–23 | Wings | 15.28 | 14.81 | 0.04 | 0.06 |
-| 2022–23 | Defensemen | 10.11 | 6.38 | 0.00 | -0.03 |
-| 2023–24 | Forwards | 5.81 | 6.50 | -0.03 | -0.01 |
-| 2023–24 | Wings | 8.67 | 8.92 | 0.01 | 0.01 |
-| 2023–24 | Defensemen | 13.83 | 9.17 | 0.04 | 0.03 |
-| 2024–25 | Forwards | 7.00 | 7.92 | -0.01 | 0.02 |
-| 2024–25 | Wings | 14.27 | 16.75 | 0.03 | 0.05 |
-| 2024–25 | Defensemen | 0.25 | -1.67 | -0.10 | -0.09 |
-
-Direct and indirect reconstructions relearn weights and calibration using their respective feature blocks. The forward A3Z-only reconstruction uses the three microstats without shooting features. These comparisons assess information in each block; they do not establish that the blocks measure the same construct.
-
-| Specification | Reference | Predictive R² (%) | Seasons above mean baseline |
-| --- | --- | --- | --- |
-| A3Z only | Forwards | 1.83 | 2 of 4 |
-| A3Z only | Wings | 5.61 | 3 of 4 |
-| Direct only | Defensemen | 8.41 | 3 of 4 |
-| Direct only | Forwards | 8.99 | 4 of 4 |
-| Direct only | Wings | 14.03 | 4 of 4 |
-| Indirect only | Defensemen | 0.97 | 1 of 4 |
-| Indirect only | Forwards | 1.82 | 3 of 4 |
-| Indirect only | Wings | 5.51 | 3 of 4 |
-
-Annual stability is lower for the A3Z-integrated scores than for the matched play-by-play scores across the forward and defenseman comparisons. The available game samples and changing fitted relationships both contribute potential uncertainty.
-
-| Specification | Reference | Annual Pearson range | Annual Spearman range |
-| --- | --- | --- | --- |
-| A3Z integrated | Defensemen | 0.47 to 0.49 | 0.45 to 0.50 |
-| A3Z integrated | Forwards | 0.59 to 0.61 | 0.56 to 0.61 |
-| A3Z integrated | Wings | 0.57 to 0.66 | 0.55 to 0.62 |
-| Matched play-by-play | Defensemen | 0.53 to 0.59 | 0.56 to 0.61 |
-| Matched play-by-play | Forwards | 0.63 to 0.65 | 0.60 to 0.65 |
-| Matched play-by-play | Wings | 0.57 to 0.70 | 0.58 to 0.68 |
-
-## What influences CSAx
-
-Hits delivered retain the largest median standardized weight in both main positional models. Dump-in recoveries receive a positive forward weight, whereas forecheck pressure and forecheck/cycle shot assists have small negative medians. Among defensemen, retrievals leading to exits and entry denials contribute alongside botched retrievals and possession-exit share.
+## Learned weights and player profiles
 
 | Component | Measure | Defensemen | Forwards | Wings |
 | --- | --- | --- | --- | --- |
-| Direct | Hits delivered | 0.19 | 0.18 | 0.18 |
-| Direct | Hits received | -0.07 | -0.05 | -0.01 |
-| Direct | Blocked shots | 0.02 | 0.04 | 0.02 |
-| Direct | Fights | 0.06 | 0.05 | 0.05 |
+| Direct | Hits delivered | 0.18 | 0.18 | 0.22 |
+| Direct | Hits received | -0.06 | -0.05 | -0.01 |
+| Direct | Opponent shots blocked | 0.02 | 0.04 | 0.02 |
+| Direct | Fights | 0.05 | 0.05 | 0.05 |
 | Direct | Contact penalties taken | 0.06 | 0.07 | 0.05 |
-| Direct | Contact penalties drawn | -0.07 | -0.03 | -0.03 |
-| Indirect | Net-front attempt share | — | 0.02 | 0.05 |
-| Indirect | Tip/deflection share | — | 0.01 | 0.03 |
-| Indirect | Median shot distance | — | -0.03 | 0.03 |
+| Direct | Contact penalties drawn | -0.07 | -0.03 | -0.05 |
+| Indirect | Net-front attempt share | — | 0.02 | 0.06 |
+| Indirect | Tip/deflection share | — | 0.00 | 0.04 |
+| Indirect | Median shot distance | — | -0.02 | 0.04 |
 | Indirect | Backhand share | — | 0.01 | 0.04 |
-| Indirect | Dump-in recoveries | — | 0.08 | 0.09 |
+| Indirect | Dump-in recoveries | — | 0.08 | 0.08 |
 | Indirect | Forecheck pressures | — | -0.02 | -0.01 |
-| Indirect | Forecheck/cycle shot assists | — | -0.03 | -0.06 |
-| Indirect | Retrievals leading to exits | 0.08 | — | — |
-| Indirect | Botched retrievals | 0.09 | — | — |
-| Indirect | Possession share of successful exits | -0.08 | — | — |
+| Indirect | Clean defensive-zone retrievals | 0.09 | — | — |
+| Indirect | Botched retrievals | 0.06 | — | — |
 | Indirect | Entry denial share | 0.08 | — | — |
 
-![Learned positional feature weights](figures/feature_weights.png)
+Coefficients are median fitted weights across the 20 outer fits for each reference. Predictors are transformed and scaled to unit training-sample standard deviation. The weights describe conditional size prediction; a positive botched-retrieval coefficient does not imply that unsuccessful execution is desirable.
 
-Each coefficient summarizes transformed, standardized predictors and conditional size prediction. Botched retrievals receive positive weights despite recording unsuccessful execution, while possession-preserving exits receive negative weights in most fits. These directions can reflect differences in physical style and role. They leave higher CSAx without a uniform interpretation as more effective puck play.
+![Physicality features and listed-size prediction](figures/feature_weights.png)
 
-For individual scores, we retain the exact decomposition into direct contribution, indirect contribution, and frame-calibration adjustment. The three terms sum to CSAx. The coefficient table reports medians across fits, so it is not a single scoring formula.
+Each score equals its direct contribution, indirect contribution, and frame adjustment. The adjustment includes the intercept, expected prediction for listed size, and reference centering. These terms remain visible in the 2024–25 examples below, which show the two highest and two lowest eligible scores in each main positional ranking.
 
-The following 2024–25 examples are selected by the largest absolute percentile changes among ranking-eligible skaters. Percentile changes describe relative standing within each positional sample. They are especially uncertain for defensemen because that season has weak size prediction and a remaining size gradient.
+| Position | Player | Tracked games | CSAx | Percentile | Direct | Indirect | Frame adjustment | Season caution |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Defensemen | Connor Clifton | 17 | 2.95 | 99.76 | 1.60 | 1.14 | 0.22 | No improvement over mean-size prediction |
+| Defensemen | Radko Gudas | 21 | 2.93 | 99.28 | 2.27 | 0.57 | 0.09 | No improvement over mean-size prediction |
+| Defensemen | Jaccob Slavin | 27 | -2.41 | 0.72 | -0.70 | -1.59 | -0.13 | No improvement over mean-size prediction |
+| Defensemen | Urho Vaakanainen | 12 | -5.01 | 0.24 | -2.46 | -2.63 | 0.08 | No improvement over mean-size prediction |
+| Forwards | Sam Carrick | 19 | 4.69 | 99.86 | 2.85 | 1.77 | 0.08 |  |
+| Forwards | Mathieu Olivier | 16 | 3.88 | 99.58 | 3.46 | 0.81 | -0.38 |  |
+| Forwards | Filip Chytil | 17 | -2.52 | 0.42 | -2.05 | -0.28 | -0.19 |  |
+| Forwards | Nazem Kadri | 20 | -3.12 | 0.14 | -2.08 | -1.34 | 0.30 |  |
 
-| Position | Player | Tracked games | Play-by-play percentile | A3Z percentile | Difference (points) |
-| --- | --- | --- | --- | --- | --- |
-| Defensemen | John Carlson | 25 | 7.00 | 82.37 | 75.36 |
-| Defensemen | Esa Lindell | 31 | 18.60 | 89.61 | 71.01 |
-| Defensemen | William Borgen | 31 | 83.33 | 13.77 | -69.57 |
-| Defensemen | Vince Dunn | 16 | 28.74 | 95.89 | 67.15 |
-| Forwards | Tye Kartye | 26 | 38.67 | 77.76 | 39.09 |
-| Forwards | Oskar Bäck | 27 | 40.65 | 76.91 | 36.26 |
-| Forwards | Corey Perry | 20 | 64.73 | 28.75 | -35.98 |
-| Forwards | Dmitri Voronkov | 16 | 87.96 | 57.08 | -30.88 |
+The defensive examples carry the seasonal prediction caution. Percentiles describe standing within a positional reference; they do not provide a common forward–defenseman physicality scale.
 
-For the largest upward and downward moves in each position, the following decomposition shows how the fitted feature weights and frame adjustment combine. Contributions are in units of the corresponding reference score and sum to CSAx before rounding. Comparing the direct terms also reveals that adding indirect measures can change the weights and scaling of the shared contact variables.
+## Centers and reference-population overlap
 
-| Player | Specification | Direct | Indirect | Frame adjustment | CSAx |
-| --- | --- | --- | --- | --- | --- |
-| John Carlson | A3Z integrated | -0.46 | 1.48 | -0.29 | 0.73 |
-| John Carlson | Matched play-by-play | -1.15 | -0.16 | -0.13 | -1.43 |
-| William Borgen | A3Z integrated | 0.00 | -1.03 | -0.01 | -1.04 |
-| William Borgen | Matched play-by-play | 0.10 | 0.58 | 0.06 | 0.74 |
-| Corey Perry | A3Z integrated | -0.48 | 0.15 | -0.26 | -0.59 |
-| Corey Perry | Matched play-by-play | -0.37 | 1.00 | -0.27 | 0.36 |
-| Tye Kartye | A3Z integrated | 0.23 | 0.33 | 0.17 | 0.73 |
-| Tye Kartye | Matched play-by-play | 0.37 | -0.79 | 0.16 | -0.27 |
-
-## Centers across positional references
-
-The main forward model includes centers and wings, while the main defensive model contains defensemen. We use centers for an additional cross-position comparison: the forward feature specification trains on wings and the defensive specification trains on defensemen, excluding centers from both reference populations. All 724 eligible center-seasons receive one prediction from each matched assessment-fold fit. Reference populations supply size and residual scales; centers are never standardized separately.
-
-We apply range, missingness, and opportunity diagnostics to every positional model. A range check compares listed height, weight, and modeled features with the observed minima and maxima in the assigned outer training sample. Complete inputs require no imputation. The opportunity check requires at least 20 recorded opportunities for every modeled share. This threshold identifies sparse denominators; reaching it does not establish reliable estimation. Marginal range overlap also cannot establish support for every combination of features.
+All **724 center-seasons** receive scores under both wing and defenseman references, with centers excluded from both training populations. Matched assessment folds apply the same excluded-sample prediction procedure used for reference players.
 
 | Scored group | Reference | Scored | Complete inputs | Within ranges and complete | Every share ≥20 | Both checks |
 | --- | --- | --- | --- | --- | --- | --- |
-| Forwards | Forwards | 1485 | 1485 | 1395 | 1248 | 1194 |
-| Defensemen | Defensemen | 829 | 829 | 737 | 796 | 711 |
-| Wings | Wings | 761 | 761 | 677 | 672 | 608 |
-| Centers | Wings | 724 | 724 | 622 | 576 | 512 |
-| Centers | Defensemen | 724 | 723 | 12 | 53 | 1 |
+| Forwards | Forwards | 1485 | 1485 | 1403 | 1248 | 1199 |
+| Defensemen | Defensemen | 829 | 829 | 749 | 829 | 749 |
+| Wings | Wings | 761 | 761 | 685 | 672 | 613 |
+| Centers | Defensemen | 724 | 723 | 7 | 53 | 1 |
+| Centers | Wings | 724 | 724 | 635 | 576 | 522 |
 
-The rows represent overlapping applications: forwards include centers and wings, and the same centers appear under both external references. Every row counts scored player-seasons. Range and opportunity columns describe separate checks, while the final column counts their intersection. The checks retain all eligible scores and do not change the training populations.
+The forward row includes centers and wings. The additional center rows concern the same centers scored under external references. Range and denominator columns describe warnings within the included sample. Twenty share opportunities is a descriptive caution threshold and does not establish reliability.
 
-For paired center comparisons, the following diagnostics require the relevant check to hold under both reference models. Correlations and mean percentile differences use every scored center in each season.
+Across both references, **7** center-seasons have complete inputs within observed training ranges, **51** have at least 20 opportunities for every modeled share, and **1** meets both checks.
 
-| Season | Centers scored | Spearman | Mean wing-minus-defenseman percentile | Within both ranges and complete | Every share ≥20 in both models | Both checks |
+| Season | Centers scored | Spearman | Mean wing-minus-defenseman percentile | Within both ranges and complete | Every share ≥20 in both | Both checks |
 | --- | --- | --- | --- | --- | --- | --- |
-| 2021–22 | 194 | 0.50 | -10.59 | 3 | 19 | 0 |
-| 2022–23 | 186 | 0.57 | 9.41 | 3 | 12 | 0 |
-| 2023–24 | 170 | 0.57 | 31.05 | 5 | 12 | 1 |
-| 2024–25 | 174 | 0.13 | 14.25 | 1 | 8 | 0 |
+| 2021–22 | 194 | 0.52 | 4.34 | 1 | 19 | 0 |
+| 2022–23 | 186 | 0.51 | 8.80 | 1 | 12 | 0 |
+| 2023–24 | 170 | 0.62 | 26.36 | 5 | 12 | 1 |
+| 2024–25 | 174 | 0.10 | 22.38 | 0 | 8 | 0 |
 
-![Center standing under wing and defenseman references](figures/center_standing.png)
+![Center standing under two positional references](figures/center_standing.png)
 
-Center profiles often lie beyond the defensive training ranges: 638 have an entry denial share outside the corresponding defenseman range, and 545 have an out-of-range botched-retrieval rate. Most also have few targeted entries. Centers have a median of 10 targeted entries, compared with 137 for defensemen. These differences in opportunity and role limit interpretation of the comparison as positional consistency in playing bigger. Percentiles describe relative standing under separate models and do not measure differences in physicality on a common scale.
+The common-range sample is too limited to support a broad interpretation of cross-position agreement as consistency in toughness. Percentile differences concern relative standing under different models. We retain this exploratory comparison, with its present contribution centered on the limits of transporting positional references.
 
-Shared-direct reconstructions show how much difference exists before position-specific indirect features enter:
-
-| Season | Spearman | Mean wing-minus-defenseman percentile |
-| --- | --- | --- |
-| 2021–22 | 0.92 | 1.83 |
-| 2022–23 | 0.90 | -2.47 |
-| 2023–24 | 0.81 | 9.25 |
-| 2024–25 | 0.45 | -5.81 |
-
-The following center examples illustrate the overlap problem in 2024–25. Their percentiles remain descriptive outputs of the reference models, with the defensive opportunity counts shown alongside them.
-
-| Player | Wing percentile | Defenseman percentile | Targeted entries | Within both ranges and complete | Every share ≥20 in both models |
+| Player | Wing percentile | Defenseman percentile | Targeted entries | Within both ranges and complete | Both checks |
 | --- | --- | --- | --- | --- | --- |
-| Aleksander Barkov | 34.64 | 5.80 | 11 | No | No |
-| Jack Hughes | 26.26 | 0.00 | 6 | No | No |
-| Sidney Crosby | 30.17 | 53.62 | 4 | No | No |
+| Aleksander Barkov | 28.49 | 7.25 | 11 | No | No |
+| Jack Hughes | 26.82 | 0.48 | 6 | No | No |
+| Sidney Crosby | 29.61 | 45.41 | 4 | No | No |
 
-## Scouting and next-season continuation
+Shared direct variables also receive different fitted weights under the two references. The following correlations compare additive contributions from the same combined fits; they require no additional component models.
 
-We retain all 40 frozen forward scouting ratings, with eligible pilot scores available for 39 rated players. Associations use their available seasonal means and the same observed players under both specifications. Overall-physicality Spearman correlation is **0.50** for the A3Z-integrated score and **0.56** for the matched play-by-play score. Interior-play associations remain weak. These ratings evaluate forward physical style and do not supply independent validation of defensive pressure-handling skill.
+| Season | Direct contribution Spearman | Indirect contribution Spearman |
+| --- | --- | --- |
+| 2021–22 | 0.90 | 0.01 |
+| 2022–23 | 0.91 | 0.10 |
+| 2023–24 | 0.74 | 0.08 |
+| 2024–25 | 0.54 | 0.00 |
 
-| Specification | Indicator | Players | Spearman |
+Opportunity distributions help explain the difficulty of applying defensive features to centers:
+
+| Position | Median fights | Median targeted entries | Median clean retrievals | Median botched retrievals | Median dump-in recoveries |
+| --- | --- | --- | --- | --- | --- |
+| Centers | 0.00 | 10.00 | 41.00 | 4.00 | 12.00 |
+| Defensemen | 0.00 | 137.00 | 113.00 | 20.00 | 0.00 |
+| Wings | 0.00 | 8.00 | 37.00 | 2.00 | 13.00 |
+
+## Independent scouting descriptions
+
+The current associations use 39 eligible players from the 40 frozen forward ratings. An additional 43 verified passages cover 20 forwards and 23 defensemen. These passages await human coding and locking. Expanded validation and completion of the submission abstract depend on those ratings; the table below describes only available codes.
+
+| Position | Indicator | Players | Mentions | Spearman | Mean CSAx difference (95% CI) | Contrast status |
+| --- | --- | --- | --- | --- | --- | --- |
+| Forwards | Active physical engagement | 39 | 15 | 0.49 | 0.61 (0.28 to 0.94) | Available |
+| Forwards | Interior play | 39 | 15 | 0.14 | 0.14 (-0.25 to 0.54) | Available |
+| Defensemen | Active physical engagement | 0 | 0 | — | — (— to —) | No eligible coded players |
+| Defensemen | Interior play | 0 | 0 | — | — (— to —) | No eligible coded players |
+
+A single human rater codes active physical engagement and interior play while blinded to identities, scores, and rankings. The source collection comprises official NHL scouting publications from 2018–2024. Profiles are matched to individual NHL identities and draft years before inclusion, regardless of score or physicality wording. The 2024 source date uses its PDF creation timestamp; the exact publication day is unavailable.
+
+Player-average scores use eligible seasons following the source report. A zero code records absence of the specified description; it does not establish soft play. Mean differences compare players with and without the description. Their HC1 intervals condition on the estimated scores and observed scouting cohort. Draft-era prose, prospect selection, and a single rater constrain interpretation, particularly as players mature.
+
+## Next-season continuation
+
+Continuation means at least 300 NHL minutes in the following season. Separate positional models retain listed size, age and age squared, games dressed, ice time per game, five-on-five scoring rate, relative shot attempts, and season controls.
+
+| Position | Player-seasons | Odds ratio per CSAx SD (95% CI) |
+| --- | --- | --- |
+| Defensemen | 829 | 1.32 (1.04 to 1.68) |
+| Forwards | 1485 | 1.22 (1.00 to 1.48) |
+
+We also average predicted probabilities over each observed positional sample while setting CSAx to −1, 0, or +1. Other controls retain their observed values.
+
+| Position | CSAx | Adjusted continuation probability (%) | 95% CI (%) |
 | --- | --- | --- | --- |
-| A3Z integrated | Overall physicality | 39 | 0.50 |
-| A3Z integrated | Explicitly plays bigger | 39 | 0.37 |
-| A3Z integrated | Active physical engagement | 39 | 0.51 |
-| A3Z integrated | Interior play | 39 | 0.16 |
-| Matched play-by-play | Overall physicality | 39 | 0.56 |
-| Matched play-by-play | Explicitly plays bigger | 39 | 0.36 |
-| Matched play-by-play | Active physical engagement | 39 | 0.56 |
-| Matched play-by-play | Interior play | 39 | 0.15 |
+| Defensemen | -1.00 | 86.35 | 83.44 to 89.25 |
+| Defensemen | 0.00 | 88.60 | 86.63 to 90.58 |
+| Defensemen | 1.00 | 90.58 | 88.14 to 93.02 |
+| Forwards | -1.00 | 88.01 | 85.62 to 90.40 |
+| Forwards | 0.00 | 89.55 | 88.11 to 90.99 |
+| Forwards | 1.00 | 90.93 | 89.26 to 92.61 |
 
-Continuation means at least 300 NHL minutes in the following season. We retain listed size, age and age squared, games dressed, ice time per game, five-on-five scoring rate, relative shot attempts, and season controls. The comparison uses identical player-seasons under both specifications.
+![Adjusted next-season continuation probabilities](figures/continuation.png)
 
-| Specification | Position | Player-seasons | Continuation odds ratio (95% CI) |
-| --- | --- | --- | --- |
-| A3Z integrated | Defensemen | 829 | 1.40 (1.06 to 1.84) |
-| A3Z integrated | Forwards | 1485 | 1.20 (0.99 to 1.47) |
-| Matched play-by-play | Defensemen | 829 | 1.10 (0.86 to 1.41) |
-| Matched play-by-play | Forwards | 1485 | 1.26 (1.04 to 1.53) |
+These associations describe roster relevance. They are not causal effects or independent confirmation of the physicality construct. Player-clustered HC1 intervals condition on the estimated scores and tracked sample; uncertainty from reconstructing CSAx is outside these intervals.
 
-![Conditional continuation associations](figures/continuation.png)
+## Research direction and reproduction
 
-The A3Z defensive point estimate is larger, and the forward interval includes an odds ratio of one. These comparisons are descriptive; we do not estimate an interval for the difference between specifications. The reported intervals are player-clustered HC1 intervals conditional on the estimated scores and tracked sample. They omit uncertainty from reconstructing CSAx and should not be read as full-pipeline inference or evidence of a causal effect. A continuation association cannot resolve whether the score measures successful physical play.
+The [provisional research roadmap](research_roadmap.md) organizes the next paper decisions around external evidence, continuation, and possible playoff applications. Expanded scouting results are required before completing the [Sloan abstract](abstract.md). Power-play and penalty-kill roles remain candidate contextual applications. A playoff comparison can use regular-season games excluded from CSAx inputs to reduce mechanical relationships between the score and measured change.
 
-## Other candidate measures and research direction
+The compact analysis object retains frozen source inputs, model identities, feature counts, folds, calibration summaries, historical benchmarks, and current results. The numbered workflow fits only the selected positional specification by default. Previous alternative models and bootstrap summaries remain labeled historical results.
 
-The NHL event record offers useful extensions within its limits. Block locations can distinguish interior shot-block involvement within the direct component. Interior attempts and rebounds provide further evidence of offensive involvement, although shot location and shot type also reflect deployment. Backhand share alone cannot distinguish a contested play from an open-ice opportunity.
+Current outputs include [player rankings](player_rankings.csv), [center comparisons](center_comparisons.csv), [center agreement](center_agreement.csv), [team tracking coverage](team_summaries.csv), and [application estimates](application_estimates.csv). The [README](../../README.md) supplies reproduction and scouting-lock instructions. NHL inputs use the pinned nhlscraper revision; A3Z observations remain attributed to Corey Sznajder / All Three Zones. Source materials retain their third-party terms.
 
-Short sequences after hits or takeaways provide much weaker foundations for individual pressure-handling measures. Personal follow-up events are sparse, and the next recorded team event does not establish continuous possession or identify which player protects the puck. Off-puck net-front defense, contested-recovery success, and sustained puck protection remain unobserved in ordinary play-by-play. We therefore prioritize the available A3Z observations for subsequent work.
-
-The pilot supports keeping A3Z in the research program, especially for defensive retrieval and exit context. It also gives a concrete reason to separate the broad hockey idea from the present scalar score. Our next decision concerns the target: retain CSAx as size-associated physical style, or develop a separately validated measure of successful play under pressure. The current results do not support presenting the expanded CSAx as both at once.
-
-For an engagement-focused CSAx, we need to establish repeatable signal in the indirect component and understand team-role effects before expanding downstream applications. For a success-focused measure, we need defensible outcome and opportunity definitions, with direction determined by successful execution and an explicit approach to accounting for size. The exploratory center comparison requires better overlap with the reference population or a narrower question about shared behaviors. A future study may concentrate on the main forward and defenseman models, keeping centers within forwards and omitting the cross-position comparison. The present analysis retains both applications.
-
-A defensible next step is to present CSAx as size-associated physical style alongside the observed retrieval and exit measures. A separate execution measure becomes worthwhile if successful play under pressure is central to the research question. We can then evaluate its validity directly, without relying on size prediction to establish whether a play is successful.
-
-The [A3Z feature roadmap](a3z_data_dictionary.md#feature-opportunities) considers defensive workload and execution, dangerous-area passing and shot creation, entry defense beyond denials, and the origins of rush offense. These are research candidates. Some fields have shorter coverage or unresolved attribution, and successful execution can receive a negative size-prediction weight.
-
-We defer model expansion, another full-pipeline bootstrap campaign, and A3Z-based contract, playoff, career-stage, and team-outcome analyses until the construct and specification are settled. The full-season play-by-play analysis remains a labeled benchmark in the analysis object and accompanying exports; its stored bootstrap intervals belong to that specification.
-
-## Reproduction and source attribution
-
-The numbered R workflow restores frozen inputs, rebuilds the matched models, estimates the pilot associations, and regenerates this report. The compact analysis object includes source rows, game mappings, exclusions, denominators, source hashes, fitted summaries, and the full-season benchmark. Frozen scouting ratings remain separate from derived scores. A3Z observations are credited to Corey Sznajder / All Three Zones; NHL inputs use the pinned nhlscraper revision. Third-party materials retain their source terms.
-
-The accompanying files contain [player rankings](player_rankings.csv), [center comparisons](center_comparisons.csv), [center agreement](center_agreement.csv), [team coverage and benchmark summaries](team_summaries.csv), and [application estimates](application_estimates.csv). Every specification and reference population is identified. Benchmark-only applications remain distinguishable from pilot results.
-
-The Sloan abstract deadline is October 1, 2026; invited papers are due December 4. Current guidance requires actual results and an open-source repository link. The research repository remains private pending a separate public-release decision. [Sloan research competition](https://www.sloansportsconference.com/research-paper-competition).
+Sloan requires an abstract under 500 words, including title and body, with Introduction, Methods, Results, and Conclusion sections reporting actual findings. Abstracts are due October 1, 2026, at 11:59 p.m. Eastern; invited manuscripts are due December 4. Current guidance requires an open-source repository link. The repository remains private pending a public-release decision, and full-manuscript formatting requires confirmation from invitation guidance. [Competition rules](https://www.sloansportsconference.com/research-paper-competition).

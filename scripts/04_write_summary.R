@@ -4,8 +4,7 @@
 base::source('R/functions.R')
 base::source('R/models.R')
 a <- base::readRDS('data/analysis_data.rds')
-if (base::is.null(a$inference) || a$bootstrap$replicates != 499L) base::stop('Completed positional analysis is required.', call. = FALSE)
-report_directory <- 'reports/paper_mitssacrpc'
+report_directory <- if ('--benchmark' %in% base::commandArgs(trailingOnly = TRUE)) 'data/cache/benchmark_report' else 'reports/paper_mitssacrpc'
 figure_directory <- base::file.path(report_directory, 'figures')
 base::dir.create(figure_directory, recursive = TRUE, showWarnings = FALSE)
 
@@ -38,6 +37,15 @@ application_result <- function(population, outcome_name) a$applications$estimate
 
 # Create gridless research theme.
 research_theme <- function() ggplot2::theme_classic(base_size = 11, base_family = 'sans') + ggplot2::theme(legend.position = 'bottom', strip.background = ggplot2::element_blank(), strip.text = ggplot2::element_text(face = 'bold'), plot.title = ggplot2::element_text(face = 'bold'), panel.spacing = grid::unit(1.2, 'lines'))
+
+# Report current positional physicality results by default.
+if (!'--benchmark' %in% base::commandArgs(trailingOnly = TRUE)) {
+  base::source('R/a3z.R')
+  base::source('R/a3z_report.R')
+  write_a3z_report(a, report_directory, figure_directory)
+  base::quit(save = 'no', status = 0L)
+}
+if (base::is.null(a$inference) || a$bootstrap$replicates != 499L) base::stop('Completed historical benchmark is required.', call. = FALSE)
 
 # Data Products -----------------------------------------------------------
 
@@ -316,10 +324,3 @@ Small discrepancies in sums can arise from rounding displayed contributions. Sco
 ', .open = '<<', .close = '>>')
 readr::write_file(report, base::file.path(report_directory, 'research_summary.md'))
 base::message('Wrote research summary, five data products, and three figures.')
-
-# Report A3Z pilot with labeled full-season benchmark products.
-if (!base::is.null(a$a3z)) {
-  base::source('R/a3z.R')
-  base::source('R/a3z_report.R')
-  write_a3z_report(a, report_directory, figure_directory)
-}
