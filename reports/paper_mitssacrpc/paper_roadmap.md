@@ -26,7 +26,7 @@ The results review determines which player examples best explain the direct, ind
 
 ## Abstract and submission
 
-The completed [Markdown abstract](abstract.md) and matching [plain-text abstract](abstract.txt) contain **390 words**, including the title and section headings. Introduction, Methods, Results, and Conclusion follow Sloan’s published structure; Markdown is the working-file format. The text-only version contains the same content without Markdown syntax. The authenticated submission form’s upload requirements remain unverified.
+The [Quarto source](../abstract_mitssacrpc.qmd) is the authoritative abstract. It renders the [PDF](../abstract_mitssacrpc.pdf) with one scouting figure and one application table. The [Markdown](abstract.md) and [plain-text](abstract.txt) companions provide textual equivalents of the visual evidence; the plain-text version contains **468 words**. Introduction, Methods, Results, and Conclusion follow Sloan’s published structure. We keep the abstract below 500 words while counting author information, headings, captions, table content, and figure labels. The authenticated submission form’s upload requirements remain unverified.
 
 Abstracts are due **October 1, 2026, at 11:59 p.m. Eastern**. Invited papers are due **December 4, 2026, at 11:59 p.m. Eastern**. Hockey belongs in the Other Sports track. Full-manuscript formatting awaits invitation guidance. [Sloan competition rules](https://www.sloansportsconference.com/research-paper-competition).
 

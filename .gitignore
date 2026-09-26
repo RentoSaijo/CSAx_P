@@ -11,3 +11,7 @@ renv/staging/
 data/cache/
 validation_private/
 tmp/
+
+.quarto/
+reports/abstract_mitssacrpc_files/
+reports/abstract_mitssacrpc.md

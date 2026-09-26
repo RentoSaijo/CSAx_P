@@ -345,7 +345,7 @@ These comparisons address conditioning choices. They do not isolate causal pathw
 
 ## Paper structure and reproduction
 
-The [paper roadmap](paper_roadmap.md) follows construction → scouting → deployment → postseason engagement → continuation. This progression first establishes what CSAx measures and how it agrees with independent descriptions, then examines assigned roles, behavioral changes, and practical roster relevance. The [Sloan abstract](abstract.md), also available as [plain text](abstract.txt), follows the same sequence. Individual shooting-percentage variability, contracts, and numerous career interactions remain outside the paper core.
+The [paper roadmap](paper_roadmap.md) follows construction → scouting → deployment → postseason engagement → continuation. This progression first establishes what CSAx measures and how it agrees with independent descriptions, then examines assigned roles, behavioral changes, and practical roster relevance. The [Sloan abstract PDF](../abstract_mitssacrpc.pdf), authored in [Quarto](../abstract_mitssacrpc.qmd) and accompanied by [Markdown](abstract.md) and [plain text](abstract.txt), follows the same sequence. Individual shooting-percentage variability, contracts, and numerous career interactions remain outside the paper core.
 
 The compact analysis object retains frozen source inputs, model identities, feature counts, folds, calibration summaries, historical benchmarks, and current results. The numbered workflow fits only the selected positional specification by default. Previous alternative models and bootstrap summaries remain labeled historical results.
 
@@ -354,61 +354,15 @@ Current outputs include [player rankings](player_rankings.csv), [player-period e
 Sloan requires an abstract under 500 words, including title and body, with Introduction, Methods, Results, and Conclusion sections reporting actual findings. We count the headings toward that limit. Abstracts are due October 1, 2026, at 11:59 p.m. Eastern; invited manuscripts are due December 4 at the same time. The authenticated form’s upload requirements remain unverified. Current guidance requires an open-source repository link. The repository remains private pending a public-release decision, and full-manuscript formatting awaits invitation guidance. [Competition rules](https://www.sloansportsconference.com/research-paper-competition).
 ', .open = '<<', .close = '>>')
   readr::write_file(base::paste0(report, '\n'), base::file.path(report_directory, 'research_summary.md'))
-  write_physicality_submission(p, pooled, report_directory)
+  write_physicality_submission(p, report_directory)
 }
 
-# Prepare matching submission formats and focused manuscript roadmap.
-write_physicality_submission <- function(p, pooled, report_directory) {
-  if (!p$scouting$expansionComplete) base::stop('Completed, locked scouting ratings are required for submission documents.', call. = FALSE)
-  forward <- pooled |> dplyr::filter(model == 'Forwards')
-  defense <- pooled |> dplyr::filter(model == 'Defensemen')
-  forward_outcome <- p$continuation |> dplyr::filter(model == 'Forwards')
-  defense_outcome <- p$continuation |> dplyr::filter(model == 'Defensemen')
-  scout <- p$scouting$estimates |> dplyr::filter(indicator == 'activePhysicalEngagement')
-  scout_forward <- scout |> dplyr::filter(model == 'Forwards')
-  scout_defense <- scout |> dplyr::filter(model == 'Defensemen')
-  deployment <- p$applications$deployment$estimates
-  forward_pp <- deployment |> dplyr::filter(model == 'Forwards', outcome == 'powerPlayShare')
-  defense_pp <- deployment |> dplyr::filter(model == 'Defensemen', outcome == 'powerPlayShare')
-  forward_pk <- deployment |> dplyr::filter(model == 'Forwards', outcome == 'penaltyKillShare')
-  defense_pk <- deployment |> dplyr::filter(model == 'Defensemen', outcome == 'penaltyKillShare')
-  hits <- p$applications$engagement$estimates |> dplyr::filter(outcome == 'hits', window == 'First four')
-  forward_hits <- hits |> dplyr::filter(model == 'Forwards')
-  defense_hits <- hits |> dplyr::filter(model == 'Defensemen')
-  scouting_sentence <- if (base::all(scout$contrastStatus == 'Available')) {
-    glue::glue('Among {scout_forward$n} forwards and {scout_defense$n} defensemen, active-engagement descriptions have Spearman correlations with CSAx of {fixed(scout_forward$spearman)} and {fixed(scout_defense$spearman)}; mean CSAx differences between players with and without such descriptions are {interval(scout_forward$estimate, scout_forward$confLow, scout_forward$confHigh)} and {interval(scout_defense$estimate, scout_defense$confLow, scout_defense$confHigh)}, respectively.')
-  } else {
-    base::paste(purrr::pmap_chr(scout |> dplyr::select(model, n, spearman, contrastStatus), function(model, n, spearman, contrastStatus) {
-      if (contrastStatus == 'Available') glue::glue('Scouting descriptions correlate with CSAx at {fixed(spearman)} among {n} {base::tolower(model)}.') else glue::glue('The scouting contrast is unavailable among {n} {base::tolower(model)} because observations or code variation are insufficient.')
-    }), collapse = ' ')
-  }
-  abstract <- glue::glue('# Playing Tougher for One’s Size: Positional Physicality in the NHL
-
-## Introduction
-
-Players of similar size can make their presence felt in different ways. We quantify playing tougher for one’s size through direct contact and indirect signs of physicality in battles for the puck and space, then examine independent scouting evidence, assigned roles, postseason behavior, and roster relevance.
-
-## Methods
-
-We combine NHL events and All Three Zones microstats across 2021–22 through 2024–25, retaining <<forward$playerSeasons>> forward-seasons and <<defense$playerSeasons>> defenseman-seasons with at least 300 NHL minutes and 150 tracked five-on-five minutes. Seasonal ridge models predict listed height-and-weight size from shared direct and position-specific indirect measures. Nested five-fold estimation and training-based frame calibration yield standardized residuals: calibrated size above expected (CSAx). Centers remain forwards. We compare player-average CSAx with blinded human codes from earlier scouting passages, then estimate adjusted special-teams deployment, postseason contact changes, and next-season continuation of at least 300 NHL minutes. Postseason Poisson models pair regular-season games excluded from CSAx construction with each team’s first four playoff games. Reported 95% robust intervals condition on estimated scores; repeated player observations are clustered.
-
-## Results
-
-Held-out size prediction improves on the training-mean baseline by <<fixed(100 * forward$pooledR2)>>% for forwards and <<fixed(100 * defense$pooledR2)>>% for defensemen in squared-error terms. <<scouting_sentence>>
-
-Per CSAx standard deviation, adjusted power-play shares are lower by <<interval(-forward_pp$effect, -forward_pp$effectHigh, -forward_pp$effectLow)>> percentage points for forwards and <<interval(-defense_pp$effect, -defense_pp$effectHigh, -defense_pp$effectLow)>> for defensemen; penalty-kill shares are higher by <<interval(forward_pk$effect, forward_pk$effectLow, forward_pk$effectHigh)>> and <<interval(defense_pk$effect, defense_pk$effectLow, defense_pk$effectHigh)>> points, respectively.
-
-Higher-scoring forwards show smaller proportional postseason increases in hits delivered: the postseason-to-baseline rate-ratio multiplier per CSAx standard deviation is <<interval(forward_hits$effect, forward_hits$effectLow, forward_hits$effectHigh)>>, versus <<interval(defense_hits$effect, defense_hits$effectLow, defense_hits$effectHigh)>> for defensemen. The full-postseason check agrees in direction. Continuation odds ratios per CSAx standard deviation are <<interval(forward_outcome$effect, forward_outcome$effectLow, forward_outcome$effectHigh, 3L)>> and <<interval(defense_outcome$effect, defense_outcome$effectLow, defense_outcome$effectHigh, 3L)>>, respectively.
-
-## Conclusion
-
-CSAx aligns with independent physical-engagement descriptions and adds context to player assessment through role, behavioral, and roster associations. Uneven tracking, selective prospect coverage, and one rater limit generalization. Weak 2024–25 defensive size prediction and uncertain defensive postseason differences constrain positional claims. The score describes physical presence relative to frame without establishing courage, overall ability, or causal effects.
-', .open = '<<', .close = '>>')
-  plain_text <- stringr::str_replace_all(abstract, stringr::regex('^#{1,6} +', multiline = TRUE), '')
-  word_count <- stringr::str_count(stringr::str_squish(plain_text), '\\S+')
-  if (word_count >= 500L) base::stop('Sloan abstract exceeds permitted word count.', call. = FALSE)
-  readr::write_file(base::paste0(abstract, '\n'), base::file.path(report_directory, 'abstract.md'))
-  readr::write_file(base::paste0(plain_text, '\n'), base::file.path(report_directory, 'abstract.txt'))
+# Render submission document and describe focused manuscript structure.
+write_physicality_submission <- function(p, report_directory) {
+  base::source('R/abstract.R')
+  word_count <- render_abstract(report_directory)
+  scout_forward <- p$scouting$estimates |> dplyr::filter(model == 'Forwards')
+  scout_defense <- p$scouting$estimates |> dplyr::filter(model == 'Defensemen')
   roadmap <- glue::glue('# Playing tougher for one’s size: paper roadmap
 
 Physical presence is visible in contact, puck battles, and the roles teams assign, yet listed height and weight describe only a player’s frame. We organize the paper around a single question: how well does CSAx capture physical presence relative to that frame? The progression is **construction → scouting → deployment → postseason engagement → continuation**. The [research summary](research_summary.md) supplies the completed results and measurement qualifications.
@@ -437,12 +391,12 @@ The results review determines which player examples best explain the direct, ind
 
 ## Abstract and submission
 
-The completed [Markdown abstract](abstract.md) and matching [plain-text abstract](abstract.txt) contain **<<word_count>> words**, including the title and section headings. Introduction, Methods, Results, and Conclusion follow Sloan’s published structure; Markdown is the working-file format. The text-only version contains the same content without Markdown syntax. The authenticated submission form’s upload requirements remain unverified.
+The [Quarto source](../abstract_mitssacrpc.qmd) is the authoritative abstract. It renders the [PDF](../abstract_mitssacrpc.pdf) with one scouting figure and one application table. The [Markdown](abstract.md) and [plain-text](abstract.txt) companions provide textual equivalents of the visual evidence; the plain-text version contains **<<word_count>> words**. Introduction, Methods, Results, and Conclusion follow Sloan’s published structure. We keep the abstract below 500 words while counting author information, headings, captions, table content, and figure labels. The authenticated submission form’s upload requirements remain unverified.
 
 Abstracts are due **October 1, 2026, at 11:59 p.m. Eastern**. Invited papers are due **December 4, 2026, at 11:59 p.m. Eastern**. Hockey belongs in the Other Sports track. Full-manuscript formatting awaits invitation guidance. [Sloan competition rules](https://www.sloansportsconference.com/research-paper-competition).
 
 Sloan requires an open-source repository link. This repository remains private until an explicit release decision. Release review covers reproducible inputs, source attribution, third-party terms, and exclusion of private scouting prose and identity keys. The paper explains the positional and A3Z contributions in relation to the preceding forward study.
 ', .open = '<<', .close = '>>')
   readr::write_file(base::paste0(roadmap, '\n'), base::file.path(report_directory, 'paper_roadmap.md'))
-  base::message('Wrote positional physicality report and matching ', word_count, '-word abstracts.')
+  base::message('Wrote positional physicality report and paper roadmap.')
 }
