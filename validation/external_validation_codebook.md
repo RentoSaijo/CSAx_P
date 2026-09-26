@@ -1,30 +1,16 @@
-# Blinded Central Scouting external-validation codebook
+# Blinded Central Scouting physicality codebook
 
 ## Purpose
 
-This exercise asks whether CSAx agrees with hockey judgment recorded before the player entered the study window. One author rates official NHL Central Scouting prose while blinded to player identity, CSAx, and the public rankings. Each row represents one player.
+This exercise asks whether CSAx agrees with descriptions of physical engagement recorded before the player entered the study window. One human rater codes official NHL scouting prose while blinded to player identity, CSAx, and rankings. Each row represents one player. The packet contains 43 passages, with two content fields to complete for every passage.
 
 Read only the supplied passage. Do not search distinctive phrases, consult the source catalog, infer the player from outside knowledge, or consult CSAx values or rankings until the completed file has been returned and locked.
 
 ## Coding order
 
-Code the three content fields first, then finish with `overallPhysicality`. Use `notes` only when a brief explanation would document an ambiguity.
+Read each complete passage and code `activePhysicalEngagement` and `interiorPlay` independently. Use `notes` only when a brief explanation would document an ambiguity. Save the completed CSV with its original filename, `scouting_expansion_packet.csv`.
 
 ## Fields
-
-`overallPhysicality`
-
-- `+1`: The passage presents a player whose active engagement, interior work, strength, confrontation, or willingness is larger or heavier than the frame implied by the prose.
-- `0`: The passage is balanced or gives no clear frame-relative direction.
-- `-1`: The passage presents a comparatively softer, less confrontational, or easily displaced physical profile.
-
-This is a frame-relative judgment. A large player described as merely using expected strength can receive 0, while a smaller player explicitly described as playing above his size can receive +1.
-Merely absorbing contact or blocking shots does not establish a +1 rating.
-
-`playsBiggerExplicit`
-
-- `1`: The passage explicitly says that the player plays bigger, larger, stronger, heavier, or more physically than his size or frame suggests.
-- `0`: No explicit frame-relative statement appears.
 
 `activePhysicalEngagement`
 
@@ -42,4 +28,8 @@ Merely absorbing contact or blocking shots does not establish a +1 rating.
 
 ## Completion checks
 
-Use only the permitted codes. Do not edit `studyId` or `reportText`, add or remove rows, sort by the wording of a passage, or expose a guessed identity. Save the completed file as CSV with the original filename. The file will be hashed and locked before the study key or CSAx values are joined. Every planned validation result will be reported regardless of its direction or statistical significance.
+Use only 0 or 1 in both content fields. A zero records absence of the specified description; it does not identify a soft player. General praise for skill, leadership, or competitiveness requires the concrete behavior described above to qualify. Phrases such as "soft hands" describe puck skill and do not establish soft physical play. Do not infer either code from listed size or a generic statement about playing above size.
+
+Do not edit `studyId` or `reportText`, add or remove rows, sort by passage wording, or expose a guessed identity. Names and identifying details appear as bracketed labels where needed. The completed file is hashed and locked before the study key or CSAx values are joined. Every planned validation result is reported regardless of its direction or statistical significance.
+
+The analysis combines these codes with the same two fields from the 40 frozen forward ratings. Original ratings remain immutable. Associations use eligible player-average CSAx separately for forwards and defensemen. Draft-era descriptions, selective profile coverage, and a single rater limit the strength and generalizability of the external evidence.

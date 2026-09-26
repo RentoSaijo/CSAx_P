@@ -4,6 +4,15 @@
 base::source('R/functions.R')
 base::source('R/data.R')
 base::dir.create('data/cache', recursive = TRUE, showWarnings = FALSE)
+
+# Lock completed human scouting ratings independently of model preparation.
+if ('--lock-scouting' %in% base::commandArgs(trailingOnly = TRUE)) {
+  base::source('R/scouting.R')
+  lock_scouting_expansion()
+  base::quit(save = 'no', status = 0L)
+}
+
+# Verify pinned NHL data package before preparing observations.
 package_sha <- utils::packageDescription('nhlscraper')[['RemoteSha']]
 if (!base::identical(package_sha, xs_package_sha)) base::stop('Installed nhlscraper revision does not match research revision.', call. = FALSE)
 
