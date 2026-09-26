@@ -2,7 +2,7 @@
 # Document Setup ---------------------------------------------------------
 
 # Set document details.
-title: 'Playing Tougher for One’s Size: \newline Positional Physicality in the NHL'
+title: 'Playing Tougher for One’s Size: \linebreak Positional Physicality in the NHL'
 author: 'Rento Saijo^1^, Yeongjun Seo^2^, Sian Lee^3^, Jeff Moher^1^'
 affiliations: '^1^ Connecticut College; ^2^ University of Tennessee, Knoxville; ^3^ Michigan State University'
 date: ''
@@ -66,12 +66,17 @@ execute:
 # Abstract Setup ---------------------------------------------------------
 
 # Read completed results and document metadata.
-base::source('../R/abstract.R')
-abstract <- prepare_abstract(base::readRDS('../data/analysis_data.rds')$a3z)
+base::source('../../R/abstract.R')
+abstract <- prepare_abstract(base::readRDS('../../data/analysis_data.rds')$a3z)
 metadata <- rmarkdown::yaml_front_matter(knitr::current_input())
 
 # Configure vector graphics with template typography.
 knitr::opts_chunk$set(dev = 'cairo_pdf', dev.args = base::list(family = 'Latin Modern Roman', pointsize = 10))
+```
+
+```{=latex}
+\begingroup
+\centering
 ```
 
 ```{r}
@@ -82,6 +87,9 @@ base::cat(metadata$affiliations, '\n')
 ```
 
 ```{=latex}
+\par
+\endgroup
+
 % Render title divider.
 \thispagestyle{fancy}
 \vspace{-0.5em}\rule{\linewidth}{0.6pt}\vspace{0.25em}
@@ -99,6 +107,10 @@ We combine NHL events with All Three Zones' manually tracked puck plays from 202
 
 Independent scouting descriptions align with CSAx: players described as actively physical receive higher scores in both positions (Figure 1).
 
+```{=latex}
+\par\addvspace{\baselineskip}
+```
+
 ```{r}
 #| label: scouting
 #| results: asis
@@ -110,6 +122,10 @@ if (knitr::is_latex_output()) {
 }
 ```
 
+```{=latex}
+\par\addvspace{0.5\baselineskip}
+```
+
 **Figure 1.** Player-average CSAx by scouting description. Points represent players; diamonds mark means. Differences show 95% intervals. No mention does not establish soft play.
 
 ```{=latex}
@@ -117,6 +133,10 @@ if (knitr::is_latex_output()) {
 ```
 
 These profiles also correspond to distinct roles: higher-scoring players spend less of their ice time on the power play and more killing penalties. Among forwards, higher CSAx accompanies a smaller proportional playoff increase in delivered hits. This comparison uses regular-season games excluded from score construction and each team's first four playoff games; the full-postseason check agrees in direction. Finally, higher CSAx accompanies a greater probability of reaching 300 NHL minutes the following season (Table 1).
+
+```{=latex}
+\par\addvspace{\baselineskip}
+```
 
 **Table 1.** Adjusted comparisons of higher and lower CSAx (+1 versus -1, two standard deviations apart). Parentheses show 95% intervals; pp denotes percentage points.
 

@@ -1,6 +1,6 @@
 # Playing Tougher for One’s Size
 
-This repository contains CSAx_P, an extension of the original CSAx study toward the MIT Sloan Sports Analytics Conference Research Paper Competition. We study playing tougher or softer for one’s size through shared direct physicality measures and position-specific indirect behaviors. The analysis predicts listed height-and-weight size, calibrates that prediction against the player's frame, and standardizes calibrated size above expected (CSAx) within each season and reference population. NHL events and All Three Zones (A3Z) microstats use matched games and five-on-five exposure. The main models cover forwards, including centers, and defensemen. The [research summary](reports/paper_mitssacrpc/research_summary.md), [abstract PDF](reports/abstract_mitssacrpc.pdf), and [paper roadmap](reports/paper_mitssacrpc/paper_roadmap.md) follow construction, independent scouting, special-teams deployment, postseason engagement, and roster continuation.
+This repository contains CSAx_P, an extension of the original CSAx study toward the MIT Sloan Sports Analytics Conference Research Paper Competition. We study playing tougher or softer for one’s size through shared direct physicality measures and position-specific indirect behaviors. The analysis predicts listed height-and-weight size, calibrates that prediction against the player's frame, and standardizes calibrated size above expected (CSAx) within each season and reference population. NHL events and All Three Zones (A3Z) microstats use matched games and five-on-five exposure. The main models cover forwards, including centers, and defensemen. The [research summary](reports/paper_mitssacrpc/research_summary.md), [abstract PDF](reports/abstract_mitssacrpc/abstract_mitssacrpc.pdf), and [paper roadmap](reports/paper_mitssacrpc/paper_roadmap.md) follow construction, independent scouting, special-teams deployment, postseason engagement, and roster continuation.
 
 ## Reproduce
 
@@ -13,10 +13,10 @@ Rscript -e "renv::restore(prompt = FALSE)"
 Rscript scripts/04_write_summary.R
 ```
 
-The [Quarto abstract](reports/abstract_mitssacrpc.qmd) supplies the narrative, authors, and presentation. The reporting command renders its PDF and derives Markdown and plain-text companions with textual equivalents of the figure and table. Values come from the stored analysis; rendering fits no models. To render only the PDF with Quarto on `PATH`:
+The [Quarto abstract](reports/abstract_mitssacrpc/abstract_mitssacrpc.qmd) supplies the narrative, authors, and presentation. The reporting command renders its PDF and derives Markdown and plain-text companions with textual equivalents of the figure and table. Values come from the stored analysis; rendering fits no models. To render only the PDF with Quarto on `PATH`:
 
 ```sh
-quarto render reports/abstract_mitssacrpc.qmd --to pdf
+quarto render reports/abstract_mitssacrpc/abstract_mitssacrpc.qmd --to pdf
 ```
 
 For a model rebuild from the supplied input snapshot, run the ordered pipeline from the repository root:
@@ -57,8 +57,8 @@ The Numbers source and its completed CSV are preserved privately, including pass
 
 ## Files
 
-- `reports/abstract_mitssacrpc.qmd` and `.pdf`: authoritative abstract source and rendered document, with one scouting figure and one application table
-- `reports/paper_mitssacrpc/`: research summary, matching Markdown and plain-text abstracts, paper roadmap, A3Z data dictionary, three figures, player rankings, player-period engagement, and application estimates
+- `reports/abstract_mitssacrpc/`: authoritative Quarto abstract, PDF with one scouting figure and one application table, and matching Markdown and plain-text versions
+- `reports/paper_mitssacrpc/`: research summary, paper roadmap, A3Z data dictionary, three figures, player rankings, player-period engagement, and application estimates
 - `data/analysis_data.rds`: compact analysis object with frozen score and application inputs and current results under `a3z`, historical A3Z results under `a3zBenchmark`, completed center comparisons under `a3zCenterBenchmark`, team results and provenance under `a3zTeamBenchmark`, and the full-season benchmark with its 499 bootstrap summaries
 - `validation/`: public scouting codebook, source catalog, immutable forward codes, completed expansion codes, and lock provenance
 - `scripts/01_prepare_data.R` through `scripts/04_write_summary.R`: ordered data, metric, analysis, and reporting workflow

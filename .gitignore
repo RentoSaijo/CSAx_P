@@ -13,5 +13,5 @@ validation_private/
 tmp/
 
 .quarto/
-reports/abstract_mitssacrpc_files/
-reports/abstract_mitssacrpc.md
+reports/abstract_mitssacrpc/abstract_mitssacrpc_files/
+reports/abstract_mitssacrpc/abstract_mitssacrpc.md

@@ -56,19 +56,20 @@ plot_abstract_scouting <- function(values) {
 # Abstract Rendering -----------------------------------------------------
 
 # Render authoritative Quarto source and export matching text companions.
-render_abstract <- function(report_directory) {
+render_abstract <- function() {
   candidates <- base::c(base::Sys.which('quarto'), '/Applications/RStudio.app/Contents/Resources/app/quarto/bin/quarto')
   candidates <- candidates[base::nzchar(candidates) & base::file.exists(candidates)]
   if (!base::length(candidates)) base::stop('Quarto is required; add its executable to PATH.', call. = FALSE)
   quarto <- candidates[1L]
-  source <- 'reports/abstract_mitssacrpc.qmd'
+  abstract_directory <- 'reports/abstract_mitssacrpc'
+  source <- base::file.path(abstract_directory, 'abstract_mitssacrpc.qmd')
   for (format in base::c('gfm', 'pdf')) {
     status <- base::system2(quarto, base::c('render', base::shQuote(source), '--to', format, '--quiet'))
     if (status != 0L) base::stop('Quarto abstract rendering failed for ', format, '.', call. = FALSE)
   }
-  markdown <- 'reports/abstract_mitssacrpc.md'
-  markdown_path <- base::file.path(report_directory, 'abstract.md')
-  text_path <- base::file.path(report_directory, 'abstract.txt')
+  markdown <- base::file.path(abstract_directory, 'abstract_mitssacrpc.md')
+  markdown_path <- base::file.path(abstract_directory, 'abstract.md')
+  text_path <- base::file.path(abstract_directory, 'abstract.txt')
   contents <- stringr::str_replace_all(readr::read_file(markdown), '\f', '')
   readr::write_file(contents, markdown_path)
   plain_source <- stringr::str_replace_all(contents, '<sup>([^<]+)</sup>', ' [\\1]')

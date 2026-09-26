@@ -345,7 +345,7 @@ These comparisons address conditioning choices. They do not isolate causal pathw
 
 ## Paper structure and reproduction
 
-The [paper roadmap](paper_roadmap.md) follows construction → scouting → deployment → postseason engagement → continuation. This progression first establishes what CSAx measures and how it agrees with independent descriptions, then examines assigned roles, behavioral changes, and practical roster relevance. The [Sloan abstract PDF](../abstract_mitssacrpc.pdf), authored in [Quarto](../abstract_mitssacrpc.qmd) and accompanied by [Markdown](abstract.md) and [plain text](abstract.txt), follows the same sequence. Individual shooting-percentage variability, contracts, and numerous career interactions remain outside the paper core.
+The [paper roadmap](paper_roadmap.md) follows construction → scouting → deployment → postseason engagement → continuation. This progression first establishes what CSAx measures and how it agrees with independent descriptions, then examines assigned roles, behavioral changes, and practical roster relevance. The [Sloan abstract PDF](../abstract_mitssacrpc/abstract_mitssacrpc.pdf), authored in [Quarto](../abstract_mitssacrpc/abstract_mitssacrpc.qmd) and accompanied by [Markdown](../abstract_mitssacrpc/abstract.md) and [plain text](../abstract_mitssacrpc/abstract.txt), follows the same sequence. Individual shooting-percentage variability, contracts, and numerous career interactions remain outside the paper core.
 
 The compact analysis object retains frozen source inputs, model identities, feature counts, folds, calibration summaries, historical benchmarks, and current results. The numbered workflow fits only the selected positional specification by default. Previous alternative models and bootstrap summaries remain labeled historical results.
 
@@ -360,7 +360,7 @@ Sloan requires an abstract under 500 words, including title and body, with Intro
 # Render submission document and describe focused manuscript structure.
 write_physicality_submission <- function(p, report_directory) {
   base::source('R/abstract.R')
-  word_count <- render_abstract(report_directory)
+  word_count <- render_abstract()
   scout_forward <- p$scouting$estimates |> dplyr::filter(model == 'Forwards')
   scout_defense <- p$scouting$estimates |> dplyr::filter(model == 'Defensemen')
   roadmap <- glue::glue('# Playing tougher for one’s size: paper roadmap
@@ -391,7 +391,7 @@ The results review determines which player examples best explain the direct, ind
 
 ## Abstract and submission
 
-The [Quarto source](../abstract_mitssacrpc.qmd) is the authoritative abstract. It renders the [PDF](../abstract_mitssacrpc.pdf) with one scouting figure and one application table. The [Markdown](abstract.md) and [plain-text](abstract.txt) companions provide textual equivalents of the visual evidence; the plain-text version contains **<<word_count>> words**. Introduction, Methods, Results, and Conclusion follow Sloan’s published structure. We keep the abstract below 500 words while counting author information, headings, captions, table content, and figure labels. The authenticated submission form’s upload requirements remain unverified.
+The [Quarto source](../abstract_mitssacrpc/abstract_mitssacrpc.qmd) is the authoritative abstract. It renders the [PDF](../abstract_mitssacrpc/abstract_mitssacrpc.pdf) with one scouting figure and one application table. The [Markdown](../abstract_mitssacrpc/abstract.md) and [plain-text](../abstract_mitssacrpc/abstract.txt) companions provide textual equivalents of the visual evidence; the plain-text version contains **<<word_count>> words**. Introduction, Methods, Results, and Conclusion follow Sloan’s published structure. We keep the abstract below 500 words while counting author information, headings, captions, table content, and figure labels. The authenticated submission form’s upload requirements remain unverified.
 
 Abstracts are due **October 1, 2026, at 11:59 p.m. Eastern**. Invited papers are due **December 4, 2026, at 11:59 p.m. Eastern**. Hockey belongs in the Other Sports track. Full-manuscript formatting awaits invitation guidance. [Sloan competition rules](https://www.sloansportsconference.com/research-paper-competition).
 
