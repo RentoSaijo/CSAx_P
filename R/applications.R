@@ -328,7 +328,7 @@ analyze_a3z_models <- function(fits, inputs, benchmark_inputs) {
     fit <- fit_analysis_workflow(data, 'continued300', primary_predictors, model_type = 'logistic')
     probabilities <- estimate_average_probabilities(fit, data, base::c(-1, 0, 1))
     label <- function(result) result |>
-      dplyr::mutate(specification = a3z_specification, model = population, referencePopulation = population, eventScope = a3z_scope, intervalMethod = 'Player-clustered HC1; conditional on estimated scores and tracked sample', .before = 1L)
+      dplyr::mutate(specification = a3z_specification, model = population, referencePopulation = population, eventScope = a3z_scope, outcomeScope = 'Next regular season; all NHL situations', roleTiming = 'Current season', cohort = 'All eligible scored players', intervalMethod = 'Player-clustered HC1; conditional on estimated scores and tracked sample', .before = 1L)
     base::list(estimates = label(summarize_analysis_result(fit, data, 'Primary application', 'Next-season continuation', scale = 'odds ratio')), probabilities = label(probabilities$curve), contrast = label(probabilities$contrast))
   })
   scouting <- analyze_physicality_scouting(predictions, read_physicality_scouting())
@@ -338,4 +338,36 @@ analyze_a3z_models <- function(fits, inputs, benchmark_inputs) {
     dplyr::group_by(specification, model, seasonId, nextSeasonId) |>
     dplyr::summarise(n = dplyr::n(), correlation = stats::cor(currentCSAx, nextCSAx), spearman = stats::cor(currentCSAx, nextCSAx, method = 'spearman'), .groups = 'drop')
   base::list(predictions = predictions, performance = performance, continuation = purrr::map_dfr(continuation_parts, 'estimates'), continuationProbabilities = purrr::map_dfr(continuation_parts, 'probabilities'), continuationContrasts = purrr::map_dfr(continuation_parts, 'contrast'), scouting = scouting, stability = stability)
+}
+
+# Focused Role Applications -----------------------------------------------
+
+# Compare current and preceding roles on identical returning-player observations.
+analyze_role_timing <- function(panel) {
+  cohort <- panel |> dplyr::filter(priorAppearance == 1L, priorGamesDressed > 0, base::is.finite(priorToiPerGame), priorToiPerGame > 0)
+  parts <- purrr::imap(base::split(cohort, cohort$model), function(data, population) {
+    purrr::imap(base::list('Current season' = primary_predictors, 'Previous season' = prior_role_predictors), function(predictors, timing) {
+      fitted <- fit_analysis_workflow(data, 'continued300', predictors, model_type = 'logistic')
+      probabilities <- estimate_average_probabilities(fitted, data, base::c(-1, 0, 1))
+      label <- function(table) table |> dplyr::mutate(specification = a3z_specification, model = population, referencePopulation = population, eventScope = a3z_scope, outcomeScope = 'Next regular season; all NHL situations', roleTiming = timing, cohort = 'Observed NHL participation in preceding season; matched observations', intervalMethod = 'Player-clustered HC1; conditional on estimated scores and matched sample', .before = 1L)
+      base::list(estimates = label(summarize_analysis_result(fitted, data, 'Matched role timing', 'Next-season continuation', scale = 'odds ratio')), probabilities = label(probabilities$curve), contrasts = label(probabilities$contrast))
+    })
+  }) |> purrr::flatten()
+  base::list(estimates = purrr::map_dfr(parts, 'estimates'), probabilities = purrr::map_dfr(parts, 'probabilities'), contrasts = purrr::map_dfr(parts, 'contrasts'), cohort = cohort |> dplyr::select(model, playerId, seasonId, priorRoleSeasonId, nextSeasonId, gamesDressed, timeOnIcePerGame, priorGamesDressed, priorToiPerGame, continued300Flag))
+}
+
+# Describe official special-teams shares and adjusted percentage-point associations.
+analyze_deployment <- function(panel, special_teams) {
+  data <- panel |> dplyr::left_join(special_teams, by = base::c('playerId', 'seasonId')) |>
+    dplyr::mutate(powerPlayShare = dplyr::if_else(totalSeconds > 0, 100 * powerPlaySeconds / totalSeconds, NA_real_), penaltyKillShare = dplyr::if_else(totalSeconds > 0, 100 * penaltyKillSeconds / totalSeconds, NA_real_))
+  parts <- purrr::imap(base::split(data, data$model), function(rows, population) {
+    purrr::map_dfr(base::c('powerPlayShare', 'penaltyKillShare'), function(outcome) {
+      sample <- rows |> dplyr::filter(base::is.finite(.data[[outcome]]))
+      fit <- fit_analysis_workflow(sample, outcome, primary_predictors)
+      summarize_analysis_result(fit, sample, 'Deployment', outcome) |>
+        dplyr::mutate(model = population, referencePopulation = population, meanShare = base::mean(sample[[outcome]]), zeroRecords = base::sum(sample[[outcome]] == 0), missingRecords = base::nrow(rows) - base::nrow(sample), pearson = stats::cor(sample$CSAx, sample[[outcome]]), spearman = stats::cor(sample$CSAx, sample[[outcome]], method = 'spearman'), statistic = 'Percentage-point association per CSAx SD', scale = 'percentage points')
+    })
+  })
+  estimates <- dplyr::bind_rows(parts) |> dplyr::mutate(specification = a3z_specification, eventScope = a3z_scope, outcomeScope = 'Current regular season; official special-teams share of total ice time', roleTiming = 'Current season', intervalMethod = 'Player-clustered HC1; conditional on estimated scores and observed deployment')
+  base::list(estimates = estimates, panel = data |> dplyr::select(model, playerId, seasonId, CSAx, totalSeconds, powerPlaySeconds, penaltyKillSeconds, powerPlayShare, penaltyKillShare))
 }

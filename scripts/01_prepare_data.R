@@ -19,11 +19,14 @@ if (!base::identical(package_sha, xs_package_sha)) base::stop('Installed nhlscra
 # Prepare matched A3Z inputs or restore frozen pilot observations.
 if (!'--benchmark' %in% base::commandArgs(trailingOnly = TRUE)) {
   base::source('R/a3z.R')
+  base::source('R/postseason.R')
   analysis <- base::readRDS('data/analysis_data.rds')
   refresh <- '--refresh-events' %in% base::commandArgs(trailingOnly = TRUE)
   prepared <- if (!refresh && !base::is.null(analysis$a3z$inputs)) analysis$a3z$inputs else prepare_a3z_inputs(analysis$inputs, refresh = refresh)
   prepared <- update_a3z_features(prepared)
   base::saveRDS(prepared, 'data/cache/a3z_inputs.rds', compress = 'xz')
+  applications <- if (!refresh && !base::is.null(analysis$a3z$applicationInputs) && base::identical(analysis$a3z$applicationInputs$version, outcome_version)) analysis$a3z$applicationInputs else prepare_application_inputs(prepared, analysis$inputs, refresh)
+  base::saveRDS(applications, 'data/cache/application_inputs.rds', compress = 'xz')
   base::message('Prepared ', base::nrow(prepared$features), ' matched A3Z skater-seasons.')
   base::quit(save = 'no', status = 0L)
 }

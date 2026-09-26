@@ -10,10 +10,14 @@ base::Sys.setenv(OMP_NUM_THREADS = '1', OPENBLAS_NUM_THREADS = '1', VECLIB_MAXIM
 # Estimate pilot relationships while preserving full-season benchmark.
 if (!'--benchmark' %in% base::commandArgs(trailingOnly = TRUE)) {
   base::source('R/a3z.R')
+  base::source('R/postseason.R')
   analysis <- base::readRDS('data/analysis_data.rds')
   inputs <- base::readRDS('data/cache/a3z_inputs.rds')
   fits <- base::readRDS('data/cache/a3z_models.rds')
   pilot <- analyze_a3z_models(fits, inputs, analysis$inputs)
+  application_inputs <- base::readRDS('data/cache/application_inputs.rds')
+  pilot$applications <- analyze_focused_applications(pilot$predictions, application_inputs, analysis$inputs)
+  pilot$applicationInputs <- application_inputs
   pilot$inputs <- inputs
   pilot$coefficients <- purrr::imap_dfr(fits, function(fit, label) fit$coefficients |> dplyr::mutate(specification = label))
   pilot$tuning <- purrr::imap_dfr(fits, function(fit, label) fit$tuning |> dplyr::mutate(specification = label))
