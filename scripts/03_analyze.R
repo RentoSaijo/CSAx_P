@@ -24,6 +24,10 @@ if (!'--benchmark' %in% base::commandArgs(trailingOnly = TRUE)) {
   if (base::is.null(analysis$a3zBenchmark) && !base::identical(analysis$a3z$settings$version, a3z_version)) {
     analysis$a3zBenchmark <- analysis$a3z[base::setdiff(base::names(analysis$a3z), 'inputs')]
   }
+  if (base::is.null(analysis$a3zCenterBenchmark) && !base::is.null(analysis$a3z$centers)) {
+    historical <- analysis$a3z
+    analysis$a3zCenterBenchmark <- base::list(predictions = historical$predictions |> dplyr::filter(model == 'Wings' | isCenterComparison), centers = historical$centers, agreement = historical$centerAgreement, contributions = historical$centerContributions, coefficients = historical$coefficients, sizeReference = historical$sizeReference, settings = historical$settings, builtAt = historical$builtAt, status = 'Historical cross-position comparison')
+  }
   analysis$a3z <- pilot
   analysis$definition <- a3z_definition
   base::saveRDS(analysis, 'data/analysis_data.rds', compress = 'xz')
@@ -55,7 +59,7 @@ inference <- summarize_positional_bootstrap(bootstrap, applications$primaryPoint
 # Preserve scientific inputs and compact results in single analysis object.
 analysis <- base::list(definition = 'Playing big for one\'s size means showing a pattern of direct physical engagement and position-specific indirect behaviors associated with contested space that is more characteristic of a larger player than expected for one\'s listed height and weight.', settings = base::list(behaviorSeasons = xs_behavior_seasons, nextOutcomeSeasons = next_season_id(xs_behavior_seasons), eligibilityMinutes = xs_minutes, rankingMinutes = 500, directFeatures = xs_direct_features, forwardFeatures = xs_forward_features, defenseFeatures = xs_defense_features, contactPenalties = xs_contact_penalties, penaltyGrid = xs_penalty_grid, outerFolds = xs_outer_folds, innerFolds = xs_inner_folds, seed = xs_seed, bootstrapSeed = xs_bootstrap_seed, bootstrapReplicates = xs_bootstrap_reps, modelVersion = xs_model_version), inputs = inputs, primary = models$primary, centers = models$centers, sensitivities = models$sensitivities, applications = applications, bootstrap = bootstrap, inference = inference, builtAt = base::format(base::Sys.time(), tz = 'UTC', usetz = TRUE))
 previous <- if (base::file.exists('data/analysis_data.rds')) base::readRDS('data/analysis_data.rds') else NULL
-for (component in base::c('a3z', 'a3zBenchmark')) if (!base::is.null(previous[[component]])) analysis[[component]] <- previous[[component]]
+for (component in base::c('a3z', 'a3zBenchmark', 'a3zCenterBenchmark')) if (!base::is.null(previous[[component]])) analysis[[component]] <- previous[[component]]
 if (!base::is.null(analysis$a3z)) analysis$definition <- analysis$a3z$settings$definition
 base::saveRDS(analysis, 'data/analysis_data.rds', compress = 'xz')
 base::message('Saved positional analysis with ', bootstrap$replicates, ' shared bootstrap samples.')

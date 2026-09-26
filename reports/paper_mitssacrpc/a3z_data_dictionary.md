@@ -29,7 +29,7 @@ The source sweater-number field has three missing values in 2021–22 and one in
 
 **Basis** distinguishes the evidence behind each description. **Documented** refers to a tracking concept described in the [A3Z glossary](https://www.allthreezones.com/player-cardsfaq.html) or [retrieval methodology](https://allthreezones.substack.com/p/catch-and-retrieve). **Observed** identifies a relationship verified in the extract. **Label** gives the ordinary interpretation of the source name without claiming a complete tracking protocol. **Unresolved** identifies ambiguity that affects interpretation or feature construction. The public descriptions do not provide a field-by-field schema for every exported column.
 
-**Model use** identifies the positional physicality specification. **F/W** means the forward and wing models; **D** means the defensive model, including its exploratory application to centers. **Retained** means the counter is available for explanation in the compact analysis object but is not a model predictor. **Unused** means it remains available in the full raw extract. The analysis retains 27 behavior counters and the source ice-time field, alongside source identity and mapping records.
+**Model use** identifies the positional physicality specification. **F** means the forward model, including centers; **D** means the defenseman model. **Retained** means the counter is available for explanation in the compact analysis object but is not a model predictor. **Unused** means it remains available in the full raw extract. The analysis retains 27 behavior counters and the source ice-time field, alongside source identity and mapping records.
 
 Unless a special-teams state is explicit, the analysis treats its selected offense and transition counters as five-on-five observations. Its count rates use matched NHL shift-derived five-on-five minutes; source ice time is retained for comparison. Special-teams counters require their own exposure and tracking-scope checks. A **count** below means recorded occurrences per player-game, not a percentage or rate. Provider counters can overlap, and a zero count cannot establish that a player had an opportunity.
 
@@ -89,10 +89,10 @@ Unless a special-teams state is explicit, the analysis treats its selected offen
 | `Carries` | Carry-in counter; confirm how controlled pass-ins are credited before interpreting it as all controlled entries. | Label | Count | All | Unused |
 | `Failed Entries` | Unsuccessful entry counter; its inclusion in total entry volume needs confirmation. | Label | Count | All | Unused |
 | `Entries w/ Passing Play` | Entries associated with a subsequent passing play; qualifying plays and timing require confirmation. | Label | Count | All | Unused |
-| `Recoveries` | Dump-in recoveries followed by a meaningful puck play. | Documented | Count | All | F/W rate |
+| `Recoveries` | Dump-in recoveries followed by a meaningful puck play. | Documented | Count | All | F rate |
 | `Carries w/ Chances` | Carry-in contexts producing chances; does not measure pressure or contact directly. | Label | Count | All | Unused |
 | `Dump-in Chances` | Chances associated with dump-in sequences; verify whether attribution follows the entrant or another participant. | Label | Count | All | Unused |
-| `Forecheck Pressures` | Forechecking actions that force an exiting player to act. | Documented | Count | All | F/W rate |
+| `Forecheck Pressures` | Forechecking actions that force an exiting player to act. | Documented | Count | All | F rate |
 
 ### Defensive retrievals and exits
 

@@ -1,6 +1,6 @@
-# Playing Tough for Their Size
+# Playing Tougher for Their Size
 
-This repository contains CSAx_P, an extension of the original CSAx study toward the MIT Sloan Sports Analytics Conference Research Paper Competition. We study playing tough or soft for one's size through shared direct physicality measures and position-specific indirect behaviors. The analysis predicts listed height-and-weight size, calibrates that prediction against the player's frame, and standardizes calibrated size above expected (CSAx) within each season and reference population. NHL events and All Three Zones (A3Z) microstats use matched games and five-on-five exposure. The main models cover forwards, including centers, and defensemen; an exploratory center comparison uses wing and defenseman references that exclude centers from training. The [research summary](reports/paper_mitssacrpc/research_summary.md), [abstract draft](reports/paper_mitssacrpc/abstract.md), and [provisional paper roadmap](reports/paper_mitssacrpc/research_roadmap.md) present the findings and research direction.
+This repository contains CSAx_P, an extension of the original CSAx study toward the MIT Sloan Sports Analytics Conference Research Paper Competition. We study playing tough or soft for one's size through shared direct physicality measures and position-specific indirect behaviors. The analysis predicts listed height-and-weight size, calibrates that prediction against the player's frame, and standardizes calibrated size above expected (CSAx) within each season and reference population. NHL events and All Three Zones (A3Z) microstats use matched games and five-on-five exposure. The main models cover forwards, including centers, and defensemen. The [research summary](reports/paper_mitssacrpc/research_summary.md), [abstract draft](reports/paper_mitssacrpc/abstract.md), and [provisional paper roadmap](reports/paper_mitssacrpc/research_roadmap.md) present the findings and research direction.
 
 ## Reproduce
 
@@ -23,7 +23,7 @@ Rscript scripts/03_analyze.R
 Rscript scripts/04_write_summary.R
 ```
 
-The workflow fits one physicality specification for forwards, defensemen, and the wing reference, using five outer folds, five inner folds, and the fixed 20-penalty grid. Fitting uses up to 12 local workers. Additive direct, indirect, and frame contributions come from those same fits. Continuation intervals use player-clustered uncertainty conditional on the estimated scores and sample. Historical A3Z comparisons and the full-season benchmark, including its stored bootstrap results, remain in the analysis object. The default workflow runs no alternative specifications or bootstrap campaign.
+The workflow fits one physicality specification for forwards and defensemen, using five outer folds, five inner folds, and the fixed 20-penalty grid. Fitting uses up to 12 local workers. Additive direct, indirect, and frame contributions come from those same fits. Continuation intervals use player-clustered uncertainty conditional on the estimated scores and sample. Historical A3Z comparisons and the full-season benchmark, including its stored bootstrap results, remain in the analysis object. The default workflow runs no alternative specifications or bootstrap campaign.
 
 For fresh A3Z inputs, download the workbook from the public [transition statistics view](https://public.tableau.com/app/profile/corey.sznajder/viz/transitionstats/Sheet1) using **Download → Tableau Workbook**, and save it as `data/cache/a3z_transition.twbx`. Converting the extract requires Python, tested with 3.12, and the pinned Tableau Hyper reader:
 
@@ -50,8 +50,8 @@ The lock command requires complete 0/1 codes and unchanged passages. It preserve
 
 ## Files
 
-- `reports/paper_mitssacrpc/`: research summary, abstract draft, provisional roadmap, A3Z data dictionary, three figures, player rankings, center comparisons, team coverage, and application estimates
-- `data/analysis_data.rds`: compact analysis object with frozen inputs and current results under `a3z`, historical A3Z results under `a3zBenchmark`, and the full-season benchmark with its 499 bootstrap summaries
+- `reports/paper_mitssacrpc/`: research summary, abstract draft, provisional roadmap, A3Z data dictionary, figures, player rankings, team coverage, and application estimates
+- `data/analysis_data.rds`: compact analysis object with frozen inputs and current results under `a3z`, historical A3Z results under `a3zBenchmark`, completed center comparisons under `a3zCenterBenchmark`, and the full-season benchmark with its 499 bootstrap summaries
 - `validation/`: public scouting codebook, source catalog, immutable forward codes, and expanded-cohort provenance
 - `scripts/01_prepare_data.R` through `scripts/04_write_summary.R`: ordered data, metric, analysis, and reporting workflow
 - `scripts/read_a3z.py`: reader for a freshly downloaded public A3Z workbook

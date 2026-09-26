@@ -9,13 +9,13 @@ a3z_version <- '20260926-physicality-v2'
 a3z_specification <- 'A3Z physicality'
 a3z_forward_features <- base::c('dumpInRecoveriesPer60', 'forecheckPressuresPer60')
 a3z_defense_features <- base::c('defensiveRetrievalsPer60', 'botchedRetrievalsPer60', 'entryDenialShare')
-a3z_definition <- 'Playing tough or soft for your size means showing more or less physical presence than your size suggests, through direct contact and indirect signs of physicality in battles for the puck and space. We quantify this with CSAx by predicting listed height-and-weight size from shared direct and position-specific indirect measures, calibrating that prediction against the player’s listed frame, and standardizing the resulting residual within each season and reference population.'
+a3z_definition <- 'Playing tougher for your size means making your presence felt beyond what your size would suggest, through both direct physical contact and indirect signs of physicality in battles for the puck and space. We quantify this with CSAx by predicting listed height-and-weight size from shared direct and position-specific indirect measures, calibrating that prediction against the player’s listed frame, and standardizing the resulting residual within each season and reference population.'
 a3z_source_columns <- base::c(sourceMinutes = '5v5 TOI', dumpInRecoveries = 'Recoveries', forecheckPressures = 'Forecheck Pressures', forecheckAssists = 'Assists off Forecheck', cycleAssists = 'Assists off Cycle', retrievalExits = 'Retrievals Leading to Exits', botchedRetrievals = 'Botched Retrievals', successfulExits = 'Zone Exits', possessionExits = 'Exits w/ Possession', entryTargets = 'Targets', entryDenials = 'Denials', defensiveRetrievals = 'DZ Retrievals', defensiveTouches = 'DZ Puck Touches', failedExits = 'Failed Exit', missedPasses = 'Missed Passes', clearedExits = 'Clears', carriedExits = 'Carried Exits', passedExits = 'Passed Exits', rushedExits = 'Rushed Exits', secondTouchExits = 'Second Touch Exits', forecheckCycleShots = 'Shots off Forecheck or Cycle', behindNetAssists = 'Behind Net', highDangerAssists = 'Home Plate', primaryShotAssists = 'Primary Shot Assists', shotAssists = 'Passes', sourceShots = 'Shots', sourceRebounds = 'Rebounds', sourceDeflections = 'Deflections')
 
 # Define shared direct and position-specific indirect predictors.
 a3z_feature_sets <- function() {
   forward <- base::c(xs_direct_features, xs_forward_features, a3z_forward_features)
-  base::list(Forwards = forward, Wings = forward, Defensemen = base::c(xs_direct_features, a3z_defense_features))
+  base::list(Forwards = forward, Defensemen = base::c(xs_direct_features, a3z_defense_features))
 }
 
 # Derive clean-retrieval rate from retained counts and matched exposure.

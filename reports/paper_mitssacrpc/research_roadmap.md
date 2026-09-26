@@ -4,7 +4,7 @@ We organize the study around a clear measurement question: does CSAx capture phy
 
 ## Evidence available and immediate priority
 
-The [research summary](research_summary.md) contains completed fits for one selected specification, seasonal prediction checks, additive contributions, center comparisons, and continuation estimates. Expanded scouting status is **Awaiting human ratings**. The expanded cohort adds 20 forwards and 23 defensemen to the 40 frozen forward ratings. Every eligible verified profile is included without selecting on CSAx or physicality language.
+The [research summary](research_summary.md) contains completed fits for one selected specification, seasonal prediction checks, additive contributions, and continuation estimates. Expanded scouting status is **Awaiting human ratings**. The expanded cohort adds 20 forwards and 23 defensemen to the 40 frozen forward ratings. Every eligible verified profile is included without selecting on CSAx or physicality language.
 
 The [abstract](abstract.md) becomes a submission draft only after the expanded ratings are complete and locked. We evaluate both scouting indicators regardless of direction. The source reports reflect draft-era prospects and use one rater, so even clear agreement supplies limited convergent evidence.
 
@@ -24,13 +24,12 @@ This structure remains provisional. The next research discussion evaluates the c
 | Candidate | Research question | Main qualification and current priority |
 | --- | --- | --- |
 | Expanded scouting | Do CSAx profiles agree with independent descriptions of physical engagement? | Central external evidence; assess forwards and defensemen separately and report code coverage. Absence of a mention does not establish soft play. |
-| Center comparison | How does center standing change under wing and defenseman references? | Retain as exploratory analysis. Only 7 center-seasons have complete inputs within both ranges and 1 also meets the share-count caution threshold. Current evidence favors keeping this comparison outside the main narrative, with possible brief discussion of transportability. |
 | PP and PK deployment | How does frame-relative physicality relate to special-teams roles? | NHL ice-time records support PP and PK shares of total ice time. Associations describe role and opportunity; their signs do not independently validate toughness. |
 | Regular-season-to-playoff physicality | Do physical-engagement rates change differently across the CSAx continuum? | Leading follow-up candidate. Use regular-season games excluded from CSAx inputs as an independent baseline, preserve exposure, and account for playoff qualification and dressing. Avoid interpreting regression to the mean as players stepping up. |
 | Playoff production or shooting variability | Are performance changes associated with the measured physical profile? | Lower priority. Short playoff samples, conversion luck, opponents, and deployment complicate comparisons of absolute changes or variances. |
 | Contracts, team outcomes, and career interactions | Does another application materially advance the measurement question? | Historical analyses remain available; these topics are outside the immediate paper core. |
 
-We judge center results by overlap, stability, and interpretable player profiles. A small p-value is insufficient justification for including an extrapolative comparison. Likewise, a continuation association cannot settle whether the defensive proxies measure physicality.
+A continuation association cannot settle whether the defensive proxies measure physicality.
 
 ## Submission and research decisions
 

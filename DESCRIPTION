@@ -1,6 +1,6 @@
 Package: csaxplus
 Type: Project
-Title: Playing Big for Their Size among NHL Skaters
+Title: Playing Tougher for Their Size among NHL Skaters
 Version: 0.0.2
 Authors@R: c(
     person('Rento', 'Saijo', role = c('aut', 'cre')),
@@ -8,8 +8,8 @@ Authors@R: c(
     )
 Description: Reproducible research project for behavior-derived expected size,
     matched All Three Zones and NHL play-by-play models, and NHL roster security
-    among forwards and defensemen, with symmetric center comparisons and
-    preserved full-season application benchmarks.
+    among forwards and defensemen, with deployment and postseason applications
+    and preserved historical benchmarks.
 License: MIT
 Encoding: UTF-8
 Imports:

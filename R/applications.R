@@ -322,12 +322,6 @@ analyze_a3z_models <- function(fits, inputs, benchmark_inputs) {
   predictions <- primary$predictions |> dplyr::mutate(specification = a3z_specification, eventScope = a3z_scope, .before = 1L)
   performance <- primary$performance |>
     dplyr::mutate(specification = a3z_specification, eventScope = a3z_scope, scoreCaution = dplyr::case_when(residualSd < 0.02 ~ 'Near-degenerate residual scale', predictiveRSquared <= 0 ~ 'No improvement over mean-size prediction', base::abs(residualSizeCorrelation) > 0.10 ~ 'Remaining size gradient', TRUE ~ ''), .before = 1L)
-  centers <- compare_a3z_centers(primary) |> dplyr::mutate(specification = a3z_specification, .before = 1L)
-  center_agreement <- center_statistics(centers) |>
-    dplyr::mutate(specification = a3z_specification, sample = dplyr::recode(sample, 'Within observed ranges' = 'Within ranges; at least 20 share opportunities'), intervalMethod = 'Descriptive; no full-pipeline interval')
-  center_components <- centers |>
-    dplyr::group_by(seasonId) |>
-    dplyr::summarise(n = dplyr::n(), directSpearman = stats::cor(directContribution_Wings, directContribution_Defensemen, method = 'spearman'), indirectSpearman = stats::cor(indirectContribution_Wings, indirectContribution_Defensemen, method = 'spearman'), .groups = 'drop')
   outcomes <- prepare_outcomes(benchmark_inputs)
   panel <- application_panel(predictions, outcomes)
   continuation_parts <- purrr::imap(base::split(panel, panel$model), function(data, population) {
@@ -343,5 +337,5 @@ analyze_a3z_models <- function(fits, inputs, benchmark_inputs) {
     dplyr::inner_join(native |> dplyr::select(specification, model, playerId, nextSeasonId = seasonId, nextCSAx = CSAx), by = base::c('specification', 'model', 'playerId', 'nextSeasonId')) |>
     dplyr::group_by(specification, model, seasonId, nextSeasonId) |>
     dplyr::summarise(n = dplyr::n(), correlation = stats::cor(currentCSAx, nextCSAx), spearman = stats::cor(currentCSAx, nextCSAx, method = 'spearman'), .groups = 'drop')
-  base::list(predictions = predictions, performance = performance, centers = centers, centerAgreement = center_agreement, centerContributions = center_components, continuation = purrr::map_dfr(continuation_parts, 'estimates'), continuationProbabilities = purrr::map_dfr(continuation_parts, 'probabilities'), continuationContrasts = purrr::map_dfr(continuation_parts, 'contrast'), scouting = scouting, stability = stability)
+  base::list(predictions = predictions, performance = performance, continuation = purrr::map_dfr(continuation_parts, 'estimates'), continuationProbabilities = purrr::map_dfr(continuation_parts, 'probabilities'), continuationContrasts = purrr::map_dfr(continuation_parts, 'contrast'), scouting = scouting, stability = stability)
 }

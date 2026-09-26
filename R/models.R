@@ -137,7 +137,7 @@ fit_reference_model <- function(reference, centers, features, model_id, seed, de
 # Positional Systems ------------------------------------------------------
 
 # Fit native applications and symmetric center references.
-fit_positional_system <- function(features, seed = xs_seed, specification = 'Combined', scope = 'All situations', minimum_minutes = xs_minutes, details = TRUE, parallel_seasons = FALSE, feature_sets = NULL) {
+fit_positional_system <- function(features, seed = xs_seed, specification = 'Combined', scope = 'All situations', minimum_minutes = xs_minutes, details = TRUE, parallel_seasons = FALSE, feature_sets = NULL, score_centers = TRUE) {
   data <- features |>
     dplyr::filter(eventScope == scope, timeOnIce >= minimum_minutes * 60) |>
     dplyr::mutate(rowId = dplyr::row_number())
@@ -158,7 +158,7 @@ fit_positional_system <- function(features, seed = xs_seed, specification = 'Com
     season_data$outerFold <- player_folds(season_data$playerId, seed + season)
     positions <- switch(model, Forwards = base::c('C', 'L', 'R'), Wings = base::c('L', 'R'), Defensemen = 'D')
     reference <- season_data |> dplyr::filter(positionCode %in% positions)
-    centers <- season_data |> dplyr::filter(positionCode == 'C', model != 'Forwards')
+    centers <- season_data |> dplyr::filter(positionCode == 'C', model != 'Forwards', score_centers)
     fit_reference_model(reference, centers, model_features[[model]], model, seed + season, details = details)
   }
   fits <- if (parallel_seasons) parallel::mclapply(base::seq_len(base::nrow(jobs)), fit_job, mc.cores = base::min(12L, base::nrow(jobs)), mc.set.seed = FALSE) else base::lapply(base::seq_len(base::nrow(jobs)), fit_job)
@@ -200,11 +200,11 @@ a3z_sparse_flags <- function(predictions, features, feature_sets) {
   data |> dplyr::select(-dplyr::all_of(base::unique(denominators)))
 }
 
-# Fit primary positional specification with matched center assessment folds.
+# Fit primary forward and defenseman specifications.
 build_a3z_models <- function(inputs) {
   feature_sets <- a3z_feature_sets()
   base::message('Fitting ', a3z_specification, '.')
-  result <- fit_positional_system(inputs$features, specification = a3z_specification, scope = a3z_scope, feature_sets = feature_sets, parallel_seasons = TRUE)
+  result <- fit_positional_system(inputs$features, specification = a3z_specification, scope = a3z_scope, feature_sets = feature_sets, parallel_seasons = TRUE, score_centers = FALSE)
   result$predictions <- a3z_sparse_flags(result$predictions, inputs$features, feature_sets)
   result$features <- feature_sets
   result$version <- a3z_version

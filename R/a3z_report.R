@@ -46,16 +46,6 @@ write_a3z_report <- function(analysis, report_directory, figure_directory) {
     dplyr::select(-rowId, -timeOnIce, -directRaw, -indirectRaw, -intercept) |>
     dplyr::relocate(specification, model, referencePopulation, eventScope, season, seasonId, rank, playerId, player)
   write_table(rankings, 'player_rankings.csv')
-  center_export <- p$centers |>
-    dplyr::mutate(eventScope = a3z_scope, wingReference = 'Wings; centers excluded', defensemanReference = 'Defensemen; centers excluded', rankingEligible = timeOnIce >= 500 * 60) |>
-    dplyr::left_join(feature_values, by = base::c('playerId', 'seasonId')) |>
-    dplyr::select(-rowId)
-  write_table(center_export, 'center_comparisons.csv')
-  agreement_export <- p$centerAgreement |>
-    tidyr::pivot_longer(dplyr::all_of(base::c('spearman', 'meanPercentileDifference', 'medianPercentileDifference', 'meanAbsolutePercentileDifference')), names_to = 'statistic', values_to = 'estimate') |>
-    dplyr::mutate(eventScope = a3z_scope, model = 'Wings versus Defensemen', referencePopulation = 'Wings and Defensemen separately')
-  write_table(agreement_export, 'center_agreement.csv')
-
   # Describe tracking coverage while counting centers once with forwards.
   tracked_teams <- p$inputs$sourceRows |>
     dplyr::filter(rowStatus == 'Retained') |>
@@ -104,7 +94,7 @@ write_a3z_report <- function(analysis, report_directory, figure_directory) {
   examples <- rankings |> dplyr::filter(seasonId == base::max(xs_behavior_seasons)) |>
     dplyr::group_by(model) |> dplyr::filter(rank <= 2L | rank > dplyr::n() - 2L) |> dplyr::ungroup() |>
     dplyr::transmute(Position = model, Player = player, 'Tracked games' = base::as.character(trackedGames), CSAx, Percentile = referencePercentile, Direct = directContribution, Indirect = indirectContribution, 'Frame adjustment' = frameAdjustment, 'Season caution' = scoreCaution)
-  sparse_table <- features |> dplyr::mutate(Position = dplyr::case_when(positionCode == 'D' ~ 'Defensemen', positionCode == 'C' ~ 'Centers', TRUE ~ 'Wings')) |>
+  sparse_table <- features |> dplyr::mutate(Position = dplyr::if_else(positionCode == 'D', 'Defensemen', 'Forwards')) |>
     dplyr::group_by(Position) |>
     dplyr::summarise('Median fights' = stats::median(fights), 'Median targeted entries' = stats::median(entryTargets), 'Median clean retrievals' = stats::median(defensiveRetrievals), 'Median botched retrievals' = stats::median(botchedRetrievals), 'Median dump-in recoveries' = stats::median(dumpInRecoveries), .groups = 'drop')
 
@@ -115,14 +105,6 @@ write_a3z_report <- function(analysis, report_directory, figure_directory) {
     dplyr::summarise(scored = dplyr::n(), complete = base::sum(completeInputs), ranges = base::sum(withinRanges), shares = base::sum(shareCounts), both = base::sum(withinRanges & shareCounts), .groups = 'drop') |>
     dplyr::arrange(base::match(scoredGroup, base::c('Forwards', 'Defensemen', 'Wings', 'Centers')), model) |>
     dplyr::transmute('Scored group' = scoredGroup, Reference = model, Scored = base::as.character(scored), 'Complete inputs' = base::as.character(complete), 'Within ranges and complete' = base::as.character(ranges), 'Every share ≥20' = base::as.character(shares), 'Both checks' = base::as.character(both))
-  center_diagnostics <- p$centers |> dplyr::group_by(seasonId) |>
-    dplyr::summarise(ranges = base::sum(withinTrainingRanges), shares = base::sum(!base::nzchar(sparseDenominators_Wings) & !base::nzchar(sparseDenominators_Defensemen)), both = base::sum(supported), .groups = 'drop')
-  center_table <- p$centerAgreement |> dplyr::filter(sample == 'All centers') |> dplyr::left_join(center_diagnostics, by = 'seasonId') |>
-    dplyr::transmute(Season = season_label(seasonId), 'Centers scored' = base::as.character(n), Spearman = spearman, 'Mean wing-minus-defenseman percentile' = meanPercentileDifference, 'Within both ranges and complete' = base::as.character(ranges), 'Every share ≥20 in both' = base::as.character(shares), 'Both checks' = base::as.character(both))
-  center_components <- p$centerContributions |> dplyr::transmute(Season = season_label(seasonId), 'Direct contribution Spearman' = directSpearman, 'Indirect contribution Spearman' = indirectSpearman)
-  center_examples <- center_export |> dplyr::filter(seasonId == base::max(xs_behavior_seasons), playerFullName %in% base::c('Sidney Crosby', 'Aleksander Barkov', 'Jack Hughes')) |>
-    dplyr::transmute(Player = playerFullName, 'Wing percentile' = referencePercentile_Wings, 'Defenseman percentile' = referencePercentile_Defensemen, 'Targeted entries' = base::as.character(entryTargets), 'Within both ranges and complete' = dplyr::if_else(withinTrainingRanges, 'Yes', 'No'), 'Both checks' = dplyr::if_else(supported, 'Yes', 'No'))
-
   # Present external descriptions and adjusted continuation probabilities.
   scouting_table <- p$scouting$estimates |>
     dplyr::transmute(Position = model, Indicator = dplyr::recode(indicator, activePhysicalEngagement = 'Active physical engagement', interiorPlay = 'Interior play'), Players = base::as.character(n), Mentions = base::as.character(positiveReports), Spearman = spearman, 'Mean CSAx difference (95% CI)' = interval(estimate, confLow, confHigh), 'Contrast status' = contrastStatus)
@@ -135,7 +117,7 @@ write_a3z_report <- function(analysis, report_directory, figure_directory) {
     glue::glue('The current associations use {dplyr::n_distinct(p$scouting$scores$playerId)} eligible players from the 40 frozen forward ratings. An additional {p$scouting$plannedNewPlayers} verified passages cover {p$scouting$plannedNewForwards} forwards and {p$scouting$plannedNewDefensemen} defensemen. These passages await human coding and locking. Expanded validation and completion of the submission abstract depend on those ratings; the table below describes only available codes.')
   }
 
-  # Draw gridless figures for weights, center standing, and continuation.
+  # Draw gridless figures for weights and continuation.
   coefficient_plot <- coefficients |> dplyr::filter(model != 'Wings') |>
     dplyr::mutate(featureLabel = base::factor(labels[feature], levels = base::rev(base::unname(labels)))) |>
     ggplot2::ggplot(ggplot2::aes(medianCoefficient, featureLabel, color = component)) +
@@ -144,18 +126,6 @@ write_a3z_report <- function(analysis, report_directory, figure_directory) {
     ggplot2::scale_color_manual(values = base::c(Direct = '#17324D', Indirect = '#BD7C27')) +
     ggplot2::labs(title = 'Physicality features and listed-size prediction', subtitle = 'Median standardized coefficient across 20 outer fits per reference', x = 'Coefficient in listed-size units', y = NULL, color = NULL) + research_theme()
   ggplot2::ggsave(base::file.path(figure_directory, 'feature_weights.png'), coefficient_plot, width = 9, height = 8, dpi = 180, bg = 'white')
-  center_plot <- p$centers |>
-    dplyr::mutate(season = season_label(seasonId), rangeStatus = dplyr::if_else(withinTrainingRanges, 'Within both ranges; complete', 'Outside range or imputed'), opportunityStatus = dplyr::if_else(!base::nzchar(sparseDenominators_Wings) & !base::nzchar(sparseDenominators_Defensemen), 'Every share has at least 20 opportunities', 'At least one share has fewer than 20')) |>
-    ggplot2::ggplot(ggplot2::aes(referencePercentile_Wings, referencePercentile_Defensemen, color = rangeStatus, shape = opportunityStatus)) +
-    ggplot2::geom_abline(slope = 1, intercept = 0, linetype = 'dashed', color = '#BBBBBB', linewidth = 0.4) +
-    ggplot2::geom_point(alpha = 0.65, size = 1.5) + ggplot2::facet_wrap(~season, ncol = 2L) +
-    ggplot2::scale_color_manual(values = base::c('Within both ranges; complete' = '#17324D', 'Outside range or imputed' = '#BD7C27')) +
-    ggplot2::scale_shape_manual(values = base::c('Every share has at least 20 opportunities' = 16, 'At least one share has fewer than 20' = 4)) +
-    ggplot2::coord_equal(xlim = base::c(0, 100), ylim = base::c(0, 100)) +
-    ggplot2::labs(title = 'Center standing under two positional references', subtitle = 'All eligible center-seasons; separate range and opportunity diagnostics', x = 'Percentile relative to wings', y = 'Percentile relative to defensemen', color = NULL, shape = NULL) +
-    ggplot2::guides(color = ggplot2::guide_legend(order = 1L), shape = ggplot2::guide_legend(order = 2L)) + research_theme() +
-    ggplot2::theme(legend.box = 'vertical', legend.text = ggplot2::element_text(size = 9))
-  ggplot2::ggsave(base::file.path(figure_directory, 'center_standing.png'), center_plot, width = 9, height = 7, dpi = 180, bg = 'white')
   continuation_plot <- ggplot2::ggplot(p$continuationProbabilities, ggplot2::aes(CSAx, 100 * probability)) +
     ggplot2::geom_line(color = '#17324D', linewidth = 0.7) +
     ggplot2::geom_errorbar(ggplot2::aes(ymin = 100 * confLow, ymax = 100 * confHigh), width = 0.10, color = '#17324D') +
@@ -168,25 +138,21 @@ write_a3z_report <- function(analysis, report_directory, figure_directory) {
   forward <- pooled |> dplyr::filter(model == 'Forwards')
   defense <- pooled |> dplyr::filter(model == 'Defensemen')
   latest_defense <- p$performance |> dplyr::filter(model == 'Defensemen', seasonId == base::max(xs_behavior_seasons))
-  center_count <- base::nrow(p$centers)
-  center_ranges <- base::sum(center_diagnostics$ranges)
-  center_opportunities <- base::sum(center_diagnostics$shares)
-  center_both <- base::sum(center_diagnostics$both)
   feature_table <- dictionary |> dplyr::transmute(Component = component, Population = population, Measure = label, 'Source and denominator' = measurement, 'Rationale and qualification' = rationale)
   exclusions <- p$inputs$sourceRows |> dplyr::count(rowStatus) |> dplyr::transmute(Disposition = rowStatus, 'Player-game rows' = base::as.character(n))
-  report <- glue::glue('# Playing tough for your size
+  report <- glue::glue('# Playing tougher for your size
 
 Physical play takes several forms, from delivering contact to competing for possession in crowded areas. We study those behaviors relative to a player’s listed frame, using separate forward and defenseman references.
 
 > **<<p$settings$definition>>**
 
-Higher and lower CSAx describe a frame-relative measured physical profile. The score does not establish courage, overall ability, or successful play under pressure. Its weights identify behaviors associated with listed size, so an error count can receive a positive coefficient and a useful skill can receive a negative one.
+Higher CSAx describes playing tougher for one’s size; playing softer for one’s size describes the corresponding lower end of this measured continuum. The score does not establish courage, overall ability, or successful play under pressure. Its weights identify behaviors associated with listed size, so an error count can receive a positive coefficient and a useful skill can receive a negative one.
 
 ## Study population and observations
 
 We combine NHL events and shift-derived five-on-five exposure with Corey Sznajder’s All Three Zones (A3Z) player-game records. Behavior seasons span 2021–22 through 2024–25, with next-season continuation observed through 2025–26. Eligibility requires 300 full-season NHL minutes and 150 matched tracked minutes. Published rankings require 500 full-season minutes.
 
-The analysis contains **<<forward$playerSeasons>> forward-seasons** and **<<defense$playerSeasons>> defenseman-seasons**. Centers remain in the main forward model. All <<center_count>> eligible center-seasons also receive the two exploratory reference scores.
+The analysis contains **<<forward$playerSeasons>> forward-seasons** and **<<defense$playerSeasons>> defenseman-seasons**. Centers remain in the main forward model.
 
 <<markdown_table(coverage_table)>>
 
@@ -204,7 +170,7 @@ The [A3Z data dictionary](a3z_data_dictionary.md) inventories all 95 source fiel
 
 ## Direct and indirect physicality
 
-The six direct measures are shared across positions. Forwards and wings use six indirect measures; defensemen use three. Count rates use matched NHL five-on-five minutes, and undefined shares remain missing before training-sample imputation.
+The six direct measures are shared across positions. Forwards use six indirect measures; defensemen use three. Count rates use matched NHL five-on-five minutes, and undefined shares remain missing before training-sample imputation.
 
 <<markdown_table(feature_table)>>
 
@@ -218,7 +184,7 @@ A3Z retrieval and forechecking measures provide information about recovering pos
 
 We fit one selected specification for each reference population and season. Listed size combines standardized height and weight within the native reference. Five outer folds yield one excluded-sample prediction per player-season; five inner folds select ridge penalties from the fixed 20-value grid. Preprocessing, imputation, predictor transformations, and linear frame calibration use training observations. Calibration uses inner held-out predictions within the outer training sample.
 
-Native excluded-sample residuals provide seasonal score means, standard deviations, and percentile references. Centers receive these reference scales without separate centering or standardization. Feature weights and additive contributions come from the same fitted models; component-only and alternative-specification fits are outside the active workflow.
+Native excluded-sample residuals provide seasonal score means, standard deviations, and percentile references. Feature weights and additive contributions come from the same fitted models; component-only and alternative-specification fits are outside the active workflow.
 
 <<markdown_table(performance_table)>>
 
@@ -246,29 +212,11 @@ Each score equals its direct contribution, indirect contribution, and frame adju
 
 The defensive examples carry the seasonal prediction caution. Percentiles describe standing within a positional reference; they do not provide a common forward–defenseman physicality scale.
 
-## Centers and reference-population overlap
-
-All **<<center_count>> center-seasons** receive scores under both wing and defenseman references, with centers excluded from both training populations. Matched assessment folds apply the same excluded-sample prediction procedure used for reference players.
+## Positional measurement diagnostics
 
 <<markdown_table(diagnostics)>>
 
-The forward row includes centers and wings. The additional center rows concern the same centers scored under external references. Range and denominator columns describe warnings within the included sample. Twenty share opportunities is a descriptive caution threshold and does not establish reliability.
-
-Across both references, **<<center_ranges>>** center-seasons have complete inputs within observed training ranges, **<<center_opportunities>>** have at least 20 opportunities for every modeled share, and **<<center_both>>** meets both checks.
-
-<<markdown_table(center_table)>>
-
-![Center standing under two positional references](figures/center_standing.png)
-
-The common-range sample is too limited to support a broad interpretation of cross-position agreement as consistency in toughness. Percentile differences concern relative standing under different models. We retain this exploratory comparison, with its present contribution centered on the limits of transporting positional references.
-
-<<markdown_table(center_examples)>>
-
-Shared direct variables also receive different fitted weights under the two references. The following correlations compare additive contributions from the same combined fits; they require no additional component models.
-
-<<markdown_table(center_components)>>
-
-Opportunity distributions help explain the difficulty of applying defensive features to centers:
+The forward population includes centers and wings. Range and denominator columns describe warnings within the included sample. Twenty share opportunities is a caution threshold and does not establish reliability.
 
 <<markdown_table(sparse_table)>>
 
@@ -302,16 +250,16 @@ The [provisional research roadmap](research_roadmap.md) organizes the next paper
 
 The compact analysis object retains frozen source inputs, model identities, feature counts, folds, calibration summaries, historical benchmarks, and current results. The numbered workflow fits only the selected positional specification by default. Previous alternative models and bootstrap summaries remain labeled historical results.
 
-Current outputs include [player rankings](player_rankings.csv), [center comparisons](center_comparisons.csv), [center agreement](center_agreement.csv), [team tracking coverage](team_summaries.csv), and [application estimates](application_estimates.csv). The [README](../../README.md) supplies reproduction and scouting-lock instructions. NHL inputs use the pinned nhlscraper revision; A3Z observations remain attributed to Corey Sznajder / All Three Zones. Source materials retain their third-party terms.
+Current outputs include [player rankings](player_rankings.csv), [team tracking coverage](team_summaries.csv), and [application estimates](application_estimates.csv). The [README](../../README.md) supplies reproduction and scouting-lock instructions. NHL inputs use the pinned nhlscraper revision; A3Z observations remain attributed to Corey Sznajder / All Three Zones. Source materials retain their third-party terms.
 
 Sloan requires an abstract under 500 words, including title and body, with Introduction, Methods, Results, and Conclusion sections reporting actual findings. Abstracts are due October 1, 2026, at 11:59 p.m. Eastern; invited manuscripts are due December 4. Current guidance requires an open-source repository link. The repository remains private pending a public-release decision, and full-manuscript formatting requires confirmation from invitation guidance. [Competition rules](https://www.sloansportsconference.com/research-paper-competition).
 ', .open = '<<', .close = '>>')
   readr::write_file(base::paste0(report, '\n'), base::file.path(report_directory, 'research_summary.md'))
-  write_physicality_submission(p, pooled, center_ranges, center_both, report_directory)
+  write_physicality_submission(p, pooled, report_directory)
 }
 
 # Prepare factual abstract draft and outcome-dependent manuscript roadmap.
-write_physicality_submission <- function(p, pooled, center_ranges, center_both, report_directory) {
+write_physicality_submission <- function(p, pooled, report_directory) {
   forward <- pooled |> dplyr::filter(model == 'Forwards')
   defense <- pooled |> dplyr::filter(model == 'Defensemen')
   forward_outcome <- p$continuation |> dplyr::filter(model == 'Forwards')
@@ -361,7 +309,7 @@ We organize the study around a clear measurement question: does CSAx capture phy
 
 ## Evidence available and immediate priority
 
-The [research summary](research_summary.md) contains completed fits for one selected specification, seasonal prediction checks, additive contributions, center comparisons, and continuation estimates. Expanded scouting status is **<<p$scouting$status>>**. The expanded cohort adds <<p$scouting$plannedNewForwards>> forwards and <<p$scouting$plannedNewDefensemen>> defensemen to the 40 frozen forward ratings. Every eligible verified profile is included without selecting on CSAx or physicality language.
+The [research summary](research_summary.md) contains completed fits for one selected specification, seasonal prediction checks, additive contributions, and continuation estimates. Expanded scouting status is **<<p$scouting$status>>**. The expanded cohort adds <<p$scouting$plannedNewForwards>> forwards and <<p$scouting$plannedNewDefensemen>> defensemen to the 40 frozen forward ratings. Every eligible verified profile is included without selecting on CSAx or physicality language.
 
 The [abstract](abstract.md) becomes a submission draft only after the expanded ratings are complete and locked. We evaluate both scouting indicators regardless of direction. The source reports reflect draft-era prospects and use one rater, so even clear agreement supplies limited convergent evidence.
 
@@ -381,13 +329,12 @@ This structure remains provisional. The next research discussion evaluates the c
 | Candidate | Research question | Main qualification and current priority |
 | --- | --- | --- |
 | Expanded scouting | Do CSAx profiles agree with independent descriptions of physical engagement? | Central external evidence; assess forwards and defensemen separately and report code coverage. Absence of a mention does not establish soft play. |
-| Center comparison | How does center standing change under wing and defenseman references? | Retain as exploratory analysis. Only <<center_ranges>> center-seasons have complete inputs within both ranges and <<center_both>> also meets the share-count caution threshold. Current evidence favors keeping this comparison outside the main narrative, with possible brief discussion of transportability. |
 | PP and PK deployment | How does frame-relative physicality relate to special-teams roles? | NHL ice-time records support PP and PK shares of total ice time. Associations describe role and opportunity; their signs do not independently validate toughness. |
 | Regular-season-to-playoff physicality | Do physical-engagement rates change differently across the CSAx continuum? | Leading follow-up candidate. Use regular-season games excluded from CSAx inputs as an independent baseline, preserve exposure, and account for playoff qualification and dressing. Avoid interpreting regression to the mean as players stepping up. |
 | Playoff production or shooting variability | Are performance changes associated with the measured physical profile? | Lower priority. Short playoff samples, conversion luck, opponents, and deployment complicate comparisons of absolute changes or variances. |
 | Contracts, team outcomes, and career interactions | Does another application materially advance the measurement question? | Historical analyses remain available; these topics are outside the immediate paper core. |
 
-We judge center results by overlap, stability, and interpretable player profiles. A small p-value is insufficient justification for including an extrapolative comparison. Likewise, a continuation association cannot settle whether the defensive proxies measure physicality.
+A continuation association cannot settle whether the defensive proxies measure physicality.
 
 ## Submission and research decisions
 
