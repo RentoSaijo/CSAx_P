@@ -124,14 +124,14 @@ write_a3z_report <- function(analysis, report_directory, figure_directory) {
     dplyr::transmute('Scored group' = scoredGroup, Reference = model, Scored = base::as.character(scored), 'Complete inputs' = base::as.character(complete), 'Within ranges and complete' = base::as.character(ranges), 'Every share ≥20' = base::as.character(shares), 'Both checks' = base::as.character(both))
   # Present external descriptions and adjusted continuation probabilities.
   scouting_table <- p$scouting$estimates |>
-    dplyr::transmute(Position = model, Indicator = dplyr::recode(indicator, activePhysicalEngagement = 'Active physical engagement', interiorPlay = 'Interior play'), Players = base::as.character(n), Mentions = base::as.character(positiveReports), Spearman = spearman, 'Mean CSAx difference (95% CI)' = interval(estimate, confLow, confHigh), 'Contrast status' = contrastStatus)
+    dplyr::transmute(Position = model, Indicator = dplyr::recode(indicator, activePhysicalEngagement = 'Active physical engagement'), Players = base::as.character(n), Mentions = base::as.character(positiveReports), Spearman = spearman, 'Mean CSAx difference (95% CI)' = interval(estimate, confLow, confHigh), 'Contrast status' = contrastStatus)
   continuation_table <- p$continuation |> dplyr::transmute(Position = model, 'Player-seasons' = base::as.character(sampleSize), 'Odds ratio per CSAx SD (95% CI)' = interval(effect, effectLow, effectHigh, 3L), 'p-value' = p_value(pValue))
   probability_table <- p$continuationProbabilities |>
     dplyr::transmute(Position = model, CSAx, 'Adjusted continuation probability (%)' = 100 * probability, '95% CI (%)' = base::paste(fixed(100 * confLow), fixed(100 * confHigh), sep = ' to '))
   scouting_text <- if (p$scouting$expansionComplete) {
-    glue::glue('The expanded blinded ratings are complete and locked before linkage to CSAx. We evaluate {dplyr::n_distinct(p$scouting$scores$playerId)} eligible players separately by position, retaining the same active-engagement and interior-play coding rules across the original and expanded cohorts.')
+    glue::glue('The expanded blinded ratings are complete and locked before linkage to CSAx. We evaluate {dplyr::n_distinct(p$scouting$scores$playerId)} eligible players separately by position, retaining the same active-engagement coding rules across the original and expanded cohorts.')
   } else {
-    glue::glue('The current associations use {dplyr::n_distinct(p$scouting$scores$playerId)} eligible players from the 40 frozen forward ratings. We reuse their active-engagement and interior-play codes. Matthew Poitras falls below tracking eligibility, with 148.88 matched minutes in his best-covered season. An additional {p$scouting$plannedNewPlayers} verified passages cover {p$scouting$plannedNewForwards} forwards and {p$scouting$plannedNewDefensemen} defensemen. These passages await human coding and locking. Expanded validation and completion of the submission abstract depend on those ratings; the table below describes only available codes.')
+    glue::glue('The current associations use {dplyr::n_distinct(p$scouting$scores$playerId)} eligible players from the 40 frozen forward ratings. We reuse their active-engagement codes. Matthew Poitras falls below tracking eligibility, with 148.88 matched minutes in his best-covered season. An additional {p$scouting$plannedNewPlayers} verified passages cover {p$scouting$plannedNewForwards} forwards and {p$scouting$plannedNewDefensemen} defensemen. These passages await human coding and locking. Expanded validation and completion of the submission abstract depend on those ratings; the table below describes only available codes.')
   }
 
   # Present role timing, deployment, and paired postseason applications.
@@ -297,7 +297,7 @@ The forward population includes centers and wings. Range and denominator columns
 
 <<markdown_table(scouting_table)>>
 
-A single human rater codes active physical engagement and interior play while blinded to identities, scores, and rankings. The source collection comprises official NHL scouting publications from 2018–2024. Profiles are matched to individual NHL identities and draft years before inclusion, regardless of score or physicality wording. The 2024 source date uses its PDF creation timestamp; the exact publication day is unavailable.
+A single human rater codes active physical engagement while blinded to identities, scores, and rankings. The source collection comprises official NHL scouting publications from 2018–2024. Profiles are matched to individual NHL identities and draft years before inclusion, regardless of score or physicality wording. The 2024 source date uses its PDF creation timestamp; the exact publication day is unavailable.
 
 Player-average scores use eligible seasons following the source report. A zero code records absence of the specified description; it does not establish soft play. Mean differences compare players with and without the description. Their HC1 intervals condition on the estimated scores and observed scouting cohort. Draft-era prose, prospect selection, and a single rater constrain interpretation, particularly as players mature.
 
@@ -437,7 +437,7 @@ Listed size provides an incomplete picture of physical play. We study whether NH
 
 ## Methods
 
-We combine NHL play-by-play with All Three Zones microstats for 2021–22 through 2024–25, retaining <<forward$playerSeasons>> forward-seasons and <<defense$playerSeasons>> defenseman-seasons with at least 300 full-season minutes and 150 tracked five-on-five minutes. Seasonal ridge models predict listed height-and-weight size using shared direct and position-specific indirect measures. Nested five-fold estimation supplies excluded-sample predictions and training-based frame calibration; standardized residuals define CSAx. We assess independent scouting descriptions and adjusted next-season continuation of at least 300 NHL minutes.
+We combine NHL play-by-play with All Three Zones microstats for 2021–22 through 2024–25, retaining <<forward$playerSeasons>> forward-seasons and <<defense$playerSeasons>> defenseman-seasons with at least 300 full-season minutes and 150 tracked five-on-five minutes. Seasonal ridge models predict listed height-and-weight size using shared direct and position-specific indirect measures. Nested five-fold estimation supplies excluded-sample predictions and training-based frame calibration; standardized residuals define CSAx. We assess independent scouting descriptions of active physical engagement and adjusted next-season continuation of at least 300 NHL minutes.
 
 ## Results
 
@@ -457,7 +457,7 @@ We study physical presence relative to listed frame using separate models for fo
 ## Paper structure
 
 1. **Frame-relative physicality and positional construction.** Define direct and indirect physicality, explain expected-size prediction and frame calibration, and present held-out performance, annual stability, and player contributions. Positional responsibilities set the reference population.
-2. **Independent scouting evidence.** Evaluate active physical engagement and interior play separately for forwards and defensemen. Preserve the 40 frozen annotations; 39 currently have eligible scores. The <<p$scouting$plannedNewPlayers>> new passages supplement this collection without recoding previous reports.
+2. **Independent scouting evidence.** Evaluate active physical engagement separately for forwards and defensemen. Preserve the 40 frozen annotations; 39 currently have eligible scores. The <<p$scouting$plannedNewPlayers>> new passages supplement this collection without recoding previous reports.
 3. **Continuation and deployment.** Keep full-sample current-role continuation primary. Present the matched current/prior-role comparison and PP/PK shares as contextual applications, with adjusted probabilities and percentage-point associations.
 4. **Postseason engagement and team chance creation.** Lead with hits delivered and expected goals for per 60. Use received hits, shot blocks, attempt volume, and average chance quality to explain the primary findings. First-four-game windows are primary; full-postseason results are the single window check.
 
@@ -467,7 +467,7 @@ The cross-position center exercise remains historical material. Defensive target
 
 | Evidence | Interpretation to assess | Paper decision |
 | --- | --- | --- |
-| Scouting descriptions | Do physical-engagement and interior-play descriptions align with player-average CSAx in both positions? | Central external evidence. Status: **<<p$scouting$status>>**. Complete and lock ratings before completing the abstract. |
+| Scouting descriptions | Do descriptions of active physical engagement align with player-average CSAx in both positions? | Central external evidence. Status: **<<p$scouting$status>>**. Complete and lock ratings before completing the abstract. |
 | Model performance | How much confidence do seasonal prediction, residual size gradients, sparse events, and annual stability support? | Retain the 2024–25 defensive limitation when framing claims. Do not select features for stronger outcome associations. |
 | Continuation and deployment | How does the measured profile relate to roster persistence and assigned roles? | Present practical relevance without treating role signs or nominal significance as construct validation. |
 | Postseason engagement | Do players with different scores show different proportional contact changes on disjoint baseline games? | Evaluate effect sizes, uncertainty, selection, and agreement across windows. A smaller increase does not establish a physical ceiling. |
@@ -477,7 +477,7 @@ Individual shooting-percentage variability, contracts, and numerous career inter
 
 ## Scouting and submission
 
-The blinded packet contains <<p$scouting$plannedNewForwards>> forwards and <<p$scouting$plannedNewDefensemen>> defensemen. One human rater codes the two established indicators without identities or CSAx. A zero records absence of a description, and cannot establish soft play. Draft-era sources, selective prospect coverage, and one rater remain limitations.
+The blinded packet contains <<p$scouting$plannedNewForwards>> forwards and <<p$scouting$plannedNewDefensemen>> defensemen. One human rater codes active physical engagement without identities or CSAx. A zero records absence of a description, and cannot establish soft play. Draft-era sources, selective prospect coverage, and one rater remain limitations.
 
 The [abstract](abstract.md) remains below 500 words, including its title, and awaits completed expanded ratings. The abstract deadline is October 1, 2026, at 11:59 p.m. Eastern; invited papers are due December 4 at the same time. We use the Other Sports track. Full-manuscript formatting remains subject to invitation guidance. [Sloan competition rules](https://www.sloansportsconference.com/research-paper-competition).
 

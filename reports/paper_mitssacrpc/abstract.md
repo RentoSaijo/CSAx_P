@@ -8,7 +8,7 @@ Listed size provides an incomplete picture of physical play. We study whether NH
 
 ## Methods
 
-We combine NHL play-by-play with All Three Zones microstats for 2021–22 through 2024–25, retaining 1485 forward-seasons and 829 defenseman-seasons with at least 300 full-season minutes and 150 tracked five-on-five minutes. Seasonal ridge models predict listed height-and-weight size using shared direct and position-specific indirect measures. Nested five-fold estimation supplies excluded-sample predictions and training-based frame calibration; standardized residuals define CSAx. We assess independent scouting descriptions and adjusted next-season continuation of at least 300 NHL minutes.
+We combine NHL play-by-play with All Three Zones microstats for 2021–22 through 2024–25, retaining 1485 forward-seasons and 829 defenseman-seasons with at least 300 full-season minutes and 150 tracked five-on-five minutes. Seasonal ridge models predict listed height-and-weight size using shared direct and position-specific indirect measures. Nested five-fold estimation supplies excluded-sample predictions and training-based frame calibration; standardized residuals define CSAx. We assess independent scouting descriptions of active physical engagement and adjusted next-season continuation of at least 300 NHL minutes.
 
 ## Results
 

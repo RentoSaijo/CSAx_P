@@ -168,16 +168,14 @@ The forward population includes centers and wings. Range and denominator columns
 
 ## Independent scouting descriptions
 
-The current associations use 39 eligible players from the 40 frozen forward ratings. We reuse their active-engagement and interior-play codes. Matthew Poitras falls below tracking eligibility, with 148.88 matched minutes in his best-covered season. An additional 43 verified passages cover 20 forwards and 23 defensemen. These passages await human coding and locking. Expanded validation and completion of the submission abstract depend on those ratings; the table below describes only available codes.
+The current associations use 39 eligible players from the 40 frozen forward ratings. We reuse their active-engagement codes. Matthew Poitras falls below tracking eligibility, with 148.88 matched minutes in his best-covered season. An additional 43 verified passages cover 20 forwards and 23 defensemen. These passages await human coding and locking. Expanded validation and completion of the submission abstract depend on those ratings; the table below describes only available codes.
 
 | Position | Indicator | Players | Mentions | Spearman | Mean CSAx difference (95% CI) | Contrast status |
 | --- | --- | --- | --- | --- | --- | --- |
 | Forwards | Active physical engagement | 39 | 15 | 0.49 | 0.61 (0.28 to 0.94) | Available |
-| Forwards | Interior play | 39 | 15 | 0.14 | 0.14 (-0.25 to 0.54) | Available |
 | Defensemen | Active physical engagement | 0 | 0 | — | — (— to —) | No eligible coded players |
-| Defensemen | Interior play | 0 | 0 | — | — (— to —) | No eligible coded players |
 
-A single human rater codes active physical engagement and interior play while blinded to identities, scores, and rankings. The source collection comprises official NHL scouting publications from 2018–2024. Profiles are matched to individual NHL identities and draft years before inclusion, regardless of score or physicality wording. The 2024 source date uses its PDF creation timestamp; the exact publication day is unavailable.
+A single human rater codes active physical engagement while blinded to identities, scores, and rankings. The source collection comprises official NHL scouting publications from 2018–2024. Profiles are matched to individual NHL identities and draft years before inclusion, regardless of score or physicality wording. The 2024 source date uses its PDF creation timestamp; the exact publication day is unavailable.
 
 Player-average scores use eligible seasons following the source report. A zero code records absence of the specified description; it does not establish soft play. Mean differences compare players with and without the description. Their HC1 intervals condition on the estimated scores and observed scouting cohort. Draft-era prose, prospect selection, and a single rater constrain interpretation, particularly as players mature.
 

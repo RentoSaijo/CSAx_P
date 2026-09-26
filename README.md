@@ -40,7 +40,7 @@ Postseason outcomes use regular-season games excluded from CSAx construction and
 
 Historical full-season routines require the explicit `--benchmark` flag. The previously used `--a3z` flag remains compatible with the default positional workflow.
 
-The scouting expansion contains 43 blinded passages: 20 forwards and 23 defensemen. One human rater completes the two fields in the local `validation_private/scouting_expansion_packet.csv`, following the [codebook](validation/external_validation_codebook.md). Identity keys and scores stay separate from the packet. After completed ratings are saved, lock them and update the analysis without refitting CSAx:
+The scouting expansion contains 43 blinded passages: 20 forwards and 23 defensemen. One human rater completes `activePhysicalEngagement` in the local `validation_private/scouting_expansion_packet.csv`, following the [codebook](validation/external_validation_codebook.md). Identity keys and scores stay separate from the packet. After completed ratings are saved, lock them and update the analysis without refitting CSAx:
 
 ```sh
 Rscript scripts/01_prepare_data.R --lock-scouting
@@ -65,7 +65,7 @@ A3Z microstats come from Corey Sznajder's freely downloadable transition workboo
 
 The [A3Z data dictionary](reports/paper_mitssacrpc/a3z_data_dictionary.md) inventories all 95 fields in the downloaded workbook, with meanings, units, seasonal coverage, current model use, and unresolved definitions. It also outlines opportunities for further feature development.
 
-NHL game, roster, event, shift, and career records are retrieved through the pinned [`nhlscraper`](https://github.com/RentoSaijo/nhlscraper) revision. Historical contract records originate from [Spotrac NHL Contracts](https://www.spotrac.com/nhl/contracts/), expected goals use the pinned [NHLxG model store](https://huggingface.co/datasets/RentoSaijo/NHLxG), and the external validation uses official NHL Central Scouting reports identified in `validation/external_validation_source_catalog.csv`. Raw download caches and private scouting prose are excluded from the repository; all 40 frozen scouting ratings remain separate from derived CSAx summaries. The current validation uses physical-engagement and interior-play codes. The repository remains private pending a public-release decision; source attribution and redistribution terms require review before release.
+NHL game, roster, event, shift, and career records are retrieved through the pinned [`nhlscraper`](https://github.com/RentoSaijo/nhlscraper) revision. Historical contract records originate from [Spotrac NHL Contracts](https://www.spotrac.com/nhl/contracts/), expected goals use the pinned [NHLxG model store](https://huggingface.co/datasets/RentoSaijo/NHLxG), and the external validation uses official NHL Central Scouting reports identified in `validation/external_validation_source_catalog.csv`. Raw download caches and private scouting prose are excluded from the repository; all 40 frozen scouting ratings remain separate from derived CSAx summaries. The current validation uses descriptions of active physical engagement. The repository remains private pending a public-release decision; source attribution and redistribution terms require review before release.
 
 ## License
 
