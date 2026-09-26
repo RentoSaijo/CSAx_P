@@ -298,7 +298,7 @@ add_opponent_strength <- function(team_games) {
   totals <- regular |> dplyr::group_by(seasonId, teamId) |> dplyr::summarise(regularXGA = base::sum(xGoalsAgainst), regularSeconds = base::sum(exposureSeconds), .groups = 'drop')
   head_to_head <- regular |> dplyr::group_by(seasonId, teamId, opponentId) |> dplyr::summarise(headToHeadXGA = base::sum(xGoalsAgainst), headToHeadSeconds = base::sum(exposureSeconds), .groups = 'drop')
   strength <- head_to_head |> dplyr::left_join(totals, by = base::c('seasonId', 'teamId')) |>
-    dplyr::transmute(seasonId, opponentId = teamId, teamId = opponentId, opponentXGA60 = rate_per_60(regularXGA - headToHeadXGA, regularSeconds - headToHeadSeconds))
+    dplyr::transmute(seasonId, focalTeamId = opponentId, opponentId = teamId, opponentXGA60 = rate_per_60(regularXGA - headToHeadXGA, regularSeconds - headToHeadSeconds)) |> dplyr::rename(teamId = focalTeamId)
   result <- team_games |> dplyr::left_join(strength, by = base::c('seasonId', 'teamId', 'opponentId'))
   assert_finite(result, 'opponentXGA60', 'Regular-season opponent strength')
   result
@@ -311,14 +311,14 @@ prepare_team_changes <- function(team_games, scores, window) {
     dplyr::filter(baseline | (gameTypeId == 3L & (window == 'Full postseason' | firstFour))) |>
     dplyr::mutate(period = dplyr::if_else(baseline, 'Baseline', 'Postseason')) |>
     dplyr::group_by(seasonId, teamId, period) |>
-    dplyr::summarise(games = dplyr::n(), exposureSeconds = base::sum(exposureSeconds), attempts = base::sum(unblockedAttempts), xGoals = base::sum(xGoals), opponentXGA60 = stats::weighted.mean(opponentXGA60, exposureSeconds), .groups = 'drop') |>
+    dplyr::summarise(opponentXGA60 = stats::weighted.mean(opponentXGA60, exposureSeconds), games = dplyr::n(), exposureSeconds = base::sum(exposureSeconds), attempts = base::sum(unblockedAttempts), xGoals = base::sum(xGoals), .groups = 'drop') |>
     dplyr::mutate(xGF60 = rate_per_60(xGoals, exposureSeconds), attempts60 = rate_per_60(attempts, exposureSeconds), quality100 = 100 * xGoals / attempts)
   score_values <- scores |> dplyr::select(seasonId, teamId, model, teamScore, scoredCoverage, missingExposurePlayers) |>
     tidyr::pivot_wider(names_from = model, values_from = base::c('teamScore', 'scoredCoverage', 'missingExposurePlayers'))
   changes <- periods |> tidyr::pivot_wider(names_from = period, values_from = base::c('games', 'exposureSeconds', 'attempts', 'xGoals', 'opponentXGA60', 'xGF60', 'attempts60', 'quality100')) |>
     dplyr::left_join(score_values, by = base::c('seasonId', 'teamId')) |>
     dplyr::mutate(window = window, deltaXGF60 = xGF60_Postseason - xGF60_Baseline, deltaAttempts60 = attempts60_Postseason - attempts60_Baseline, deltaQuality100 = quality100_Postseason - quality100_Baseline, absoluteQualityChange = base::abs(deltaQuality100), deltaOpponentXGA60 = opponentXGA60_Postseason - opponentXGA60_Baseline,
-      timeWeight = exposureSeconds_Baseline * exposureSeconds_Postseason / (exposureSeconds_Baseline + exposureSeconds_Postseason), attemptWeight = attempts_Baseline * attempts_Postseason / (attempts_Baseline + attempts_Postseason), seasonFactor = base::factor(seasonId),
+      timeWeight = 1 / (1 / exposureSeconds_Baseline + 1 / exposureSeconds_Postseason), attemptWeight = 1 / (1 / attempts_Baseline + 1 / attempts_Postseason), seasonFactor = base::factor(seasonId),
       included = scoredCoverage_Forwards >= 0.80 & scoredCoverage_Defensemen >= 0.80 & missingExposurePlayers_Forwards == 0L & missingExposurePlayers_Defensemen == 0L & exposureSeconds_Baseline > 0 & exposureSeconds_Postseason > 0,
       exclusion = dplyr::case_when(missingExposurePlayers_Forwards > 0L | missingExposurePlayers_Defensemen > 0L ~ 'Missing regular-season player exposure', scoredCoverage_Forwards < 0.80 & scoredCoverage_Defensemen < 0.80 ~ 'Both positions below 80% scored ice time', scoredCoverage_Forwards < 0.80 ~ 'Forwards below 80% scored ice time', scoredCoverage_Defensemen < 0.80 ~ 'Defensemen below 80% scored ice time', !included ~ 'Missing period exposure', TRUE ~ ''))
   base::list(periods = periods |> dplyr::mutate(window = window), changes = changes)
@@ -328,6 +328,7 @@ prepare_team_changes <- function(team_games, scores, window) {
 fit_team_change <- function(data, outcome, weight) {
   data <- data |> dplyr::filter(included) |> base::droplevels()
   predictors <- base::c('teamScore_Forwards', 'teamScore_Defensemen', 'seasonFactor', 'deltaOpponentXGA60')
+  assert_finite(data, base::c(outcome, weight, 'teamScore_Forwards', 'teamScore_Defensemen', 'deltaOpponentXGA60', 'franchiseId'), 'Joint team model')
   data$exposureWeight <- hardhat::importance_weights(data[[weight]] / base::mean(data[[weight]]))
   formula <- stats::reformulate(predictors, response = outcome)
   fit <- workflows::workflow() |>
@@ -373,7 +374,7 @@ analyze_focused_applications <- function(predictions, application_inputs, benchm
   path <- 'data/cache/focused_applications.rds'
   cached <- if (base::file.exists(path)) base::readRDS(path) else NULL
   if (base::identical(cached$signature, signature)) base::return(cached)
-  result <- base::list(signature = signature, roleTiming = analyze_role_timing(panel), deployment = analyze_deployment(panel, application_inputs$specialTeams), engagement = analyze_postseason_engagement(application_inputs, panel), teams = analyze_team_chances(application_inputs, predictions, benchmark_inputs$teams))
+  result <- base::list(signature = signature, roleTiming = analyze_role_timing(panel), deployment = analyze_deployment(panel, application_inputs$specialTeams), teams = analyze_team_chances(application_inputs, predictions, benchmark_inputs$teams), engagement = analyze_postseason_engagement(application_inputs, panel))
   base::saveRDS(result, path, compress = 'xz')
   result
 }
