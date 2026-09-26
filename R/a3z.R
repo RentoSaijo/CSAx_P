@@ -1,15 +1,31 @@
 # A3Z Settings ------------------------------------------------------------
 
-# Specify matched-game pilot without additional resampling campaigns.
+# Specify positional physicality models on matched five-on-five observations.
 a3z_scope <- 'A3Z tracked games; five on five'
 a3z_minutes <- 150
 a3z_player_time_tolerance <- 120
 a3z_game_time_tolerance <- 60
-a3z_version <- '20260915-a3z-v1'
-a3z_forward_features <- base::c('dumpInRecoveriesPer60', 'forecheckPressuresPer60', 'forecheckCycleAssistsPer60')
-a3z_defense_features <- base::c('retrievalExitsPer60', 'botchedRetrievalsPer60', 'possessionExitShare', 'entryDenialShare')
-a3z_definition <- 'Playing bigger than your size means making your presence felt beyond what your size would suggest, through both direct physical contact and indirect signs of physicality in battles for the puck and space. We quantify this with CSAx by predicting listed height-and-weight size from shared direct and position-specific indirect measures, calibrating that prediction against the player’s listed frame, and standardizing the resulting residual within each season and reference population.'
+a3z_version <- '20260926-physicality-v2'
+a3z_specification <- 'A3Z physicality'
+a3z_forward_features <- base::c('dumpInRecoveriesPer60', 'forecheckPressuresPer60')
+a3z_defense_features <- base::c('defensiveRetrievalsPer60', 'botchedRetrievalsPer60', 'entryDenialShare')
+a3z_definition <- 'Playing tough or soft for your size means showing more or less physical presence than your size suggests, through direct contact and indirect signs of physicality in battles for the puck and space. We quantify this with CSAx by predicting listed height-and-weight size from shared direct and position-specific indirect measures, calibrating that prediction against the player’s listed frame, and standardizing the resulting residual within each season and reference population.'
 a3z_source_columns <- base::c(sourceMinutes = '5v5 TOI', dumpInRecoveries = 'Recoveries', forecheckPressures = 'Forecheck Pressures', forecheckAssists = 'Assists off Forecheck', cycleAssists = 'Assists off Cycle', retrievalExits = 'Retrievals Leading to Exits', botchedRetrievals = 'Botched Retrievals', successfulExits = 'Zone Exits', possessionExits = 'Exits w/ Possession', entryTargets = 'Targets', entryDenials = 'Denials', defensiveRetrievals = 'DZ Retrievals', defensiveTouches = 'DZ Puck Touches', failedExits = 'Failed Exit', missedPasses = 'Missed Passes', clearedExits = 'Clears', carriedExits = 'Carried Exits', passedExits = 'Passed Exits', rushedExits = 'Rushed Exits', secondTouchExits = 'Second Touch Exits', forecheckCycleShots = 'Shots off Forecheck or Cycle', behindNetAssists = 'Behind Net', highDangerAssists = 'Home Plate', primaryShotAssists = 'Primary Shot Assists', shotAssists = 'Passes', sourceShots = 'Shots', sourceRebounds = 'Rebounds', sourceDeflections = 'Deflections')
+
+# Define shared direct and position-specific indirect predictors.
+a3z_feature_sets <- function() {
+  forward <- base::c(xs_direct_features, xs_forward_features, a3z_forward_features)
+  base::list(Forwards = forward, Wings = forward, Defensemen = base::c(xs_direct_features, a3z_defense_features))
+}
+
+# Derive clean-retrieval rate from retained counts and matched exposure.
+update_a3z_features <- function(inputs) {
+  counts <- inputs$features$defensiveRetrievals
+  if (base::any(!base::is.finite(counts) | counts < 0 | counts != base::floor(counts))) base::stop('Clean defensive retrieval counts are invalid.', call. = FALSE)
+  inputs$features <- inputs$features |>
+    dplyr::mutate(defensiveRetrievalsPer60 = rate_per_60(defensiveRetrievals, exposureSeconds))
+  inputs
+}
 
 # Source Identity ---------------------------------------------------------
 
@@ -157,7 +173,7 @@ validate_a3z_rows <- function(mapping, exposure, rosters) {
     dplyr::left_join(exposure, by = base::c('gameId', 'playerId')) |>
     dplyr::left_join(rosters |> dplyr::select(gameId, playerId, teamId, rosterName, rosterPosition, sweaterNumber), by = base::c('gameId', 'playerId')) |>
     dplyr::mutate(deltaSeconds = sourceMinutes * 60 - nhlSeconds, rowStatus = dplyr::case_when(base::is.na(gameId) ~ 'Unresolved game', base::is.na(playerId) ~ 'Unresolved player', !base::is.finite(sourceMinutes) | sourceMinutes <= 0 ~ 'Invalid source exposure', !base::is.finite(nhlSeconds) | nhlSeconds <= 0 ~ 'Invalid NHL exposure', TRUE ~ 'Retained'))
-  required <- base::names(a3z_source_columns)[2:12]
+  required <- base::c(base::names(a3z_source_columns)[2:12], 'defensiveRetrievals')
   valid_counts <- base::apply(rows[required], 1L, function(values) base::all(base::is.finite(values) & values >= 0 & values == base::floor(values)))
   valid_shares <- rows$possessionExits <= rows$successfulExits & rows$entryDenials <= rows$entryTargets & rows$successfulExits == rows$possessionExits + rows$clearedExits
   rows$rowStatus[rows$rowStatus == 'Retained' & !(valid_counts & valid_shares) %in% TRUE] <- 'Invalid event counts'
@@ -224,5 +240,5 @@ prepare_a3z_inputs <- function(inputs, refresh = FALSE) {
     workbookSha256 = digest::digest(file = 'data/cache/a3z_transition.twbx', algo = 'sha256'), exportSha256 = digest::digest(file = 'data/cache/a3z_raw.csv', algo = 'sha256'), collectedAt = base::as.character(base::as.Date(base::file.info('data/cache/a3z_transition.twbx')$mtime, tz = 'UTC')), preparedAt = base::format(base::Sys.time(), tz = 'UTC', usetz = TRUE), packageSha = xs_package_sha,
     sourceInventory = stats::setNames(purrr::map(parts, function(part) part[base::c('sourceHash', 'collectedAt', 'exposureVersion', 'duplicateShiftRows', 'overlappingShiftSeconds')]), xs_behavior_seasons), playerTimeToleranceSeconds = a3z_player_time_tolerance, gameMedianTimeToleranceSeconds = a3z_game_time_tolerance, minimumTrackedMinutes = a3z_minutes
   )
-  base::list(features = features, coverage = coverage, sourceRows = rows, games = games, schedules = identity$games, eventAttribution = attribution, provenance = provenance)
+  update_a3z_features(base::list(features = features, coverage = coverage, sourceRows = rows, games = games, schedules = identity$games, eventAttribution = attribution, provenance = provenance))
 }

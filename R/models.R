@@ -200,26 +200,17 @@ a3z_sparse_flags <- function(predictions, features, feature_sets) {
   data |> dplyr::select(-dplyr::all_of(base::unique(denominators)))
 }
 
-# Fit prespecified systems with identical player folds and listed-size references.
+# Fit primary positional specification with matched center assessment folds.
 build_a3z_models <- function(inputs) {
-  forward <- base::c(xs_forward_features, a3z_forward_features)
-  full <- base::list(Forwards = base::c(xs_direct_features, forward), Wings = base::c(xs_direct_features, forward), Defensemen = base::c(xs_direct_features, a3z_defense_features))
-  settings <- base::list('A3Z integrated' = full, 'Matched play-by-play' = base::list(Forwards = base::c(xs_direct_features, xs_forward_features), Wings = base::c(xs_direct_features, xs_forward_features), Defensemen = base::c(xs_direct_features, xs_defense_features)), 'Direct only' = purrr::map(full, function(columns) xs_direct_features), 'Indirect only' = purrr::map(full, function(columns) base::setdiff(columns, xs_direct_features)), 'A3Z only' = base::list(Forwards = a3z_forward_features, Wings = a3z_forward_features))
-  fits <- purrr::imap(settings, function(feature_sets, label) {
-    base::message('Fitting ', label, '.')
-    result <- fit_positional_system(inputs$features, specification = label, scope = a3z_scope, feature_sets = feature_sets, parallel_seasons = TRUE)
-    result$predictions <- a3z_sparse_flags(result$predictions, inputs$features, feature_sets)
-    result$features <- feature_sets
-    assert_unique(result$predictions, base::c('model', 'playerId', 'seasonId'), label)
-    assert_finite(result$predictions, base::c('listedSize', 'xS', 'CSAx'), label)
-    if (base::max(base::abs(base::with(result$predictions, CSAx - directContribution - indirectContribution - frameAdjustment))) > 1e-8) base::stop('A3Z contributions do not sum to CSAx.', call. = FALSE)
-    result
-  })
-  primary <- fits[['A3Z integrated']]
-  comparator <- fits[['Matched play-by-play']]
-  if (!base::isTRUE(base::all.equal(primary$sizeReference, comparator$sizeReference))) base::stop('Matched models use different listed-size references.', call. = FALSE)
-  paired <- primary$predictions |> dplyr::select(model, playerId, seasonId, outerFold, listedSize) |>
-    dplyr::left_join(comparator$predictions |> dplyr::select(model, playerId, seasonId, comparatorFold = outerFold, comparatorSize = listedSize), by = base::c('model', 'playerId', 'seasonId'))
-  if (base::anyNA(paired) || base::any(paired$outerFold != paired$comparatorFold | paired$listedSize != paired$comparatorSize)) base::stop('Matched comparison differs in folds or size targets.', call. = FALSE)
-  fits
+  feature_sets <- a3z_feature_sets()
+  base::message('Fitting ', a3z_specification, '.')
+  result <- fit_positional_system(inputs$features, specification = a3z_specification, scope = a3z_scope, feature_sets = feature_sets, parallel_seasons = TRUE)
+  result$predictions <- a3z_sparse_flags(result$predictions, inputs$features, feature_sets)
+  result$features <- feature_sets
+  result$version <- a3z_version
+  result$inputSha256 <- digest::digest(inputs$features, algo = 'sha256')
+  assert_unique(result$predictions, base::c('model', 'playerId', 'seasonId'), a3z_specification)
+  assert_finite(result$predictions, base::c('listedSize', 'xS', 'CSAx'), a3z_specification)
+  if (base::max(base::abs(base::with(result$predictions, CSAx - directContribution - indirectContribution - frameAdjustment))) > 1e-8) base::stop('A3Z contributions do not sum to CSAx.', call. = FALSE)
+  stats::setNames(base::list(result), a3z_specification)
 }

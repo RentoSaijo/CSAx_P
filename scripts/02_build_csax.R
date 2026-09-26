@@ -5,8 +5,8 @@ base::source('R/functions.R')
 base::source('R/models.R')
 base::Sys.setenv(OMP_NUM_THREADS = '1', OPENBLAS_NUM_THREADS = '1', VECLIB_MAXIMUM_THREADS = '1')
 
-# Fit A3Z pilot and matched component comparisons.
-if ('--a3z' %in% base::commandArgs(trailingOnly = TRUE)) {
+# Fit shared direct and positional indirect physicality models.
+if (!'--benchmark' %in% base::commandArgs(trailingOnly = TRUE)) {
   base::source('R/a3z.R')
   inputs <- base::readRDS('data/cache/a3z_inputs.rds')
   fits <- build_a3z_models(inputs)
