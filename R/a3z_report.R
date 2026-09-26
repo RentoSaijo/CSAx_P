@@ -26,16 +26,18 @@ physicality_feature_dictionary <- function() {
 write_a3z_report <- function(analysis, report_directory, figure_directory) {
   p <- analysis$a3z
   if (!base::identical(p$settings$version, a3z_version)) base::stop('Current positional physicality results are required.', call. = FALSE)
+  applications <- p$applications
+  if (base::is.null(applications)) base::stop('Completed deployment and postseason applications are required.', call. = FALSE)
   features <- p$inputs$features
   dictionary <- physicality_feature_dictionary()
   labels <- stats::setNames(dictionary$label, dictionary$feature)
   count_columns <- base::c('hits', 'hitsReceived', 'blockedShots', 'fights', 'contactPenaltiesTaken', 'contactPenaltiesDrawn', 'unblockedAttempts', 'locatedAttempts', 'netFrontAttempts', 'typedShotsOnNet', 'backhandShots', 'deflectionShots')
   feature_values <- features |> dplyr::select(playerId, seasonId, height, weight, dplyr::all_of(base::setdiff(base::names(a3z_source_columns), 'sourceMinutes')), dplyr::all_of(count_columns), dplyr::all_of(dictionary$feature))
-  write_table <- function(data, file) readr::write_csv(data |> dplyr::mutate(dplyr::across(dplyr::where(base::is.double), ~ base::round(.x, 2L))), base::file.path(report_directory, file))
+  write_table <- function(data, file, digits = 6L) readr::write_csv(data |> dplyr::mutate(dplyr::across(dplyr::where(base::is.double), ~ base::round(.x, digits))), base::file.path(report_directory, file))
 
   # Export native rankings with source counts and interpretation flags.
   rankings <- p$predictions |>
-    dplyr::filter(!isCenterComparison, model != 'Wings', timeOnIce >= 500 * 60) |>
+    dplyr::filter(timeOnIce >= 500 * 60) |>
     dplyr::left_join(feature_values, by = base::c('playerId', 'seasonId')) |>
     dplyr::left_join(p$performance |> dplyr::select(model, seasonId, scoreCaution), by = base::c('model', 'seasonId')) |>
     dplyr::group_by(model, seasonId) |>
@@ -43,9 +45,9 @@ write_a3z_report <- function(analysis, report_directory, figure_directory) {
     dplyr::mutate(rank = dplyr::row_number(), season = season_label(seasonId), minutes = timeOnIce / 60) |>
     dplyr::ungroup() |>
     dplyr::rename(player = playerFullName, heightInches = height, weightPounds = weight) |>
-    dplyr::select(-rowId, -timeOnIce, -directRaw, -indirectRaw, -intercept) |>
+    dplyr::select(-rowId, -timeOnIce, -directRaw, -indirectRaw, -intercept, -isCenterComparison) |>
     dplyr::relocate(specification, model, referencePopulation, eventScope, season, seasonId, rank, playerId, player)
-  write_table(rankings, 'player_rankings.csv')
+  write_table(rankings, 'player_rankings.csv', digits = 2L)
   # Describe tracking coverage while counting centers once with forwards.
   tracked_teams <- p$inputs$sourceRows |>
     dplyr::filter(rowStatus == 'Retained') |>
@@ -55,14 +57,29 @@ write_a3z_report <- function(analysis, report_directory, figure_directory) {
     dplyr::summarise(trackedGames = dplyr::n_distinct(gameId), trackedPlayers = dplyr::n_distinct(playerId), eligiblePlayers = dplyr::n_distinct(playerId[!base::is.na(positionCode)]), trackedPlayerMinutes = base::sum(nhlSeconds) / 60, .groups = 'drop') |>
     dplyr::left_join(analysis$inputs$teams |> dplyr::select(teamId, teamTriCode), by = 'teamId') |>
     dplyr::mutate(specification = a3z_specification, referencePopulation = model, eventScope = a3z_scope, summaryType = 'Tracking coverage')
-  write_table(tracked_teams, 'team_summaries.csv')
-  applications <- dplyr::bind_rows(
+  team_scores <- applications$teams$scores |>
+    dplyr::select(seasonId, teamId, teamTriCode, franchiseId, model, teamCSAx, teamScore, playerSeconds, scoredSeconds, scoredCoverage, scoredPlayers, players, teamReferenceMean, teamReferenceSd) |>
+    tidyr::pivot_wider(names_from = model, values_from = base::c('teamCSAx', 'teamScore', 'playerSeconds', 'scoredSeconds', 'scoredCoverage', 'scoredPlayers', 'players', 'teamReferenceMean', 'teamReferenceSd'))
+  team_export <- team_scores |>
+    dplyr::left_join(applications$teams$changes |> dplyr::select(-teamTriCode, -franchiseId, -seasonFactor, -dplyr::starts_with('teamScore_'), -dplyr::starts_with('scoredCoverage_')), by = base::c('seasonId', 'teamId')) |>
+    dplyr::mutate(window = dplyr::coalesce(window, 'No postseason'), specification = a3z_specification, eventScope = a3z_scope, outcomeScope = 'NHL five on five; disjoint regular-season baseline and playoffs', referencePopulation = 'All 32 teams within season; positional scores separate', roleTiming = 'Regular-season five-on-five team weights')
+  write_table(team_export, 'team_summaries.csv')
+  write_table(applications$engagement$panel |> dplyr::mutate(specification = a3z_specification, eventScope = a3z_scope, outcomeScope = 'NHL five on five; disjoint regular-season baseline and playoffs', referencePopulation = model, roleTiming = 'Current regular season'), 'postseason_engagement.csv')
+  application_export <- dplyr::bind_rows(
     p$continuation |> dplyr::mutate(statistic = 'Odds ratio per CSAx SD'),
     p$continuationProbabilities |> dplyr::mutate(outcome = 'Next-season continuation', statistic = 'Adjusted continuation probability (%)', scale = 'percentage points', effect = 100 * probability, effectLow = 100 * confLow, effectHigh = 100 * confHigh),
     p$continuationContrasts |> dplyr::mutate(outcome = 'Next-season continuation', statistic = 'Probability difference: CSAx +1 minus -1', scale = 'percentage points', effect = 100 * estimate, effectLow = 100 * confLow, effectHigh = 100 * confHigh),
-    p$scouting$estimates |> dplyr::mutate(specification = a3z_specification, eventScope = a3z_scope, outcome = 'Scouting physicality description', statistic = 'Mean CSAx difference: mention minus no mention', scale = 'CSAx units', effect = estimate, effectLow = confLow, effectHigh = confHigh)
+    p$scouting$estimates |> dplyr::mutate(specification = a3z_specification, eventScope = a3z_scope, outcomeScope = 'Independent scouting passages predating included NHL seasons', outcome = 'Scouting physicality description', statistic = 'Mean CSAx difference: mention minus no mention', scale = 'CSAx units', effect = estimate, effectLow = confLow, effectHigh = confHigh),
+    applications$roleTiming$estimates |> dplyr::mutate(statistic = 'Odds ratio per CSAx SD'),
+    applications$roleTiming$probabilities |> dplyr::mutate(outcome = 'Next-season continuation', statistic = 'Adjusted continuation probability (%)', scale = 'percentage points', effect = 100 * probability, effectLow = 100 * confLow, effectHigh = 100 * confHigh),
+    applications$roleTiming$contrasts |> dplyr::mutate(outcome = 'Next-season continuation', statistic = 'Probability difference: CSAx +1 minus -1', scale = 'percentage points', effect = 100 * estimate, effectLow = 100 * confLow, effectHigh = 100 * confHigh),
+    applications$deployment$estimates,
+    applications$engagement$estimates,
+    applications$engagement$rateChanges,
+    applications$engagement$descriptive |> dplyr::mutate(statistic = 'Observed event rate per 60', scale = 'events per 60', effect = ratePer60, intervalMethod = 'Descriptive; no interval'),
+    applications$teams$estimates
   )
-  write_table(applications, 'application_estimates.csv')
+  write_table(application_export, 'application_estimates.csv')
 
   # Summarize population coverage and held-out prediction performance.
   pooled <- p$performance |>
@@ -100,25 +117,59 @@ write_a3z_report <- function(analysis, report_directory, figure_directory) {
 
   # Keep inclusion, range overlap, and denominator warnings separate.
   diagnostics <- p$predictions |>
-    dplyr::mutate(scoredGroup = dplyr::if_else(isCenterComparison, 'Centers', model), completeInputs = imputedFeatures == 0L, withinRanges = !outsideTrainingRange & completeInputs, shareCounts = !base::nzchar(sparseDenominators)) |>
+    dplyr::mutate(scoredGroup = model, completeInputs = imputedFeatures == 0L, withinRanges = !outsideTrainingRange & completeInputs, shareCounts = !base::nzchar(sparseDenominators)) |>
     dplyr::group_by(scoredGroup, model) |>
     dplyr::summarise(scored = dplyr::n(), complete = base::sum(completeInputs), ranges = base::sum(withinRanges), shares = base::sum(shareCounts), both = base::sum(withinRanges & shareCounts), .groups = 'drop') |>
-    dplyr::arrange(base::match(scoredGroup, base::c('Forwards', 'Defensemen', 'Wings', 'Centers')), model) |>
+    dplyr::arrange(base::match(scoredGroup, base::c('Forwards', 'Defensemen')), model) |>
     dplyr::transmute('Scored group' = scoredGroup, Reference = model, Scored = base::as.character(scored), 'Complete inputs' = base::as.character(complete), 'Within ranges and complete' = base::as.character(ranges), 'Every share ≥20' = base::as.character(shares), 'Both checks' = base::as.character(both))
   # Present external descriptions and adjusted continuation probabilities.
   scouting_table <- p$scouting$estimates |>
     dplyr::transmute(Position = model, Indicator = dplyr::recode(indicator, activePhysicalEngagement = 'Active physical engagement', interiorPlay = 'Interior play'), Players = base::as.character(n), Mentions = base::as.character(positiveReports), Spearman = spearman, 'Mean CSAx difference (95% CI)' = interval(estimate, confLow, confHigh), 'Contrast status' = contrastStatus)
-  continuation_table <- p$continuation |> dplyr::transmute(Position = model, 'Player-seasons' = base::as.character(sampleSize), 'Odds ratio per CSAx SD (95% CI)' = interval(effect, effectLow, effectHigh))
+  continuation_table <- p$continuation |> dplyr::transmute(Position = model, 'Player-seasons' = base::as.character(sampleSize), 'Odds ratio per CSAx SD (95% CI)' = interval(effect, effectLow, effectHigh, 3L), 'p-value' = p_value(pValue))
   probability_table <- p$continuationProbabilities |>
     dplyr::transmute(Position = model, CSAx, 'Adjusted continuation probability (%)' = 100 * probability, '95% CI (%)' = base::paste(fixed(100 * confLow), fixed(100 * confHigh), sep = ' to '))
   scouting_text <- if (p$scouting$expansionComplete) {
     glue::glue('The expanded blinded ratings are complete and locked before linkage to CSAx. We evaluate {dplyr::n_distinct(p$scouting$scores$playerId)} eligible players separately by position, retaining the same active-engagement and interior-play coding rules across the original and expanded cohorts.')
   } else {
-    glue::glue('The current associations use {dplyr::n_distinct(p$scouting$scores$playerId)} eligible players from the 40 frozen forward ratings. An additional {p$scouting$plannedNewPlayers} verified passages cover {p$scouting$plannedNewForwards} forwards and {p$scouting$plannedNewDefensemen} defensemen. These passages await human coding and locking. Expanded validation and completion of the submission abstract depend on those ratings; the table below describes only available codes.')
+    glue::glue('The current associations use {dplyr::n_distinct(p$scouting$scores$playerId)} eligible players from the 40 frozen forward ratings. We reuse their active-engagement and interior-play codes. Matthew Poitras falls below tracking eligibility, with 148.88 matched minutes in his best-covered season. An additional {p$scouting$plannedNewPlayers} verified passages cover {p$scouting$plannedNewForwards} forwards and {p$scouting$plannedNewDefensemen} defensemen. These passages await human coding and locking. Expanded validation and completion of the submission abstract depend on those ratings; the table below describes only available codes.')
   }
 
+  # Present role timing, deployment, and paired postseason applications.
+  role_table <- applications$roleTiming$estimates |>
+    dplyr::transmute(Position = model, 'Role timing' = roleTiming, 'Player-seasons' = base::as.character(sampleSize), 'Odds ratio (95% CI)' = interval(effect, effectLow, effectHigh), 'p-value' = p_value(pValue))
+  role_probabilities <- applications$roleTiming$probabilities |>
+    dplyr::transmute(Position = model, 'Role timing' = roleTiming, CSAx, 'Adjusted continuation probability (%)' = 100 * probability, '95% CI (%)' = base::paste(fixed(100 * confLow), fixed(100 * confHigh), sep = ' to '))
+  deployment_table <- applications$deployment$estimates |>
+    dplyr::transmute(Position = model, Unit = dplyr::recode(outcome, powerPlayShare = 'Power play', penaltyKillShare = 'Penalty kill'), 'Player-seasons' = base::as.character(sampleSize), 'Mean TOI share (%)' = meanShare, Spearman = spearman, 'Adjusted percentage points per CSAx SD (95% CI)' = interval(effect, effectLow, effectHigh))
+  engagement_labels <- base::c(hits = 'Hits delivered', hitsReceived = 'Hits received', blockedShots = 'Opponent shots blocked', fights = 'Fights', contactPenaltiesTaken = 'Contact penalties taken', contactPenaltiesDrawn = 'Contact penalties drawn')
+  selection_table <- applications$engagement$selection |>
+    dplyr::transmute(Window = window, Position = model, 'Scored player-seasons' = base::as.character(scoredPlayerSeasons), 'Positive playoff exposure' = base::as.character(playoffParticipants), 'Paired positive exposure' = base::as.character(pairedPlayerSeasons))
+  engagement_table <- applications$engagement$estimates |>
+    dplyr::transmute(Window = window, Position = model, Measure = base::unname(engagement_labels[outcome]), 'Informative pairs' = base::as.character(sampleSize), 'Zero-total pairs' = base::as.character(zeroTotalStrata), 'Rate-ratio multiplier per CSAx SD (95% CI)' = interval(effect, effectLow, effectHigh))
+  rate_table <- applications$engagement$rateChanges |> dplyr::filter(outcome == 'hits') |>
+    dplyr::transmute(Window = window, Position = model, CSAx, 'Adjusted postseason/baseline rate ratio (95% CI)' = interval(effect, effectLow, effectHigh), 'Rate change (%)' = rateChangePercent)
+  descriptive_contacts <- applications$engagement$descriptive |> dplyr::filter(window == 'First four') |>
+    dplyr::transmute(Position = model, Period = period, Measure = base::unname(engagement_labels[outcome]), Events = base::as.character(count), 'Five-on-five minutes' = exposureSeconds / 60, 'Events per 60' = ratePer60)
+  window_coverage <- p$applicationInputs$teamGames |> dplyr::group_by(seasonId) |>
+    dplyr::summarise(construction = dplyr::n_distinct(gameId[scoreConstructionGame]), baselineGames = dplyr::n_distinct(gameId[baseline]), firstFourGames = dplyr::n_distinct(gameId[firstFour]), fullPlayoffGames = dplyr::n_distinct(gameId[gameTypeId == 3L]), .groups = 'drop') |>
+    dplyr::transmute(Season = season_label(seasonId), 'Excluded construction games' = base::as.character(construction), 'Available baseline games' = base::as.character(baselineGames), 'First-four playoff games' = base::as.character(firstFourGames), 'Full playoff games' = base::as.character(fullPlayoffGames))
+  team_coverage <- applications$teams$changes |> dplyr::filter(window == 'First four') |> dplyr::group_by(seasonId) |>
+    dplyr::summarise(qualifiers = dplyr::n(), included = base::sum(included), forwardCoverage = stats::median(scoredCoverage_Forwards), defenseCoverage = stats::median(scoredCoverage_Defensemen), .groups = 'drop') |>
+    dplyr::transmute(Season = season_label(seasonId), 'Playoff teams' = base::as.character(qualifiers), 'Joint-model teams' = base::as.character(included), 'Median scored forward TOI (%)' = 100 * forwardCoverage, 'Median scored defenseman TOI (%)' = 100 * defenseCoverage)
+  team_exclusions <- applications$teams$changes |> dplyr::filter(window == 'First four', !included) |>
+    dplyr::transmute(Season = season_label(seasonId), Team = teamTriCode, 'Scored forward TOI (%)' = 100 * scoredCoverage_Forwards, 'Scored defenseman TOI (%)' = 100 * scoredCoverage_Defensemen, Reason = exclusion)
+  team_labels <- base::c(deltaXGF60 = 'Expected goals for per 60', deltaAttempts60 = 'Unblocked attempts per 60', deltaQuality100 = 'Expected goals per 100 unblocked attempts')
+  team_estimates <- applications$teams$estimates |>
+    dplyr::transmute(Window = window, Outcome = base::unname(team_labels[outcome]), 'Positional team score' = model, 'Team-seasons' = base::as.character(sampleSize), Franchises = base::as.character(franchises), 'Signed change per team-score SD (95% CI)' = interval(effect, effectLow, effectHigh, 3L))
+  team_descriptive <- applications$teams$changes |> dplyr::filter(window == 'First four') |> dplyr::group_by(seasonId) |>
+    dplyr::summarise('Mean change in xGF per 60' = base::mean(deltaXGF60), 'Mean change in attempts per 60' = base::mean(deltaAttempts60), 'Mean change in xG per 100 attempts' = base::mean(deltaQuality100), 'Mean absolute quality change' = base::mean(absoluteQualityChange), .groups = 'drop') |> dplyr::mutate(Season = season_label(seasonId), .before = 1L) |> dplyr::select(-seasonId)
+
+  primary_forward_hits <- applications$engagement$estimates |> dplyr::filter(model == 'Forwards', outcome == 'hits', window == 'First four')
+  primary_defense_hits <- applications$engagement$estimates |> dplyr::filter(model == 'Defensemen', outcome == 'hits', window == 'First four')
+  primary_team <- applications$teams$estimates |> dplyr::filter(outcome == 'deltaXGF60', window == 'First four')
+
   # Draw gridless figures for weights and continuation.
-  coefficient_plot <- coefficients |> dplyr::filter(model != 'Wings') |>
+  coefficient_plot <- coefficients |>
     dplyr::mutate(featureLabel = base::factor(labels[feature], levels = base::rev(base::unname(labels)))) |>
     ggplot2::ggplot(ggplot2::aes(medianCoefficient, featureLabel, color = component)) +
     ggplot2::geom_vline(xintercept = 0, color = '#BBBBBB', linewidth = 0.4) +
@@ -133,6 +184,26 @@ write_a3z_report <- function(analysis, report_directory, figure_directory) {
     ggplot2::scale_x_continuous(breaks = base::c(-1, 0, 1)) +
     ggplot2::labs(title = 'Physicality profile and next-season continuation', subtitle = '95% player-clustered intervals conditional on estimated scores and sample', x = 'CSAx within positional reference', y = 'Adjusted probability of at least 300 NHL minutes (%)') + research_theme()
   ggplot2::ggsave(base::file.path(figure_directory, 'continuation.png'), continuation_plot, width = 9, height = 5, dpi = 180, bg = 'white')
+
+  # Draw primary postseason rate changes and team chance-creation contrasts.
+  engagement_plot <- applications$engagement$rateChanges |> dplyr::filter(outcome == 'hits') |>
+    ggplot2::ggplot(ggplot2::aes(CSAx, effect, color = window, group = window)) +
+    ggplot2::geom_hline(yintercept = 1, color = '#BBBBBB', linewidth = 0.4) +
+    ggplot2::geom_line(linewidth = 0.7) +
+    ggplot2::geom_errorbar(ggplot2::aes(ymin = effectLow, ymax = effectHigh), width = 0.08) +
+    ggplot2::geom_point(ggplot2::aes(shape = window), size = 2.5) + ggplot2::facet_wrap(~model) +
+    ggplot2::scale_color_manual(values = base::c('First four' = '#17324D', 'Full postseason' = '#BD7C27')) +
+    ggplot2::scale_x_continuous(breaks = base::c(-1, 0, 1)) +
+    ggplot2::labs(title = 'Changes in hits delivered during postseason play', subtitle = 'Adjusted rate ratios; conditional player-clustered 95% intervals', x = 'CSAx within positional reference', y = 'Postseason / baseline hits per 60', color = NULL, shape = NULL) + research_theme()
+  ggplot2::ggsave(base::file.path(figure_directory, 'postseason_engagement.png'), engagement_plot, width = 9, height = 5, dpi = 180, bg = 'white')
+  chance_plot <- applications$teams$estimates |> dplyr::filter(outcome == 'deltaXGF60') |>
+    ggplot2::ggplot(ggplot2::aes(effect, model, color = window)) +
+    ggplot2::geom_vline(xintercept = 0, color = '#BBBBBB', linewidth = 0.4) +
+    ggplot2::geom_errorbar(ggplot2::aes(xmin = effectLow, xmax = effectHigh), orientation = 'y', width = 0.15, position = ggplot2::position_dodge(width = 0.4)) +
+    ggplot2::geom_point(size = 2.7, position = ggplot2::position_dodge(width = 0.4)) +
+    ggplot2::scale_color_manual(values = base::c('First four' = '#17324D', 'Full postseason' = '#BD7C27')) +
+    ggplot2::labs(title = 'Positional physicality and postseason chance creation', subtitle = 'Both team scores enter jointly; franchise-clustered 95% intervals', x = 'Change in xGF per 60 per positional team-score SD', y = NULL, color = NULL) + research_theme()
+  ggplot2::ggsave(base::file.path(figure_directory, 'team_chance_creation.png'), chance_plot, width = 9, height = 4.5, dpi = 180, bg = 'white')
 
   # Report observed results without treating size prediction as construct validation.
   forward <- pooled |> dplyr::filter(model == 'Forwards')
@@ -232,9 +303,11 @@ Player-average scores use eligible seasons following the source report. A zero c
 
 ## Next-season continuation
 
-Continuation means at least 300 NHL minutes in the following season. Separate positional models retain listed size, age and age squared, games dressed, ice time per game, five-on-five scoring rate, relative shot attempts, and season controls.
+Continuation means at least 300 NHL minutes in the following season. CSAx and controls come from season t, and continuation concerns t+1. The primary models condition on current-season role: games dressed and ice time per game in t. Separate positional models also retain listed size, age and age squared, five-on-five scoring rate, relative shot attempts, and season controls.
 
 <<markdown_table(continuation_table)>>
+
+Both primary associations meet the nominal 5% significance threshold. We retain three decimals here because the forward lower bound rounds to 1.00 at two decimals. Statistical significance does not establish measurement validity or identify an optimal feature subset. The specification remains fixed; any future simplification requires hockey rationale and measurement evidence. [ASA guidance](https://www.amstat.org/asa/files/pdfs/p-valuestatement.pdf).
 
 We also average predicted probabilities over each observed positional sample while setting CSAx to −1, 0, or +1. Other controls retain their observed values.
 
@@ -244,13 +317,87 @@ We also average predicted probabilities over each observed positional sample whi
 
 These associations describe roster relevance. They are not causal effects or independent confirmation of the physicality construct. Player-clustered HC1 intervals condition on the estimated scores and tracked sample; uncertainty from reconstructing CSAx is outside these intervals.
 
+### Current and previous roles
+
+The role-timing comparison restricts both models to identical observations with NHL participation and observed role in t−1. We replace only games dressed and ice time per game with their preceding-season values, retaining CSAx and all other controls from t. The full-sample current-role analysis remains primary.
+
+<<markdown_table(role_table)>>
+
+<<markdown_table(role_probabilities)>>
+
+These comparisons address conditioning choices. They do not isolate causal pathways, and differences in nominal significance do not determine which model we prefer.
+
+## Special-teams deployment
+
+We express official power-play and penalty-kill ice time as percentages of total regular-season ice time. Recorded zeros remain observations. The source covers all <<base::nrow(applications$deployment$panel)>> scored player-seasons, with <<base::sum(applications$deployment$estimates$missingRecords)>> missing unit-specific records. Higher CSAx accompanies lower power-play shares and higher penalty-kill shares in both positions. Linear models use the same current-season size, age, usage, scoring, relative-shot-attempt, and season controls as continuation. Intervals use player-clustered HC1 uncertainty conditional on the scores.
+
+<<markdown_table(deployment_table)>>
+
+The associations describe how teams deploy players with different physical profiles. Special-teams assignments also reflect skill, tactical needs, and teammates; a power-play or penalty-kill association cannot independently validate toughness.
+
+## Postseason physical engagement
+
+We compare five-on-five observations from regular-season games excluded from score construction with each qualifying team’s first four playoff games. A player enters the paired analysis only with positive exposure in both periods. For traded players, the baseline includes games with their playoff team. The window is common to teams; a player need not dress in all four games.
+
+<<markdown_table(window_coverage)>>
+
+The baseline excludes every game with retained A3Z tracking, including records outside individual scoring eligibility. This conservative separation prevents the same game from contributing to score construction and the regular-season outcome baseline. Selection into the playoffs and the paired sample remains visible:
+
+<<markdown_table(selection_table)>>
+
+We fit separate positional Poisson models for hits delivered, hits received, and opponent shots blocked. Player-season effects absorb each player’s baseline level, ice-time offsets account for exposure, and postseason interactions with CSAx and the existing regular-season controls describe differential changes. Player-clustered HC1 intervals condition on scores and observed pairs. Pairs with zero events across both periods contribute to descriptive totals but contain no information about within-player rate change for that event.
+
+<<markdown_table(engagement_table)>>
+
+The forward hits-delivered multiplier is **<<interval(primary_forward_hits$effect, primary_forward_hits$effectLow, primary_forward_hits$effectHigh)>>** per CSAx standard deviation. Higher-scoring forwards show a smaller proportional postseason increase, and the full-postseason check has the same direction. The defenseman estimate is **<<interval(primary_defense_hits$effect, primary_defense_hits$effectLow, primary_defense_hits$effectHigh)>>**; its interval includes no differential change.
+
+A rate-ratio multiplier below one indicates a smaller proportional postseason increase as CSAx rises, after adjustment. It does not by itself establish a physical ceiling or imply lower postseason contact levels. Adjusted ratios below average log-rate changes over the covariate distribution of informative pairs, with CSAx set to −1, 0, or +1:
+
+<<markdown_table(rate_table)>>
+
+![Postseason changes in hits delivered](figures/postseason_engagement.png)
+
+Fights and contact penalties receive descriptive summaries because their counts are sparse. These observed rates also show the contact levels underlying the fitted changes:
+
+<<markdown_table(descriptive_contacts)>>
+
+The full-postseason check repeats only the primary hits-delivered model. Its longer windows depend on team advancement. All estimates concern participating players; they do not describe what nonqualifiers would do in the playoffs.
+
+## Team chance creation
+
+We examine signed postseason-minus-baseline changes in expected goals for per 60. Unblocked attempts per 60 measure chance volume, while expected goals per 100 unblocked attempts describe average chance quality. For each team, xGF per 60 equals attempts per 60 multiplied by xG per attempt. The outcomes use the same disjoint baseline and first-four-game window as physical engagement.
+
+Separate forward and defenseman team scores weight player CSAx by full regular-season five-on-five ice time. Centers contribute once to forwards. Each positional team score is standardized across all 32 teams within season before playoff teams are selected. Joint models require at least 80% scored ice-time coverage in both positions and complete underlying player exposure.
+
+<<markdown_table(team_coverage)>>
+
+<<if (base::nrow(team_exclusions)) markdown_table(team_exclusions) else "Every playoff team meets the joint-model coverage requirement.">>
+
+Expected goals use the pinned NHLxG model files, whose SHA-256 hashes match the inherited model index. We score complete game records before selecting five-on-five events or outcome windows. The chance measures cover skater unblocked attempts: <<base::sum(p$applicationInputs$teamGames$excludedGoalieAttempts)>> goalie-attributed attempts across the full four-season source are outside the model’s supported population and excluded from both expected goals and attempt denominators. All retained attempts have an expected-goal prediction. [NHLxG model source](https://huggingface.co/datasets/RentoSaijo/NHLxG).
+
+The change models include both positional scores, season effects, and changes in opponent defensive strength. Opponent strength is regular-season xGA per 60, excluding head-to-head games against the focal team, then averaged over each period using five-on-five exposure. We weight rate changes by the harmonic combination of baseline and playoff ice time; the quality model uses attempt-count weights. Franchise-clustered HC1 intervals use a t reference with the number of franchises minus one degrees of freedom.
+
+<<markdown_table(team_estimates)>>
+
+The primary models contain **<<primary_team$sampleSize[1L]>> team-seasons** from **<<primary_team$franchises[1L]>> franchises**. Both positional intervals for xGF-per-60 change include zero. The full-postseason estimates remain uncertain, so the team results do not establish a clear chance-creation advantage for a tougher measured profile.
+
+![Positional team scores and postseason chance creation](figures/team_chance_creation.png)
+
+The full-postseason check repeats only the primary xGF-per-60 analysis. Both windows are observational comparisons affected by matchups, playoff selection, team systems, and remaining unmeasured differences.
+
+The following descriptive means include all 16 playoff teams in each season.
+
+<<markdown_table(team_descriptive)>>
+
+The last column preserves a descriptive connection to the original study of 16 playoff teams in 2024–25. An absolute change combines increases and declines; one such change does not estimate variability or establish consistency. The signed models retain that distinction across the four seasons.
+
 ## Research direction and reproduction
 
-The [provisional research roadmap](research_roadmap.md) organizes the next paper decisions around external evidence, continuation, and possible playoff applications. Expanded scouting results are required before completing the [Sloan abstract](abstract.md). Power-play and penalty-kill roles remain candidate contextual applications. A playoff comparison can use regular-season games excluded from CSAx inputs to reduce mechanical relationships between the score and measured change.
+The [provisional research roadmap](research_roadmap.md) organizes the paper around frame-relative physicality, independent scouting, continuation and deployment, and postseason engagement and team chance creation. Expanded scouting results are required before completing the [Sloan abstract](abstract.md). The results review determines which application findings advance the final narrative. Individual shooting-percentage variability, contracts, and numerous career interactions remain outside this analysis.
 
 The compact analysis object retains frozen source inputs, model identities, feature counts, folds, calibration summaries, historical benchmarks, and current results. The numbered workflow fits only the selected positional specification by default. Previous alternative models and bootstrap summaries remain labeled historical results.
 
-Current outputs include [player rankings](player_rankings.csv), [team tracking coverage](team_summaries.csv), and [application estimates](application_estimates.csv). The [README](../../README.md) supplies reproduction and scouting-lock instructions. NHL inputs use the pinned nhlscraper revision; A3Z observations remain attributed to Corey Sznajder / All Three Zones. Source materials retain their third-party terms.
+Current outputs include [player rankings](player_rankings.csv), [team scores and postseason summaries](team_summaries.csv), [player-period engagement](postseason_engagement.csv), and [application estimates](application_estimates.csv). The [README](../../README.md) supplies reproduction and scouting-lock instructions. NHL inputs use the pinned nhlscraper revision; A3Z observations remain attributed to Corey Sznajder / All Three Zones. Source materials retain their third-party terms.
 
 Sloan requires an abstract under 500 words, including title and body, with Introduction, Methods, Results, and Conclusion sections reporting actual findings. Abstracts are due October 1, 2026, at 11:59 p.m. Eastern; invited manuscripts are due December 4. Current guidance requires an open-source repository link. The repository remains private pending a public-release decision, and full-manuscript formatting requires confirmation from invitation guidance. [Competition rules](https://www.sloansportsconference.com/research-paper-competition).
 ', .open = '<<', .close = '>>')
@@ -282,7 +429,7 @@ write_physicality_submission <- function(p, pooled, report_directory) {
     'Expanded scouting associations await completion and locking of the blinded human ratings.'
   }
   status <- if (p$scouting$expansionComplete) '' else '**Draft awaiting expanded scouting ratings; not ready for submission.**\n\n'
-  abstract <- glue::glue('# Playing Tough for Your Size: Positional Physicality and NHL Continuation
+  abstract <- glue::glue('# Playing Tougher for Your Size: Positional Physicality and NHL Continuation
 
 <<status>>## Introduction
 
@@ -298,51 +445,43 @@ Held-out predictive R² is <<fixed(100 * forward$pooledR2)>>% for forwards and <
 
 ## Conclusion
 
-CSAx describes physical behavior relative to frame within positional references and shows associations with roster continuation. Learned size-prediction weights, uneven tracking, and seasonal instability constrain interpretation. Continued external evaluation is necessary to establish how closely this statistical profile represents playing tough or soft for one’s size.
+CSAx describes physical behavior relative to frame within positional references and shows associations with roster continuation. Learned size-prediction weights, uneven tracking, and seasonal instability constrain interpretation. Continued external evaluation is necessary to establish how closely this statistical profile represents playing tougher or softer for one’s size.
 ', .open = '<<', .close = '>>')
   word_count <- stringr::str_count(stringr::str_squish(abstract), '\\S+')
   if (word_count >= 500L) base::stop('Sloan abstract exceeds permitted word count.', call. = FALSE)
   readr::write_file(base::paste0(abstract, '\n'), base::file.path(report_directory, 'abstract.md'))
   roadmap <- glue::glue('# Positional physicality: provisional research roadmap
 
-We organize the study around a clear measurement question: does CSAx capture physical presence beyond what listed size suggests? The main analyses distinguish forwards, including centers, from defensemen. Independent scouting descriptions evaluate agreement with hockey judgment; next-season continuation supplies an initial application.
+We study physical presence relative to listed frame using separate models for forwards, including centers, and defensemen. The [research summary](research_summary.md) presents the completed measurement, deployment, continuation, and postseason analyses. Their place in the final paper depends on the results review and independent scouting evidence.
 
-## Evidence available and immediate priority
+## Paper structure
 
-The [research summary](research_summary.md) contains completed fits for one selected specification, seasonal prediction checks, additive contributions, and continuation estimates. Expanded scouting status is **<<p$scouting$status>>**. The expanded cohort adds <<p$scouting$plannedNewForwards>> forwards and <<p$scouting$plannedNewDefensemen>> defensemen to the 40 frozen forward ratings. Every eligible verified profile is included without selecting on CSAx or physicality language.
+1. **Frame-relative physicality and positional construction.** Define direct and indirect physicality, explain expected-size prediction and frame calibration, and present held-out performance, annual stability, and player contributions. Positional responsibilities set the reference population.
+2. **Independent scouting evidence.** Evaluate active physical engagement and interior play separately for forwards and defensemen. Preserve the 40 frozen annotations; 39 currently have eligible scores. The <<p$scouting$plannedNewPlayers>> new passages supplement this collection without recoding previous reports.
+3. **Continuation and deployment.** Keep full-sample current-role continuation primary. Present the matched current/prior-role comparison and PP/PK shares as contextual applications, with adjusted probabilities and percentage-point associations.
+4. **Postseason engagement and team chance creation.** Lead with hits delivered and expected goals for per 60. Use received hits, shot blocks, attempt volume, and average chance quality to explain the primary findings. First-four-game windows are primary; full-postseason results are the single window check.
 
-The [abstract](abstract.md) becomes a submission draft only after the expanded ratings are complete and locked. We evaluate both scouting indicators regardless of direction. The source reports reflect draft-era prospects and use one rater, so even clear agreement supplies limited convergent evidence.
+The cross-position center exercise remains historical material. Defensive targeted-entry opportunities differ sharply: medians are 10 for centers and 137 for defensemen. Of 724 center-seasons, 638 have denial shares outside the defensive training range, and only seven have complete inputs within both references’ ranges. These comparisons mix positional responsibilities with physical style. Centers contribute to the main forward population.
 
-## Provisional paper structure
+## Decisions for results review
 
-1. Introduce physical presence relative to frame and explain direct and indirect behaviors.
-2. Describe NHL–A3Z matching, positional feature mechanisms, exposure, and reference calibration.
-3. Present model performance, seasonal stability, and interpretable player contributions.
-4. Evaluate agreement with independent physical-engagement and interior-play descriptions.
-5. Examine next-season continuation as a practical application.
-6. Discuss measurement limits and any additional application selected after reviewing results.
-
-This structure remains provisional. The next research discussion evaluates the completed scouting findings and current model limitations before settling the full-paper analyses and narrative.
-
-## Candidate applications and inclusion decisions
-
-| Candidate | Research question | Main qualification and current priority |
+| Evidence | Interpretation to assess | Paper decision |
 | --- | --- | --- |
-| Expanded scouting | Do CSAx profiles agree with independent descriptions of physical engagement? | Central external evidence; assess forwards and defensemen separately and report code coverage. Absence of a mention does not establish soft play. |
-| PP and PK deployment | How does frame-relative physicality relate to special-teams roles? | NHL ice-time records support PP and PK shares of total ice time. Associations describe role and opportunity; their signs do not independently validate toughness. |
-| Regular-season-to-playoff physicality | Do physical-engagement rates change differently across the CSAx continuum? | Leading follow-up candidate. Use regular-season games excluded from CSAx inputs as an independent baseline, preserve exposure, and account for playoff qualification and dressing. Avoid interpreting regression to the mean as players stepping up. |
-| Playoff production or shooting variability | Are performance changes associated with the measured physical profile? | Lower priority. Short playoff samples, conversion luck, opponents, and deployment complicate comparisons of absolute changes or variances. |
-| Contracts, team outcomes, and career interactions | Does another application materially advance the measurement question? | Historical analyses remain available; these topics are outside the immediate paper core. |
+| Scouting descriptions | Do physical-engagement and interior-play descriptions align with player-average CSAx in both positions? | Central external evidence. Status: **<<p$scouting$status>>**. Complete and lock ratings before completing the abstract. |
+| Model performance | How much confidence do seasonal prediction, residual size gradients, sparse events, and annual stability support? | Retain the 2024–25 defensive limitation when framing claims. Do not select features for stronger outcome associations. |
+| Continuation and deployment | How does the measured profile relate to roster persistence and assigned roles? | Present practical relevance without treating role signs or nominal significance as construct validation. |
+| Postseason engagement | Do players with different scores show different proportional contact changes on disjoint baseline games? | Evaluate effect sizes, uncertainty, selection, and agreement across windows. A smaller increase does not establish a physical ceiling. |
+| Team chance creation | Are positional team scores associated with signed changes in chance volume and quality? | Assess coverage, opponent adjustment, and franchise-clustered uncertainty before choosing emphasis. Absolute change remains descriptive. |
 
-A continuation association cannot settle whether the defensive proxies measure physicality.
+Individual shooting-percentage variability, contracts, and numerous career interactions remain outside this pass. Further model simplification requires a hockey mechanism and measurement evidence; it does not follow from choosing a larger odds ratio or smaller p-value.
 
-## Submission and research decisions
+## Scouting and submission
 
-The abstract deadline is October 1, 2026, at 11:59 p.m. Eastern. Invited manuscripts are due December 4. We use the Other Sports track and keep the abstract below 500 words, including its title. Current public rules permit at most two combined figures or tables; the draft is text only. Full-manuscript formatting remains subject to invitation guidance. [Sloan competition rules](https://www.sloansportsconference.com/research-paper-competition).
+The blinded packet contains <<p$scouting$plannedNewForwards>> forwards and <<p$scouting$plannedNewDefensemen>> defensemen. One human rater codes the two established indicators without identities or CSAx. A zero records absence of a description, and cannot establish soft play. Draft-era sources, selective prospect coverage, and one rater remain limitations.
 
-The repository retains private visibility until a separate release decision. A release review covers source attribution, third-party data terms, reproducible inputs, and exclusion of private scouting prose and identity keys. Public code licensing does not grant redistribution rights to source materials. The paper describes its positional and A3Z contributions in relation to the preceding forward study.
+The [abstract](abstract.md) remains below 500 words, including its title, and awaits completed expanded ratings. The abstract deadline is October 1, 2026, at 11:59 p.m. Eastern; invited papers are due December 4 at the same time. We use the Other Sports track. Full-manuscript formatting remains subject to invitation guidance. [Sloan competition rules](https://www.sloansportsconference.com/research-paper-competition).
 
-After the expanded validation is available, we review whether the physicality interpretation is supported in both positions, whether seasonal defensive instability limits the claims, and whether a playoff application contributes enough to warrant inclusion. This review determines the full-paper scope and narrative.
+The repository remains private until an explicit release decision. Release review covers reproducible inputs, source attribution, third-party terms, and exclusion of private scouting prose and identity keys. The final narrative explains the positional and A3Z contributions in relation to the preceding forward study.
 ', .open = '<<', .close = '>>')
   readr::write_file(base::paste0(roadmap, '\n'), base::file.path(report_directory, 'research_roadmap.md'))
   base::message('Wrote positional physicality report and ', word_count, '-word abstract ', if (p$scouting$expansionComplete) 'draft.' else 'draft awaiting expanded ratings.')

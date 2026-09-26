@@ -168,7 +168,7 @@ The forward population includes centers and wings. Range and denominator columns
 
 ## Independent scouting descriptions
 
-The current associations use 39 eligible players from the 40 frozen forward ratings. An additional 43 verified passages cover 20 forwards and 23 defensemen. These passages await human coding and locking. Expanded validation and completion of the submission abstract depend on those ratings; the table below describes only available codes.
+The current associations use 39 eligible players from the 40 frozen forward ratings. We reuse their active-engagement and interior-play codes. Matthew Poitras falls below tracking eligibility, with 148.88 matched minutes in his best-covered season. An additional 43 verified passages cover 20 forwards and 23 defensemen. These passages await human coding and locking. Expanded validation and completion of the submission abstract depend on those ratings; the table below describes only available codes.
 
 | Position | Indicator | Players | Mentions | Spearman | Mean CSAx difference (95% CI) | Contrast status |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -183,12 +183,14 @@ Player-average scores use eligible seasons following the source report. A zero c
 
 ## Next-season continuation
 
-Continuation means at least 300 NHL minutes in the following season. Separate positional models retain listed size, age and age squared, games dressed, ice time per game, five-on-five scoring rate, relative shot attempts, and season controls.
+Continuation means at least 300 NHL minutes in the following season. CSAx and controls come from season t, and continuation concerns t+1. The primary models condition on current-season role: games dressed and ice time per game in t. Separate positional models also retain listed size, age and age squared, five-on-five scoring rate, relative shot attempts, and season controls.
 
-| Position | Player-seasons | Odds ratio per CSAx SD (95% CI) |
-| --- | --- | --- |
-| Defensemen | 829 | 1.32 (1.04 to 1.68) |
-| Forwards | 1485 | 1.22 (1.00 to 1.48) |
+| Position | Player-seasons | Odds ratio per CSAx SD (95% CI) | p-value |
+| --- | --- | --- | --- |
+| Defensemen | 829 | 1.322 (1.038 to 1.683) | 0.024 |
+| Forwards | 1485 | 1.220 (1.003 to 1.485) | 0.047 |
+
+Both primary associations meet the nominal 5% significance threshold. We retain three decimals here because the forward lower bound rounds to 1.00 at two decimals. Statistical significance does not establish measurement validity or identify an optimal feature subset. The specification remains fixed; any future simplification requires hockey rationale and measurement evidence. [ASA guidance](https://www.amstat.org/asa/files/pdfs/p-valuestatement.pdf).
 
 We also average predicted probabilities over each observed positional sample while setting CSAx to −1, 0, or +1. Other controls retain their observed values.
 
@@ -205,12 +207,188 @@ We also average predicted probabilities over each observed positional sample whi
 
 These associations describe roster relevance. They are not causal effects or independent confirmation of the physicality construct. Player-clustered HC1 intervals condition on the estimated scores and tracked sample; uncertainty from reconstructing CSAx is outside these intervals.
 
+### Current and previous roles
+
+The role-timing comparison restricts both models to identical observations with NHL participation and observed role in t−1. We replace only games dressed and ice time per game with their preceding-season values, retaining CSAx and all other controls from t. The full-sample current-role analysis remains primary.
+
+| Position | Role timing | Player-seasons | Odds ratio (95% CI) | p-value |
+| --- | --- | --- | --- | --- |
+| Defensemen | Current season | 800 | 1.30 (1.01 to 1.67) | 0.043 |
+| Defensemen | Previous season | 800 | 1.38 (1.08 to 1.75) | 0.010 |
+| Forwards | Current season | 1426 | 1.22 (0.99 to 1.50) | 0.059 |
+| Forwards | Previous season | 1426 | 1.26 (1.03 to 1.53) | 0.022 |
+
+| Position | Role timing | CSAx | Adjusted continuation probability (%) | 95% CI (%) |
+| --- | --- | --- | --- | --- |
+| Defensemen | Current season | -1.00 | 87.06 | 84.16 to 89.97 |
+| Defensemen | Current season | 0.00 | 89.07 | 87.11 to 91.03 |
+| Defensemen | Current season | 1.00 | 90.84 | 88.41 to 93.26 |
+| Defensemen | Previous season | -1.00 | 86.32 | 83.22 to 89.41 |
+| Defensemen | Previous season | 0.00 | 89.04 | 87.01 to 91.06 |
+| Defensemen | Previous season | 1.00 | 91.32 | 88.95 to 93.69 |
+| Forwards | Current season | -1.00 | 88.54 | 86.12 to 90.96 |
+| Forwards | Current season | 0.00 | 90.04 | 88.59 to 91.48 |
+| Forwards | Current season | 1.00 | 91.37 | 89.69 to 93.06 |
+| Forwards | Previous season | -1.00 | 88.06 | 85.46 to 90.66 |
+| Forwards | Previous season | 0.00 | 89.95 | 88.46 to 91.44 |
+| Forwards | Previous season | 1.00 | 91.59 | 89.94 to 93.24 |
+
+These comparisons address conditioning choices. They do not isolate causal pathways, and differences in nominal significance do not determine which model we prefer.
+
+## Special-teams deployment
+
+We express official power-play and penalty-kill ice time as percentages of total regular-season ice time. Recorded zeros remain observations. The source covers all 2314 scored player-seasons, with 0 missing unit-specific records. Higher CSAx accompanies lower power-play shares and higher penalty-kill shares in both positions. Linear models use the same current-season size, age, usage, scoring, relative-shot-attempt, and season controls as continuation. Intervals use player-clustered HC1 uncertainty conditional on the scores.
+
+| Position | Unit | Player-seasons | Mean TOI share (%) | Spearman | Adjusted percentage points per CSAx SD (95% CI) |
+| --- | --- | --- | --- | --- | --- |
+| Defensemen | Power play | 829 | 4.37 | -0.21 | -0.44 (-0.76 to -0.12) |
+| Defensemen | Penalty kill | 829 | 8.27 | 0.15 | 0.66 (0.37 to 0.95) |
+| Forwards | Power play | 1485 | 9.84 | -0.36 | -0.61 (-0.89 to -0.33) |
+| Forwards | Penalty kill | 1485 | 5.48 | 0.21 | 0.70 (0.37 to 1.03) |
+
+The associations describe how teams deploy players with different physical profiles. Special-teams assignments also reflect skill, tactical needs, and teammates; a power-play or penalty-kill association cannot independently validate toughness.
+
+## Postseason physical engagement
+
+We compare five-on-five observations from regular-season games excluded from score construction with each qualifying team’s first four playoff games. A player enters the paired analysis only with positive exposure in both periods. For traded players, the baseline includes games with their playoff team. The window is common to teams; a player need not dress in all four games.
+
+| Season | Excluded construction games | Available baseline games | First-four playoff games | Full playoff games |
+| --- | --- | --- | --- | --- |
+| 2021–22 | 491 | 821 | 32 | 89 |
+| 2022–23 | 414 | 898 | 32 | 88 |
+| 2023–24 | 390 | 922 | 32 | 88 |
+| 2024–25 | 383 | 929 | 32 | 86 |
+
+The baseline excludes every game with retained A3Z tracking, including records outside individual scoring eligibility. This conservative separation prevents the same game from contributing to score construction and the regular-season outcome baseline. Selection into the playoffs and the paired sample remains visible:
+
+| Window | Position | Scored player-seasons | Positive playoff exposure | Paired positive exposure |
+| --- | --- | --- | --- | --- |
+| First four | Defensemen | 829 | 395 | 395 |
+| First four | Forwards | 1485 | 752 | 752 |
+| Full postseason | Defensemen | 829 | 409 | 409 |
+| Full postseason | Forwards | 1485 | 774 | 774 |
+
+We fit separate positional Poisson models for hits delivered, hits received, and opponent shots blocked. Player-season effects absorb each player’s baseline level, ice-time offsets account for exposure, and postseason interactions with CSAx and the existing regular-season controls describe differential changes. Player-clustered HC1 intervals condition on scores and observed pairs. Pairs with zero events across both periods contribute to descriptive totals but contain no information about within-player rate change for that event.
+
+| Window | Position | Measure | Informative pairs | Zero-total pairs | Rate-ratio multiplier per CSAx SD (95% CI) |
+| --- | --- | --- | --- | --- | --- |
+| First four | Defensemen | Hits delivered | 395 | 0 | 0.95 (0.88 to 1.02) |
+| First four | Defensemen | Hits received | 395 | 0 | 0.99 (0.94 to 1.05) |
+| First four | Defensemen | Opponent shots blocked | 395 | 0 | 1.01 (0.95 to 1.07) |
+| First four | Forwards | Hits delivered | 752 | 0 | 0.88 (0.83 to 0.94) |
+| First four | Forwards | Hits received | 751 | 1 | 1.00 (0.95 to 1.06) |
+| First four | Forwards | Opponent shots blocked | 751 | 1 | 0.96 (0.87 to 1.05) |
+| Full postseason | Defensemen | Hits delivered | 409 | 0 | 0.95 (0.89 to 1.01) |
+| Full postseason | Forwards | Hits delivered | 774 | 0 | 0.90 (0.86 to 0.95) |
+
+The forward hits-delivered multiplier is **0.88 (0.83 to 0.94)** per CSAx standard deviation. Higher-scoring forwards show a smaller proportional postseason increase, and the full-postseason check has the same direction. The defenseman estimate is **0.95 (0.88 to 1.02)**; its interval includes no differential change.
+
+A rate-ratio multiplier below one indicates a smaller proportional postseason increase as CSAx rises, after adjustment. It does not by itself establish a physical ceiling or imply lower postseason contact levels. Adjusted ratios below average log-rate changes over the covariate distribution of informative pairs, with CSAx set to −1, 0, or +1:
+
+| Window | Position | CSAx | Adjusted postseason/baseline rate ratio (95% CI) | Rate change (%) |
+| --- | --- | --- | --- | --- |
+| First four | Defensemen | -1.00 | 1.65 (1.47 to 1.85) | 64.75 |
+| First four | Defensemen | 0.00 | 1.56 (1.44 to 1.69) | 56.14 |
+| First four | Defensemen | 1.00 | 1.48 (1.33 to 1.64) | 47.98 |
+| First four | Forwards | -1.00 | 2.36 (2.15 to 2.59) | 136.27 |
+| First four | Forwards | 0.00 | 2.08 (1.97 to 2.21) | 108.40 |
+| First four | Forwards | 1.00 | 1.84 (1.70 to 1.99) | 83.82 |
+| Full postseason | Defensemen | -1.00 | 1.53 (1.38 to 1.69) | 52.59 |
+| Full postseason | Defensemen | 0.00 | 1.45 (1.36 to 1.55) | 45.13 |
+| Full postseason | Defensemen | 1.00 | 1.38 (1.27 to 1.50) | 38.03 |
+| Full postseason | Forwards | -1.00 | 2.12 (1.96 to 2.28) | 111.66 |
+| Full postseason | Forwards | 0.00 | 1.91 (1.82 to 2.01) | 90.99 |
+| Full postseason | Forwards | 1.00 | 1.72 (1.62 to 1.84) | 72.34 |
+
+![Postseason changes in hits delivered](figures/postseason_engagement.png)
+
+Fights and contact penalties receive descriptive summaries because their counts are sparse. These observed rates also show the contact levels underlying the fitted changes:
+
+| Position | Period | Measure | Events | Five-on-five minutes | Events per 60 |
+| --- | --- | --- | --- | --- | --- |
+| Defensemen | Baseline | Hits delivered | 20520 | 283624.58 | 4.34 |
+| Defensemen | Baseline | Hits received | 26031 | 283624.58 | 5.51 |
+| Defensemen | Baseline | Opponent shots blocked | 19946 | 283624.58 | 4.22 |
+| Defensemen | Baseline | Fights | 142 | 283624.58 | 0.03 |
+| Defensemen | Baseline | Contact penalties taken | 1917 | 283624.58 | 0.41 |
+| Defensemen | Baseline | Contact penalties drawn | 1300 | 283624.58 | 0.28 |
+| Defensemen | Postseason | Hits delivered | 2627 | 23330.60 | 6.76 |
+| Defensemen | Postseason | Hits received | 3939 | 23330.60 | 10.13 |
+| Defensemen | Postseason | Opponent shots blocked | 1893 | 23330.60 | 4.87 |
+| Defensemen | Postseason | Fights | 5 | 23330.60 | 0.01 |
+| Defensemen | Postseason | Contact penalties taken | 220 | 23330.60 | 0.57 |
+| Defensemen | Postseason | Contact penalties drawn | 146 | 23330.60 | 0.38 |
+| Forwards | Baseline | Hits delivered | 37003 | 412268.92 | 5.39 |
+| Forwards | Baseline | Hits received | 35535 | 412268.92 | 5.17 |
+| Forwards | Baseline | Opponent shots blocked | 13738 | 412268.92 | 2.00 |
+| Forwards | Baseline | Fights | 265 | 412268.92 | 0.04 |
+| Forwards | Baseline | Contact penalties taken | 3203 | 412268.92 | 0.47 |
+| Forwards | Baseline | Contact penalties drawn | 3882 | 412268.92 | 0.56 |
+| Forwards | Postseason | Hits delivered | 6103 | 34822.08 | 10.52 |
+| Forwards | Postseason | Hits received | 4861 | 34822.08 | 8.38 |
+| Forwards | Postseason | Opponent shots blocked | 1461 | 34822.08 | 2.52 |
+| Forwards | Postseason | Fights | 5 | 34822.08 | 0.01 |
+| Forwards | Postseason | Contact penalties taken | 347 | 34822.08 | 0.60 |
+| Forwards | Postseason | Contact penalties drawn | 431 | 34822.08 | 0.74 |
+
+The full-postseason check repeats only the primary hits-delivered model. Its longer windows depend on team advancement. All estimates concern participating players; they do not describe what nonqualifiers would do in the playoffs.
+
+## Team chance creation
+
+We examine signed postseason-minus-baseline changes in expected goals for per 60. Unblocked attempts per 60 measure chance volume, while expected goals per 100 unblocked attempts describe average chance quality. For each team, xGF per 60 equals attempts per 60 multiplied by xG per attempt. The outcomes use the same disjoint baseline and first-four-game window as physical engagement.
+
+Separate forward and defenseman team scores weight player CSAx by full regular-season five-on-five ice time. Centers contribute once to forwards. Each positional team score is standardized across all 32 teams within season before playoff teams are selected. Joint models require at least 80% scored ice-time coverage in both positions and complete underlying player exposure.
+
+| Season | Playoff teams | Joint-model teams | Median scored forward TOI (%) | Median scored defenseman TOI (%) |
+| --- | --- | --- | --- | --- |
+| 2021–22 | 16 | 16 | 93.93 | 94.20 |
+| 2022–23 | 16 | 15 | 90.79 | 93.56 |
+| 2023–24 | 16 | 15 | 92.14 | 93.54 |
+| 2024–25 | 16 | 16 | 91.05 | 94.13 |
+
+| Season | Team | Scored forward TOI (%) | Scored defenseman TOI (%) | Reason |
+| --- | --- | --- | --- | --- |
+| 2022–23 | WPG | 76.86 | 93.46 | Forwards below 80% scored ice time |
+| 2023–24 | BOS | 77.03 | 78.69 | Both positions below 80% scored ice time |
+
+Expected goals use the pinned NHLxG model files, whose SHA-256 hashes match the inherited model index. We score complete game records before selecting five-on-five events or outcome windows. The chance measures cover skater unblocked attempts: 17 goalie-attributed attempts across the full four-season source are outside the model’s supported population and excluded from both expected goals and attempt denominators. All retained attempts have an expected-goal prediction. [NHLxG model source](https://huggingface.co/datasets/RentoSaijo/NHLxG).
+
+The change models include both positional scores, season effects, and changes in opponent defensive strength. Opponent strength is regular-season xGA per 60, excluding head-to-head games against the focal team, then averaged over each period using five-on-five exposure. We weight rate changes by the harmonic combination of baseline and playoff ice time; the quality model uses attempt-count weights. Franchise-clustered HC1 intervals use a t reference with the number of franchises minus one degrees of freedom.
+
+| Window | Outcome | Positional team score | Team-seasons | Franchises | Signed change per team-score SD (95% CI) |
+| --- | --- | --- | --- | --- | --- |
+| First four | Expected goals for per 60 | Forwards | 62 | 24 | 0.071 (-0.106 to 0.249) |
+| First four | Expected goals for per 60 | Defensemen | 62 | 24 | -0.014 (-0.143 to 0.116) |
+| First four | Unblocked attempts per 60 | Forwards | 62 | 24 | -0.381 (-2.524 to 1.763) |
+| First four | Unblocked attempts per 60 | Defensemen | 62 | 24 | -0.820 (-1.977 to 0.336) |
+| First four | Expected goals per 100 unblocked attempts | Forwards | 62 | 24 | 0.180 (-0.118 to 0.479) |
+| First four | Expected goals per 100 unblocked attempts | Defensemen | 62 | 24 | 0.057 (-0.124 to 0.238) |
+| Full postseason | Expected goals for per 60 | Forwards | 62 | 24 | 0.101 (-0.001 to 0.204) |
+| Full postseason | Expected goals for per 60 | Defensemen | 62 | 24 | -0.036 (-0.132 to 0.061) |
+
+The primary models contain **62 team-seasons** from **24 franchises**. Both positional intervals for xGF-per-60 change include zero. The full-postseason estimates remain uncertain, so the team results do not establish a clear chance-creation advantage for a tougher measured profile.
+
+![Positional team scores and postseason chance creation](figures/team_chance_creation.png)
+
+The full-postseason check repeats only the primary xGF-per-60 analysis. Both windows are observational comparisons affected by matchups, playoff selection, team systems, and remaining unmeasured differences.
+
+The following descriptive means include all 16 playoff teams in each season.
+
+| Season | Mean change in xGF per 60 | Mean change in attempts per 60 | Mean change in xG per 100 attempts | Mean absolute quality change |
+| --- | --- | --- | --- | --- |
+| 2021–22 | -0.13 | 1.81 | -0.53 | 0.69 |
+| 2022–23 | -0.39 | -1.35 | -0.70 | 0.81 |
+| 2023–24 | -0.33 | -1.28 | -0.60 | 0.65 |
+| 2024–25 | -0.23 | 0.10 | -0.58 | 0.70 |
+
+The last column preserves a descriptive connection to the original study of 16 playoff teams in 2024–25. An absolute change combines increases and declines; one such change does not estimate variability or establish consistency. The signed models retain that distinction across the four seasons.
+
 ## Research direction and reproduction
 
-The [provisional research roadmap](research_roadmap.md) organizes the next paper decisions around external evidence, continuation, and possible playoff applications. Expanded scouting results are required before completing the [Sloan abstract](abstract.md). Power-play and penalty-kill roles remain candidate contextual applications. A playoff comparison can use regular-season games excluded from CSAx inputs to reduce mechanical relationships between the score and measured change.
+The [provisional research roadmap](research_roadmap.md) organizes the paper around frame-relative physicality, independent scouting, continuation and deployment, and postseason engagement and team chance creation. Expanded scouting results are required before completing the [Sloan abstract](abstract.md). The results review determines which application findings advance the final narrative. Individual shooting-percentage variability, contracts, and numerous career interactions remain outside this analysis.
 
 The compact analysis object retains frozen source inputs, model identities, feature counts, folds, calibration summaries, historical benchmarks, and current results. The numbered workflow fits only the selected positional specification by default. Previous alternative models and bootstrap summaries remain labeled historical results.
 
-Current outputs include [player rankings](player_rankings.csv), [team tracking coverage](team_summaries.csv), and [application estimates](application_estimates.csv). The [README](../../README.md) supplies reproduction and scouting-lock instructions. NHL inputs use the pinned nhlscraper revision; A3Z observations remain attributed to Corey Sznajder / All Three Zones. Source materials retain their third-party terms.
+Current outputs include [player rankings](player_rankings.csv), [team scores and postseason summaries](team_summaries.csv), [player-period engagement](postseason_engagement.csv), and [application estimates](application_estimates.csv). The [README](../../README.md) supplies reproduction and scouting-lock instructions. NHL inputs use the pinned nhlscraper revision; A3Z observations remain attributed to Corey Sznajder / All Three Zones. Source materials retain their third-party terms.
 
 Sloan requires an abstract under 500 words, including title and body, with Introduction, Methods, Results, and Conclusion sections reporting actual findings. Abstracts are due October 1, 2026, at 11:59 p.m. Eastern; invited manuscripts are due December 4. Current guidance requires an open-source repository link. The repository remains private pending a public-release decision, and full-manuscript formatting requires confirmation from invitation guidance. [Competition rules](https://www.sloansportsconference.com/research-paper-competition).

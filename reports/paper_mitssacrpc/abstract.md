@@ -1,4 +1,4 @@
-# Playing Tough for Your Size: Positional Physicality and NHL Continuation
+# Playing Tougher for Your Size: Positional Physicality and NHL Continuation
 
 **Draft awaiting expanded scouting ratings; not ready for submission.**
 
@@ -16,4 +16,4 @@ Held-out predictive R² is 8.69% for forwards and 9.68% for defensemen relative 
 
 ## Conclusion
 
-CSAx describes physical behavior relative to frame within positional references and shows associations with roster continuation. Learned size-prediction weights, uneven tracking, and seasonal instability constrain interpretation. Continued external evaluation is necessary to establish how closely this statistical profile represents playing tough or soft for one’s size.
+CSAx describes physical behavior relative to frame within positional references and shows associations with roster continuation. Learned size-prediction weights, uneven tracking, and seasonal instability constrain interpretation. Continued external evaluation is necessary to establish how closely this statistical profile represents playing tougher or softer for one’s size.
