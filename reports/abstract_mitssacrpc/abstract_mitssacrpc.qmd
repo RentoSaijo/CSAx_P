@@ -132,13 +132,13 @@ if (knitr::is_latex_output()) {
 \newpage
 ```
 
-These profiles also correspond to distinct roles: higher-scoring players spend less of their ice time on the power play and more killing penalties. Among forwards, higher CSAx accompanies a smaller proportional playoff increase in delivered hits. This comparison uses regular-season games excluded from score construction and each team's first four playoff games; the full-postseason check agrees in direction. Finally, higher CSAx accompanies a greater chance of reaching 300 NHL minutes next season, with no clear increase in minutes per game among returners (Table 1).
+These profiles also correspond to distinct roles: higher-scoring players spend less of their ice time on the power play and more killing penalties. Among forwards, higher CSAx accompanies a smaller proportional playoff increase in delivered hits. This comparison uses regular-season games excluded from score construction and each team's first four playoff games; the full-postseason check agrees in direction. Finally, higher CSAx accompanies a greater chance of reaching 300 NHL minutes next season; however, it does not indicate a clear increase in minutes per game among returners.
 
 ```{=latex}
 \par\addvspace{\baselineskip}
 ```
 
-**Table 1.** Adjusted CSAx +1 versus -1 comparisons (two standard deviations apart). Parentheses show 95% intervals; pp denotes percentage points. Ice time covers returners.
+**Table 1.** Adjusted CSAx +1 versus -1 comparisons (two standard deviations apart; 95% intervals in parentheses). pp means percentage points; ice time is next-season minutes per game among returners. The hit-rate ratio compares playoff-to-baseline rate changes; below one means a smaller proportional increase.
 
 ```{r}
 #| label: applications
@@ -147,8 +147,6 @@ These profiles also correspond to distinct roles: higher-scoring players spend l
 knitr::kable(abstract$applications, format = 'pipe', align = base::c('l', 'r', 'r'))
 ```
 
-The hit-rate ratio compares playoff-to-baseline rate changes; values below one indicate a smaller proportional increase.
-
 ## Conclusion
 
-CSAx offers teams a frame-relative view of physical style, while the roster results distinguish continued participation from playing time among returners. Selective coverage, one scouting rater, weak 2024-25 defensive size prediction, and uncertain defensive playoff differences limit generalization. Associations are observational; intervals condition on estimated scores.
+CSAx offers teams a frame-relative view of physical style, while the roster results distinguish continued participation from playing time among returners. Selective coverage, one scouting rater, weak 2024-25 defensive size prediction, and uncertain defensive playoff differences limit generalization.

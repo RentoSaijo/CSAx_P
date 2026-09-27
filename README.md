@@ -13,7 +13,7 @@ Rscript -e "renv::restore(prompt = FALSE)"
 Rscript scripts/04_write_summary.R
 ```
 
-The [Quarto abstract](reports/abstract_mitssacrpc/abstract_mitssacrpc.qmd) supplies the narrative, authors, and presentation. The reporting command renders its PDF and derives Markdown and plain-text companions with textual equivalents of the figure and table. Values come from the stored analysis; rendering fits no models. To render only the PDF with Quarto on `PATH`:
+The [Quarto abstract](reports/abstract_mitssacrpc/abstract_mitssacrpc.qmd) supplies the narrative, authors, and presentation. The reporting command renders its PDF and checks the word count. Values come from the stored analysis; rendering fits no models. To render only the PDF with Quarto on `PATH`:
 
 ```sh
 quarto render reports/abstract_mitssacrpc/abstract_mitssacrpc.qmd --to pdf
@@ -57,7 +57,7 @@ The Numbers source and its completed CSV are preserved privately, including pass
 
 ## Files
 
-- `reports/abstract_mitssacrpc/`: authoritative Quarto abstract, PDF with one scouting figure and one application table, and matching Markdown and plain-text versions
+- `reports/abstract_mitssacrpc/`: authoritative Quarto abstract and PDF with one scouting figure and one application table
 - `reports/paper_mitssacrpc/`: research summary, paper roadmap, A3Z data dictionary, three figures, player rankings, player-period engagement, and application estimates
 - `data/analysis_data.rds`: compact analysis object with frozen score and application inputs and current results under `a3z`, historical A3Z results under `a3zBenchmark`, completed center comparisons under `a3zCenterBenchmark`, team results and provenance under `a3zTeamBenchmark`, and the full-season benchmark with its 499 bootstrap summaries
 - `validation/`: public scouting codebook, source catalog, immutable forward codes, completed expansion codes, and lock provenance

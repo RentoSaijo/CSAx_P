@@ -28,9 +28,9 @@ prepare_abstract <- function(p) {
   continuation <- p$continuationContrasts |>
     dplyr::transmute(model, Outcome = 'Next-season continuation (pp)', estimate = 100 * estimate, low = 100 * confLow, high = 100 * confHigh)
   playing_time <- p$applications$playingTime$estimates |>
-    dplyr::transmute(model, Outcome = 'Next-season ice time (min/game)', estimate = 2 * effect, low = 2 * effectLow, high = 2 * effectHigh)
+    dplyr::transmute(model, Outcome = 'Ice time (min/game)', estimate = 2 * effect, low = 2 * effectLow, high = 2 * effectHigh)
   applications <- dplyr::bind_rows(deployment, postseason, continuation, playing_time) |>
-    dplyr::mutate(value = abstract_interval(estimate, low, high), Outcome = base::factor(Outcome, levels = base::c('Power-play share (pp)', 'Penalty-kill share (pp)', 'Playoff hit-rate change (ratio)', 'Next-season continuation (pp)', 'Next-season ice time (min/game)'))) |>
+    dplyr::mutate(value = abstract_interval(estimate, low, high), Outcome = base::factor(Outcome, levels = base::c('Power-play share (pp)', 'Penalty-kill share (pp)', 'Playoff hit-rate change (ratio)', 'Next-season continuation (pp)', 'Ice time (min/game)'))) |>
     dplyr::select(Outcome, model, value) |>
     tidyr::pivot_wider(names_from = model, values_from = value) |>
     dplyr::arrange(Outcome) |>
@@ -57,7 +57,7 @@ plot_abstract_scouting <- function(values) {
 
 # Abstract Rendering -----------------------------------------------------
 
-# Render authoritative Quarto source and export matching text companions.
+# Render authoritative Quarto source and check submission length.
 render_abstract <- function() {
   candidates <- base::c(base::Sys.which('quarto'), '/Applications/RStudio.app/Contents/Resources/app/quarto/bin/quarto')
   candidates <- candidates[base::nzchar(candidates) & base::file.exists(candidates)]
@@ -65,21 +65,19 @@ render_abstract <- function() {
   quarto <- candidates[1L]
   abstract_directory <- 'reports/abstract_mitssacrpc'
   source <- base::file.path(abstract_directory, 'abstract_mitssacrpc.qmd')
+  markdown <- base::file.path(abstract_directory, 'abstract_mitssacrpc.md')
+  plain <- base::tempfile(fileext = '.txt')
+  base::on.exit(base::unlink(base::c(markdown, plain)), add = TRUE)
   for (format in base::c('gfm', 'pdf')) {
     status <- base::system2(quarto, base::c('render', base::shQuote(source), '--to', format, '--quiet'))
     if (status != 0L) base::stop('Quarto abstract rendering failed for ', format, '.', call. = FALSE)
   }
-  markdown <- base::file.path(abstract_directory, 'abstract_mitssacrpc.md')
-  markdown_path <- base::file.path(abstract_directory, 'abstract.md')
-  text_path <- base::file.path(abstract_directory, 'abstract.txt')
   contents <- stringr::str_replace_all(readr::read_file(markdown), '\f', '')
-  readr::write_file(contents, markdown_path)
   plain_source <- stringr::str_replace_all(contents, '<sup>([^<]+)</sup>', ' [\\1]')
-  status <- base::system2(quarto, base::c('pandoc', '--from=gfm', '--to=plain', '--wrap=none', '--output', base::shQuote(text_path)), input = plain_source)
+  status <- base::system2(quarto, base::c('pandoc', '--from=gfm', '--to=plain', '--wrap=none', '--output', base::shQuote(plain)), input = plain_source)
   if (status != 0L) base::stop('Plain-text abstract conversion failed.', call. = FALSE)
-  word_count <- stringr::str_count(stringr::str_squish(readr::read_file(text_path)), '\\S+')
-  if (word_count >= 500L) base::stop('Abstract text companion exceeds permitted word count.', call. = FALSE)
-  base::unlink(markdown)
-  base::message('Rendered Quarto abstract and ', word_count, '-word text companion.')
+  word_count <- stringr::str_count(stringr::str_squish(readr::read_file(plain)), '\\S+')
+  if (word_count >= 500L) base::stop('Abstract exceeds permitted word count.', call. = FALSE)
+  base::message('Rendered Quarto abstract (', word_count, ' words).')
   word_count
 }
