@@ -342,6 +342,19 @@ analyze_a3z_models <- function(fits, inputs, benchmark_inputs) {
 
 # Focused Role Applications -----------------------------------------------
 
+# Compare next-season ice time among players who return to the NHL.
+analyze_returner_ice_time <- function(panel) {
+  returners <- panel |>
+    dplyr::filter(returnedFlag == 1L, base::is.finite(nextToiPerGame)) |>
+    dplyr::mutate(nextToiMinutes = nextToiPerGame / 60)
+  estimates <- purrr::imap_dfr(base::split(returners, returners$model), function(data, population) {
+    fitted <- fit_analysis_workflow(data, 'nextToiMinutes', primary_predictors)
+    summarize_analysis_result(fitted, data, 'Playing time', 'Next-season ice time per game among returners', scale = 'minutes per game') |>
+      dplyr::mutate(specification = a3z_specification, model = population, referencePopulation = population, eventScope = a3z_scope, outcomeScope = 'Next regular season; all NHL situations; minutes per game among returners', roleTiming = 'Current season', cohort = 'At least one next-season NHL appearance and finite ice time per game', statistic = 'Adjusted difference per CSAx SD', intervalMethod = 'Player-clustered HC1; conditional on estimated scores and returner sample', .before = 1L)
+  })
+  base::list(estimates = estimates)
+}
+
 # Compare current and preceding roles on identical returning-player observations.
 analyze_role_timing <- function(panel) {
   cohort <- panel |> dplyr::filter(priorAppearance == 1L, priorGamesDressed > 0, base::is.finite(priorToiPerGame), priorToiPerGame > 0)

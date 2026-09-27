@@ -374,7 +374,7 @@ analyze_focused_applications <- function(predictions, application_inputs, benchm
   path <- 'data/cache/focused_applications.rds'
   cached <- if (base::file.exists(path)) base::readRDS(path) else NULL
   if (base::identical(cached$signature, signature)) base::return(cached)
-  result <- base::list(signature = signature, roleTiming = analyze_role_timing(panel), deployment = analyze_deployment(panel, application_inputs$specialTeams), engagement = analyze_postseason_engagement(application_inputs, panel))
+  result <- base::list(signature = signature, roleTiming = analyze_role_timing(panel), playingTime = analyze_returner_ice_time(panel), deployment = analyze_deployment(panel, application_inputs$specialTeams), engagement = analyze_postseason_engagement(application_inputs, panel))
   base::saveRDS(result, path, compress = 'xz')
   result
 }
