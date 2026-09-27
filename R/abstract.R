@@ -27,8 +27,10 @@ prepare_abstract <- function(p) {
     dplyr::transmute(model, Outcome = 'Playoff hit-rate change (ratio)', estimate = effect^2, low = effectLow^2, high = effectHigh^2)
   continuation <- p$continuationContrasts |>
     dplyr::transmute(model, Outcome = 'Next-season continuation (pp)', estimate = 100 * estimate, low = 100 * confLow, high = 100 * confHigh)
-  applications <- dplyr::bind_rows(deployment, postseason, continuation) |>
-    dplyr::mutate(value = abstract_interval(estimate, low, high), Outcome = base::factor(Outcome, levels = base::c('Power-play share (pp)', 'Penalty-kill share (pp)', 'Playoff hit-rate change (ratio)', 'Next-season continuation (pp)'))) |>
+  playing_time <- p$applications$playingTime$estimates |>
+    dplyr::transmute(model, Outcome = 'Next-season ice time (min/game)', estimate = 2 * effect, low = 2 * effectLow, high = 2 * effectHigh)
+  applications <- dplyr::bind_rows(deployment, postseason, continuation, playing_time) |>
+    dplyr::mutate(value = abstract_interval(estimate, low, high), Outcome = base::factor(Outcome, levels = base::c('Power-play share (pp)', 'Penalty-kill share (pp)', 'Playoff hit-rate change (ratio)', 'Next-season continuation (pp)', 'Next-season ice time (min/game)'))) |>
     dplyr::select(Outcome, model, value) |>
     tidyr::pivot_wider(names_from = model, values_from = value) |>
     dplyr::arrange(Outcome) |>

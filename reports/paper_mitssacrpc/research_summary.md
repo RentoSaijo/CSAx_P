@@ -305,7 +305,18 @@ We also average predicted probabilities over each observed positional sample whi
 
 ![Adjusted next-season continuation probabilities](figures/continuation.png)
 
-These associations describe roster relevance. They are not causal effects or independent confirmation of the physicality construct. Player-clustered HC1 intervals condition on the estimated scores and tracked sample; uncertainty from reconstructing CSAx is outside these intervals.
+### Ice time among returning players
+
+We also examine all-situation ice time per game in the next season among players with a recorded NHL appearance and finite ice time. Separate positional linear models retain the current-season controls used for continuation. The table compares CSAx +1 with −1, two standard deviations apart:
+
+| Position | Returning player-seasons | Difference, CSAx +1 versus -1 (minutes per game; 95% CI) |
+| --- | --- | --- |
+| Defensemen | 780 | -0.14 (-0.43 to 0.14) |
+| Forwards | 1408 | -0.18 (-0.36 to 0.00) |
+
+Both adjusted differences lean below zero, with 95% intervals that include zero. The forward upper bound rounds to 0.00 minutes per game, although it sits just above zero before rounding. Higher CSAx thus accompanies a greater chance of reaching the continuation threshold without clear evidence of more minutes per game among returners. This comparison conditions on next-season participation, so it describes a different cohort and cannot explain why players continue.
+
+These associations describe roster relevance. They are not causal effects or independent confirmation of the physicality construct. Player-clustered HC1 intervals condition on the estimated scores and respective samples; uncertainty from reconstructing CSAx is outside these intervals. An interval spanning zero does not establish equal playing time.
 
 ### Current and previous roles
 

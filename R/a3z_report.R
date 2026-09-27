@@ -66,6 +66,7 @@ write_a3z_report <- function(analysis, report_directory, figure_directory) {
     applications$roleTiming$estimates |> dplyr::mutate(statistic = 'Odds ratio per CSAx SD'),
     applications$roleTiming$probabilities |> dplyr::mutate(outcome = 'Next-season continuation', statistic = 'Adjusted continuation probability (%)', scale = 'percentage points', effect = 100 * probability, effectLow = 100 * confLow, effectHigh = 100 * confHigh),
     applications$roleTiming$contrasts |> dplyr::mutate(outcome = 'Next-season continuation', statistic = 'Probability difference: CSAx +1 minus -1', scale = 'percentage points', effect = 100 * estimate, effectLow = 100 * confLow, effectHigh = 100 * confHigh),
+    applications$playingTime$estimates,
     applications$deployment$estimates,
     applications$engagement$estimates,
     applications$engagement$rateChanges,
@@ -125,6 +126,8 @@ write_a3z_report <- function(analysis, report_directory, figure_directory) {
   continuation_table <- p$continuation |> dplyr::transmute(Position = model, 'Player-seasons' = base::as.character(sampleSize), 'Odds ratio per CSAx SD (95% CI)' = interval(effect, effectLow, effectHigh, 3L), 'p-value' = p_value(pValue))
   probability_table <- p$continuationProbabilities |>
     dplyr::transmute(Position = model, CSAx, 'Adjusted continuation probability (%)' = 100 * probability, '95% CI (%)' = base::paste(fixed(100 * confLow), fixed(100 * confHigh), sep = ' to '))
+  playing_time_table <- applications$playingTime$estimates |>
+    dplyr::transmute(Position = model, 'Returning player-seasons' = base::as.character(sampleSize), 'Difference, CSAx +1 versus -1 (minutes per game; 95% CI)' = interval(2 * effect, 2 * effectLow, 2 * effectHigh))
   scouting_text <- if (p$scouting$expansionComplete) {
     glue::glue('The scouting collection comprises 40 frozen forward ratings and {p$scouting$completedNewPlayers} additional ratings covering {p$scouting$plannedNewForwards} forwards and {p$scouting$plannedNewDefensemen} defensemen. All use the same active-engagement coding rules and are locked before linkage to CSAx. We evaluate {dplyr::n_distinct(p$scouting$scores$playerId)} eligible players: {scout_forward$n} forwards and {scout_defense$n} defensemen. The original collection contributes 39 players; Matthew Poitras has 148.88 matched minutes in his best-covered season and falls below tracking eligibility.')
   } else {
@@ -331,7 +334,15 @@ We also average predicted probabilities over each observed positional sample whi
 
 ![Adjusted next-season continuation probabilities](figures/continuation.png)
 
-These associations describe roster relevance. They are not causal effects or independent confirmation of the physicality construct. Player-clustered HC1 intervals condition on the estimated scores and tracked sample; uncertainty from reconstructing CSAx is outside these intervals.
+### Ice time among returning players
+
+We also examine all-situation ice time per game in the next season among players with a recorded NHL appearance and finite ice time. Separate positional linear models retain the current-season controls used for continuation. The table compares CSAx +1 with −1, two standard deviations apart:
+
+<<markdown_table(playing_time_table)>>
+
+Both adjusted differences lean below zero, with 95% intervals that include zero. The forward upper bound rounds to 0.00 minutes per game, although it sits just above zero before rounding. Higher CSAx thus accompanies a greater chance of reaching the continuation threshold without clear evidence of more minutes per game among returners. This comparison conditions on next-season participation, so it describes a different cohort and cannot explain why players continue.
+
+These associations describe roster relevance. They are not causal effects or independent confirmation of the physicality construct. Player-clustered HC1 intervals condition on the estimated scores and respective samples; uncertainty from reconstructing CSAx is outside these intervals. An interval spanning zero does not establish equal playing time.
 
 ### Current and previous roles
 
@@ -373,7 +384,7 @@ Physical presence is visible in contact, puck battles, and the roles teams assig
 2. **Scouting: assess independent descriptions.** Lead the empirical evidence with the <<scout_forward$n>> forwards and <<scout_defense$n>> defensemen whose eligible NHL observations follow their scouting passages. Active-engagement correlations of <<fixed(scout_forward$spearman)>> and <<fixed(scout_defense$spearman)>>, together with the mean differences and conditional intervals, address the intended physicality interpretation directly. Explain that a zero means no mention, and discuss draft-era descriptions, selective prospect coverage, and one rater.
 3. **Deployment: place the score in assigned roles.** Present power-play and penalty-kill shares, descriptive correlations, and adjusted percentage-point associations. Lower PP shares and higher PK shares in both positions characterize deployment patterns. Skill, tactical needs, and teammates also shape those assignments, so their signs alone do not establish construct validity.
 4. **Postseason engagement: examine changes in behavior.** Use disjoint regular-season observations and each team’s first four playoff games to ask whether physical profiles accompany different proportional contact changes. Lead with delivered hits, explain the rate-ratio multiplier and adjusted changes at CSAx −1, 0, and +1, and support the result with received hits and shot blocks. The full-postseason check repeats delivered hits. A smaller forward increase does not establish a physical ceiling; the defensive interval includes no differential change. Distinguish playoff participation from changes among observed participants.
-5. **Continuation: conclude with practical roster relevance.** Present the full-sample current-role odds ratios alongside adjusted probabilities of at least 300 NHL minutes next season. The matched current/prior-role comparison addresses conditioning choices while holding the observations fixed. These associations extend the scouting and behavioral evidence to roster relevance without establishing causal effects.
+5. **Continuation: distinguish roster persistence from playing time.** Present the full-sample current-role odds ratios alongside adjusted probabilities of at least 300 NHL minutes next season. Then compare minutes per game among next-season returners. Both positional point estimates lean lower, but both intervals include zero, so the paper finds no clear increase in per-game ice time. Explain the different cohorts and avoid treating an interval spanning zero as proof of no relationship. The matched current/prior-role comparison addresses conditioning choices while holding the observations fixed. These associations extend the scouting and behavioral evidence to roster relevance without establishing causal effects.
 
 This order develops the measurement argument before its applications: scouting addresses the construct, deployment describes roles, postseason comparisons examine behavior, and continuation connects the profile to NHL participation.
 

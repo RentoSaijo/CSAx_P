@@ -22,9 +22,9 @@ Defensemen (n = 23): 13 without a mention average -0.33; 10 with a mention avera
 
 Figure 1. Player-average CSAx by scouting description. Points represent players; diamonds mark means. Differences show 95% intervals. No mention does not establish soft play.
 
-These profiles also correspond to distinct roles: higher-scoring players spend less of their ice time on the power play and more killing penalties. Among forwards, higher CSAx accompanies a smaller proportional playoff increase in delivered hits. This comparison uses regular-season games excluded from score construction and each team’s first four playoff games; the full-postseason check agrees in direction. Finally, higher CSAx accompanies a greater probability of reaching 300 NHL minutes the following season (Table 1).
+These profiles also correspond to distinct roles: higher-scoring players spend less of their ice time on the power play and more killing penalties. Among forwards, higher CSAx accompanies a smaller proportional playoff increase in delivered hits. This comparison uses regular-season games excluded from score construction and each team’s first four playoff games; the full-postseason check agrees in direction. Finally, higher CSAx accompanies a greater chance of reaching 300 NHL minutes next season, with no clear increase in minutes per game among returners (Table 1).
 
-Table 1. Adjusted comparisons of higher and lower CSAx (+1 versus -1, two standard deviations apart). Parentheses show 95% intervals; pp denotes percentage points.
+Table 1. Adjusted CSAx +1 versus -1 comparisons (two standard deviations apart). Parentheses show 95% intervals; pp denotes percentage points. Ice time covers returners.
 
   Outcome                                         Forwards             Defensemen
   --------------------------------- ---------------------- ----------------------
@@ -32,9 +32,10 @@ Table 1. Adjusted comparisons of higher and lower CSAx (+1 versus -1, two standa
   Penalty-kill share (pp)                1.40 (0.74, 2.06)      1.31 (0.74, 1.89)
   Playoff hit-rate change (ratio)        0.78 (0.69, 0.88)      0.90 (0.77, 1.05)
   Next-season continuation (pp)          2.92 (0.03, 5.81)      4.23 (0.60, 7.86)
+  Next-season ice time (min/game)      -0.18 (-0.36, 0.00)    -0.14 (-0.43, 0.14)
 
 The hit-rate ratio compares playoff-to-baseline rate changes; values below one indicate a smaller proportional increase.
 
 Conclusion
 
-CSAx offers teams a way to distinguish physical style from listed size when evaluating players and balancing rosters. Selective coverage, one scouting rater, weak 2024-25 defensive size prediction, and uncertain defensive playoff differences limit generalization. Associations are observational; intervals condition on estimated scores.
+CSAx offers teams a frame-relative view of physical style, while the roster results distinguish continued participation from playing time among returners. Selective coverage, one scouting rater, weak 2024-25 defensive size prediction, and uncertain defensive playoff differences limit generalization. Associations are observational; intervals condition on estimated scores.
