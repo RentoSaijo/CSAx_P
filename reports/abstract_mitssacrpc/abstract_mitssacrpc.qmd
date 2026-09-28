@@ -3,8 +3,8 @@
 
 # Set document details.
 title: 'Playing Tougher for One’s Size: \linebreak Positional Physicality in the NHL'
-author: 'Rento Saijo^1^, Yeongjun Seo^2^, Sian Lee^3^, Jeff Moher^1^'
-affiliations: '^1^ Connecticut College; ^2^ University of Tennessee, Knoxville; ^3^ Michigan State University'
+author: 'Rento Saijo^1^, Sian Lee^2^, Yeongjun Seo^3^, Jeff Moher^1^'
+affiliations: '^1^ Connecticut College; ^2^ Michigan State University; ^3^ University of Tennessee, Knoxville'
 date: ''
 
 # Configure PDF output.
