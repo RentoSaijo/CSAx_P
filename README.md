@@ -58,7 +58,6 @@ The Numbers source and its completed CSV are preserved privately, including pass
 ## Files
 
 - `reports/abstract_mitssacrpc/`: authoritative Quarto abstract and PDF with one scouting figure and one application table
-- `reports/poster_fsrp/`: 48-by-36-inch Connecticut College poster and print-ready PDF; its QR opens the separate [public 2024–25 rankings and technical details](https://rentosaijo.github.io/CSAx_FSRP/)
 - `reports/paper_mitssacrpc/`: research summary, paper roadmap, A3Z data dictionary, three figures, player rankings, player-period engagement, and application estimates
 - `data/analysis_data.rds`: compact analysis object with frozen score and application inputs and current results under `a3z`, historical A3Z results under `a3zBenchmark`, completed center comparisons under `a3zCenterBenchmark`, team results and provenance under `a3zTeamBenchmark`, and the full-season benchmark with its 499 bootstrap summaries
 - `validation/`: public scouting codebook, source catalog, immutable forward codes, completed expansion codes, and lock provenance
