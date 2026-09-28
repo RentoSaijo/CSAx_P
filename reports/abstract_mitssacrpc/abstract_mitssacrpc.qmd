@@ -97,15 +97,15 @@ base::cat(metadata$affiliations, '\n')
 
 ## Introduction
 
-Physical presence takes shape in a hit, a puck battle, or a trip into traffic around the net. How much of that presence exceeds what a player's size would suggest? We develop calibrated size above expected (CSAx) to measure playing tougher for one's size, giving scouts and teams a common language for comparing physical profiles.
+Adding size to a roster does not guarantee the physical presence a team needs. That presence emerges through contact, puck battles, and contested space. We develop calibrated size above expected (CSAx) to quantify playing tougher for one's size and examine what that profile means for NHL roles and continued participation.
 
 ## Methods
 
-We combine NHL events with All Three Zones' manually tracked puck plays from 2021-22 through 2024-25, covering `r base::format(abstract$forwardSeasons, big.mark = ',')` forward-seasons and `r abstract$defenseSeasons` defenseman-seasons. Each player's pattern of direct contact and indirect physicality suggests an expected body size, estimated through separate positional ridge regressions. We calibrate held-out predictions against each player's height and weight, then standardize the differences within position and season. Higher CSAx indicates more physical presence than expected for that frame. We examine earlier scouting descriptions, special-teams assignments, playoff contact, and subsequent NHL participation.
+We combine NHL events with All Three Zones' manually tracked puck plays from 2021-22 through 2024-25, covering `r base::format(abstract$forwardSeasons, big.mark = ',')` forward-seasons and `r abstract$defenseSeasons` defenseman-seasons. Separate positional ridge regressions estimate the body size implied by direct contact and position-specific indirect physicality. We calibrate held-out predictions against listed height and weight, then standardize residuals within position and season. Higher CSAx indicates more physical presence than expected for that frame. Playoff comparisons use regular-season baselines excluded from score construction.
 
 ## Results
 
-Independent scouting descriptions align with CSAx: players described as actively physical receive higher scores in both positions (Figure 1).
+Earlier scouting reports offer independent support: players described as actively physical subsequently receive higher CSAx in both positions (Figure 1).
 
 ```{=latex}
 \par\addvspace{\baselineskip}
@@ -132,7 +132,7 @@ if (knitr::is_latex_output()) {
 \newpage
 ```
 
-These profiles also correspond to distinct roles: higher-scoring players spend less of their ice time on the power play and more killing penalties. Among forwards, higher CSAx accompanies a smaller proportional playoff increase in delivered hits. This comparison uses regular-season games excluded from score construction and each team's first four playoff games; the full-postseason check agrees in direction. Finally, higher CSAx accompanies a greater chance of reaching 300 NHL minutes next season; however, it does not indicate a clear increase in minutes per game among returners.
+Across the full sample, higher-scoring players spend less of their ice time on power plays and more killing penalties (Table 1). When play shifts to the postseason, higher-scoring forwards show smaller proportional increases in delivered hits over each team's first four playoff games; defensive differences remain uncertain. Looking ahead, the adjusted probability of reaching 300 NHL minutes next season is 2.92 percentage points higher for forwards and 4.23 for defensemen at CSAx +1 versus -1. Among returners, however, minutes per game show no clear increase.
 
 ```{=latex}
 \par\addvspace{\baselineskip}
@@ -149,4 +149,4 @@ knitr::kable(abstract$applications, format = 'pipe', align = base::c('l', 'r', '
 
 ## Conclusion
 
-CSAx offers teams a frame-relative view of physical style, while the roster results distinguish continued participation from playing time among returners. Selective coverage, one scouting rater, weak 2024-25 defensive size prediction, and uncertain defensive playoff differences limit generalization.
+CSAx connects a familiar scouting judgment to measurable differences in deployment, playoff behavior, and NHL participation. Selective tracking, one scouting rater, and weak 2024-25 defensive size prediction limit generalization. For teams, CSAx broadens physicality evaluation beyond size and hit counts, helping identify players who bring more physical presence than their frame alone would suggest.
