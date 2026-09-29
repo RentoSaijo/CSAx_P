@@ -28,7 +28,7 @@ The results review determines which player examples best explain the direct, ind
 
 ## Abstract and submission
 
-The [Quarto source](../abstract_mitssacrpc/abstract_mitssacrpc.qmd) is the authoritative abstract. It renders the [PDF](../abstract_mitssacrpc/abstract_mitssacrpc.pdf) with one scouting figure and one application table. The abstract contains **456 counted words**, including title, author information, headings, and body while excluding the figure and table. Introduction, Methods, Results, and Conclusion follow Sloan’s published structure. The authenticated submission form’s upload requirements remain unverified.
+The [Quarto source](../abstract_mitssacrpc/abstract_mitssacrpc.qmd) is the authoritative abstract. It renders the [PDF](../abstract_mitssacrpc/abstract_mitssacrpc.pdf) with one scouting figure and one application table. The abstract contains **466 counted words**, including title, author information, headings, and body while excluding the figure and table. Introduction, Methods, Results, and Conclusion follow Sloan’s published structure. The authenticated submission form’s upload requirements remain unverified.
 
 Abstracts are due **October 1, 2026, at 11:59 p.m. Eastern**. Invited papers are due **December 4, 2026, at 11:59 p.m. Eastern**. Hockey belongs in the Other Sports track. Full-manuscript formatting awaits invitation guidance. [Sloan competition rules](https://www.sloansportsconference.com/research-paper-competition).
 

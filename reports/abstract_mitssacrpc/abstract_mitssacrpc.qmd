@@ -102,7 +102,7 @@ Adding size to an NHL roster does not guarantee greater physical presence. Conta
 
 ## Methods
 
-We combine NHL events with All Three Zones' manually tracked five-on-five play from 2021-22 through 2024-25, covering `r base::format(abstract$forwardSeasons, big.mark = ',')` forward-seasons and `r abstract$defenseSeasons` defenseman-seasons. Separate ridge regressions learn the body size implied by shared direct measures, including hits delivered and received, and position-specific indirect measures, including dump-in recoveries for forwards and entry denials for defensemen. We calibrate held-out predictions against listed height and weight and standardize the residual within position and season. Higher CSAx denotes more physical presence than expected for a player's frame. A rater blinded to identity and score codes active engagement in scouting reports issued before the studied NHL seasons. We examine special-teams use, playoff contact, and next-season continuation and ice time, accounting for listed size, age, usage, scoring, relative shot attempts, and season. Playoff comparisons use regular-season games excluded from CSAx construction and each team's first four playoff games, giving every qualifier the same window regardless of advancement.
+We combine NHL events with All Three Zones' manually tracked five-on-five play from 2021-22 through 2024-25, covering `r base::format(abstract$forwardSeasons, big.mark = ',')` forward-seasons and `r abstract$defenseSeasons` defenseman-seasons. Separate ridge regressions learn the body size implied by shared direct measures, including hits delivered and received, and position-specific indirect measures, including dump-in recoveries for forwards and entry denials for defensemen. We calibrate held-out predictions against listed height and weight and standardize the residual within position and season. Higher CSAx denotes more physical presence than expected for a player's frame. One rater, blinded to player identity and CSAx, codes mentions of checking, puck battles, and other active engagement in official NHL draft-year scouting reports published before the studied seasons. We examine special-teams use, playoff contact, and next-season continuation and ice time, accounting for listed size, age, usage, scoring, relative shot attempts, and season. Playoff comparisons use regular-season games excluded from CSAx construction and each team's first four playoff games, giving every qualifier the same window regardless of advancement.
 
 ## Results
 
@@ -129,7 +129,7 @@ if (knitr::is_latex_output()) {
 \par\addvspace{0.5\baselineskip}
 ```
 
-**Figure 1.** Player-average CSAx by scouting description. Points represent players; diamonds mark group means. Differences show 95% intervals. We discuss the importance of the high-CSAx defenseman without an active-engagement description in our full analysis.
+**Figure 1.** Player-average CSAx by scouting description. Points represent players; diamonds mark group means. Differences show 95% confidence intervals. We discuss the importance of the high-CSAx defenseman without an active-engagement description in our full analysis.
 
 <!-- abstract-display-end -->
 
@@ -145,7 +145,7 @@ Higher-CSAx players in both positions spend a smaller share of their ice time on
 \par\addvspace{\baselineskip}
 ```
 
-**Table 1.** Adjusted CSAx +1 versus -1 comparisons (two standard deviations apart; 95% player-clustered intervals in parentheses). pp means percentage points; ice time covers next-season returners only. The hit-rate ratio compares playoff-to-baseline changes; below one means a smaller proportional increase.
+**Table 1.** Adjusted CSAx +1 versus -1 comparisons (two standard deviations apart; 95% player-clustered confidence intervals in parentheses). pp means percentage points; ice time covers next-season returners only. The hit-rate ratio compares playoff-to-baseline changes; below one means a smaller proportional increase.
 
 ```{r}
 #| label: applications
