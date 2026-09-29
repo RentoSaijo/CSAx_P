@@ -19,7 +19,7 @@ format:
     fontfamily: lmodern
     indent: true
     fig-width: 6.4
-    fig-height: 2.6
+    fig-height: 2.4
     fig-align: center
     number-sections: false
 
