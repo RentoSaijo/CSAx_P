@@ -129,7 +129,7 @@ if (knitr::is_latex_output()) {
 \par\addvspace{0.5\baselineskip}
 ```
 
-**Figure 1.** Player-average CSAx by scouting description. Points represent players; diamonds mark group means. Differences show 95% intervals. A high-CSAx defenseman without an active-engagement description shows how disagreement with scouting language can focus a closer player review.
+**Figure 1.** Player-average CSAx by scouting description. Points represent players; diamonds mark group means. Differences show 95% intervals. We discuss the importance of the high-CSAx defenseman without an active-engagement description in our full analysis.
 
 <!-- abstract-display-end -->
 
@@ -160,4 +160,4 @@ Linear deployment and returner-ice-time models and logistic continuation models 
 
 ## Conclusion
 
-CSAx translates a familiar scouting judgment into a positional measure that complements listed size, hits, and scoring statistics. The scouting, deployment, and continuation patterns suggest a tool for finding physical profiles relevant to specialized roles and roster decisions. Selectively tracked games, one scouting rater, and weak defensive size prediction in 2024-25 limit how broadly we can generalize; players flagged by the score warrant closer evaluation.
+CSAx translates a familiar scouting judgment into a positional measure that complements listed size, hits, and scoring statistics. The scouting, deployment, and continuation patterns suggest a tool for finding physical profiles relevant to specialized roles and roster decisions. Selectively tracked games, one scouting rater, and weak defensive size prediction in 2024-25 limit how broadly we can generalize.
