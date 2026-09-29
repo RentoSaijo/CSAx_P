@@ -111,7 +111,7 @@ Scouting descriptions of active engagement precede play and align with CSAx: pla
 <!-- abstract-display-start -->
 
 ```{=latex}
-\par\addvspace{\baselineskip}
+\par\addvspace{0.5\baselineskip}
 ```
 
 ```{r}
@@ -126,10 +126,10 @@ if (knitr::is_latex_output()) {
 ```
 
 ```{=latex}
-\par\addvspace{0.5\baselineskip}
+\par
 ```
 
-**Figure 1.** Player-average CSAx by scouting description. Points represent players; diamonds mark group means. Differences show 95% confidence intervals. We discuss the importance of the high-CSAx defenseman without an active-engagement description in our full analysis.
+**Figure 1.** Player-average CSAx by scouting description. Points represent players; diamonds mark group means. Differences show 95% confidence intervals. A small-framed defenseman with high CSAx but no active-engagement description may signal physical presence that his listed size and earlier scouting report do not convey; we examine this case further in the full paper.
 
 <!-- abstract-display-end -->
 
