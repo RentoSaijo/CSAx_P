@@ -3,8 +3,9 @@
 
 # Set document details.
 title: 'Playing Tougher for One’s Size: \linebreak Positional Physicality in the NHL'
-author: 'Rento Saijo^1^, Sian Lee^2^, Yeongjun Seo^3^, Jeff Moher^1^'
+author: 'Rento Saijo^1^, Sian Lee^2^, Jeff Moher^1^, Yeongjun Seo^3^\*'
 affiliations: '^1^ Connecticut College; ^2^ Michigan State University; ^3^ University of Tennessee, Knoxville'
+corresponding: '\* Corresponding author: yseo4@utk.edu'
 date: ''
 
 # Configure PDF output.
@@ -82,8 +83,8 @@ knitr::opts_chunk$set(dev = 'cairo_pdf', dev.args = base::list(family = 'Latin M
 ```{r}
 #| label: affiliations
 #| results: asis
-# Display author affiliations.
-base::cat(metadata$affiliations, '\n')
+# Display author affiliations and correspondence.
+base::cat(metadata$affiliations, '\n\n', metadata$corresponding, '\n')
 ```
 
 ```{=latex}
@@ -97,15 +98,17 @@ base::cat(metadata$affiliations, '\n')
 
 ## Introduction
 
-Adding size to a roster does not guarantee the physical presence a team needs. That presence emerges through contact, puck battles, and contested space. We develop calibrated size above expected (CSAx) to quantify playing tougher for one's size and examine what that profile means for NHL roles and continued participation.
+Adding size to an NHL roster does not guarantee greater physical presence. Contact, puck battles, and contested space shape how a player plays tough, yet height, weight, and hit totals say little about whether that presence exceeds what a player's frame suggests. We develop calibrated size above expected (CSAx) to capture this distinction and ask whether it agrees with earlier scouting descriptions and illuminates NHL roles, postseason behavior, and roster persistence.
 
 ## Methods
 
-We combine NHL events with All Three Zones' manually tracked puck plays from 2021-22 through 2024-25, covering `r base::format(abstract$forwardSeasons, big.mark = ',')` forward-seasons and `r abstract$defenseSeasons` defenseman-seasons. Separate positional ridge regressions estimate the body size implied by direct contact and position-specific indirect physicality. We calibrate held-out predictions against listed height and weight, then standardize residuals within position and season. Higher CSAx indicates more physical presence than expected for that frame. Playoff comparisons use regular-season baselines excluded from score construction.
+We combine NHL events with All Three Zones' manually tracked five-on-five play from 2021-22 through 2024-25, covering `r base::format(abstract$forwardSeasons, big.mark = ',')` forward-seasons and `r abstract$defenseSeasons` defenseman-seasons. Separate ridge regressions learn the body size implied by shared direct measures, including hits delivered and received, and position-specific indirect measures, including dump-in recoveries for forwards and entry denials for defensemen. We calibrate held-out predictions against listed height and weight and standardize the residual within position and season. Higher CSAx denotes more physical presence than expected for a player's frame. A rater blinded to identity and score codes active engagement in scouting reports issued before the studied NHL seasons. We examine special-teams use, playoff contact, and next-season continuation and ice time, accounting for listed size, age, usage, scoring, relative shot attempts, and season. Playoff comparisons use regular-season games excluded from CSAx construction and each team's first four playoff games, giving every qualifier the same window regardless of advancement.
 
 ## Results
 
-Earlier scouting reports offer independent support: players described as actively physical subsequently receive higher CSAx in both positions (Figure 1).
+Scouting descriptions of active engagement precede play and align with CSAx: players with such descriptions average 0.87 standardized units higher among forwards and 0.65 among defensemen (Figure 1). This independent agreement supports the intended interpretation.
+
+<!-- abstract-display-start -->
 
 ```{=latex}
 \par\addvspace{\baselineskip}
@@ -126,19 +129,23 @@ if (knitr::is_latex_output()) {
 \par\addvspace{0.5\baselineskip}
 ```
 
-**Figure 1.** Player-average CSAx by scouting description. Points represent players; diamonds mark means. Differences show 95% intervals. No mention does not establish soft play.
+**Figure 1.** Player-average CSAx by scouting description. Points represent players; diamonds mark group means. Differences show 95% intervals. A high-CSAx defenseman without an active-engagement description shows how disagreement with scouting language can focus a closer player review.
+
+<!-- abstract-display-end -->
 
 ```{=latex}
 \newpage
 ```
 
-Across the full sample, higher-scoring players spend less of their ice time on power plays and more killing penalties (Table 1). When play shifts to the postseason, higher-scoring forwards show smaller proportional increases in delivered hits over each team's first four playoff games; defensive differences remain uncertain. Looking ahead, the adjusted probability of reaching 300 NHL minutes next season is 2.92 percentage points higher for forwards and 4.23 for defensemen at CSAx +1 versus -1. Among returners, however, minutes per game show no clear increase.
+Higher-CSAx players in both positions spend a smaller share of their ice time on power plays and a larger share killing penalties (Table 1), linking the profile to distinct assignments. In the postseason, higher-CSAx forwards show smaller proportional increases in delivered hits than lower-CSAx forwards; the defenseman contrast remains uncertain. Finally, comparing CSAx +1 with -1, adjusted probabilities of reaching 300 NHL minutes next season rise by 2.92 percentage points for forwards and 4.23 for defensemen. Among those who return, however, minutes per game show no clear increase. The profile may therefore relate to roster persistence without implying expanded playing time.
+
+<!-- abstract-display-start -->
 
 ```{=latex}
 \par\addvspace{\baselineskip}
 ```
 
-**Table 1.** Adjusted CSAx +1 versus -1 comparisons (two standard deviations apart; 95% intervals in parentheses). pp means percentage points; ice time is next-season minutes per game among returners. The hit-rate ratio compares playoff-to-baseline rate changes; below one means a smaller proportional increase.
+**Table 1.** Adjusted CSAx +1 versus -1 comparisons (two standard deviations apart; 95% player-clustered intervals in parentheses). pp means percentage points; ice time covers next-season returners only. The hit-rate ratio compares playoff-to-baseline changes; below one means a smaller proportional increase.
 
 ```{r}
 #| label: applications
@@ -147,6 +154,10 @@ Across the full sample, higher-scoring players spend less of their ice time on p
 knitr::kable(abstract$applications, format = 'pipe', align = base::c('l', 'r', 'r'))
 ```
 
+Linear deployment and returner-ice-time models and logistic continuation models adjust for listed size, age and age squared, current-season games dressed and ice time per game, five-on-five points per 60, relative shot attempts, and season. Playoff Poisson models include player-season effects, five-on-five ice-time offsets, and postseason interactions with CSAx and these controls.
+
+<!-- abstract-display-end -->
+
 ## Conclusion
 
-CSAx connects a familiar scouting judgment to measurable differences in deployment, playoff behavior, and NHL participation. Selective tracking, one scouting rater, and weak 2024-25 defensive size prediction limit generalization. For teams, CSAx broadens physicality evaluation beyond size and hit counts, helping identify players who bring more physical presence than their frame alone would suggest.
+CSAx translates a familiar scouting judgment into a positional measure that complements listed size, hits, and scoring statistics. The scouting, deployment, and continuation patterns suggest a tool for finding physical profiles relevant to specialized roles and roster decisions. Selectively tracked games, one scouting rater, and weak defensive size prediction in 2024-25 limit how broadly we can generalize; players flagged by the score warrant closer evaluation.

@@ -73,11 +73,15 @@ render_abstract <- function() {
     if (status != 0L) base::stop('Quarto abstract rendering failed for ', format, '.', call. = FALSE)
   }
   contents <- stringr::str_replace_all(readr::read_file(markdown), '\f', '')
-  plain_source <- stringr::str_replace_all(contents, '<sup>([^<]+)</sup>', ' [\\1]')
+  display_start <- '<!-- abstract-display-start -->'
+  display_end <- '<!-- abstract-display-end -->'
+  if (stringr::str_count(contents, stringr::fixed(display_start)) != 2L || stringr::str_count(contents, stringr::fixed(display_end)) != 2L) base::stop('Abstract must mark exactly one figure and one table.', call. = FALSE)
+  narrative <- stringr::str_replace_all(contents, '(?s)<!-- abstract-display-start -->.*?<!-- abstract-display-end -->', '')
+  plain_source <- stringr::str_replace_all(narrative, '<sup>([^<]+)</sup>', ' [\\1]')
   status <- base::system2(quarto, base::c('pandoc', '--from=gfm', '--to=plain', '--wrap=none', '--output', base::shQuote(plain)), input = plain_source)
   if (status != 0L) base::stop('Plain-text abstract conversion failed.', call. = FALSE)
   word_count <- stringr::str_count(stringr::str_squish(readr::read_file(plain)), '\\S+')
-  if (word_count >= 500L) base::stop('Abstract exceeds permitted word count.', call. = FALSE)
-  base::message('Rendered Quarto abstract (', word_count, ' words).')
+  if (word_count >= 480L) base::stop('Abstract exceeds the project target of fewer than 480 words.', call. = FALSE)
+  base::message('Rendered Quarto abstract (', word_count, ' counted words; figure and table excluded).')
   word_count
 }
