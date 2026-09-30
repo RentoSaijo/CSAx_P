@@ -21,16 +21,16 @@ prepare_abstract <- function(p) {
     glue::glue('{population} (n = {row$n}): {row$absentReports} without a mention average {base::formatC(values$meanScore[1L], digits = 2L, format = "f")}; {row$positiveReports} with a mention average {base::formatC(values$meanScore[2L], digits = 2L, format = "f")}. Mean difference: {abstract_interval(row$estimate, row$confLow, row$confHigh)}; Spearman correlation: {base::formatC(row$spearman, digits = 2L, format = "f")}.')
   })
   deployment <- p$applications$deployment$estimates |>
-    dplyr::transmute(model, Outcome = dplyr::recode(outcome, powerPlayShare = 'Power-play share (pp)', penaltyKillShare = 'Penalty-kill share (pp)'), estimate = 2 * effect, low = 2 * effectLow, high = 2 * effectHigh)
+    dplyr::transmute(model, Outcome = dplyr::recode(outcome, powerPlayShare = 'Power-play share (percentage points)', penaltyKillShare = 'Penalty-kill share (percentage points)'), estimate = 2 * effect, low = 2 * effectLow, high = 2 * effectHigh)
   postseason <- p$applications$engagement$estimates |>
     dplyr::filter(outcome == 'hits', window == 'First four') |>
-    dplyr::transmute(model, Outcome = 'Playoff hit-rate change (ratio)', estimate = effect^2, low = effectLow^2, high = effectHigh^2)
+    dplyr::transmute(model, Outcome = 'Postseason hit-rate ratio', estimate = effect^2, low = effectLow^2, high = effectHigh^2)
   continuation <- p$continuationContrasts |>
-    dplyr::transmute(model, Outcome = 'Next-season continuation (pp)', estimate = 100 * estimate, low = 100 * confLow, high = 100 * confHigh)
+    dplyr::transmute(model, Outcome = 'Next-season continuation (percentage points)', estimate = 100 * estimate, low = 100 * confLow, high = 100 * confHigh)
   playing_time <- p$applications$playingTime$estimates |>
     dplyr::transmute(model, Outcome = 'Ice time (min/game)', estimate = 2 * effect, low = 2 * effectLow, high = 2 * effectHigh)
   applications <- dplyr::bind_rows(deployment, postseason, continuation, playing_time) |>
-    dplyr::mutate(value = abstract_interval(estimate, low, high), Outcome = base::factor(Outcome, levels = base::c('Power-play share (pp)', 'Penalty-kill share (pp)', 'Playoff hit-rate change (ratio)', 'Next-season continuation (pp)', 'Ice time (min/game)'))) |>
+    dplyr::mutate(value = abstract_interval(estimate, low, high), Outcome = base::factor(Outcome, levels = base::c('Power-play share (percentage points)', 'Penalty-kill share (percentage points)', 'Postseason hit-rate ratio', 'Next-season continuation (percentage points)', 'Ice time (min/game)'))) |>
     dplyr::select(Outcome, model, value) |>
     tidyr::pivot_wider(names_from = model, values_from = value) |>
     dplyr::arrange(Outcome) |>
@@ -77,11 +77,13 @@ render_abstract <- function() {
   display_end <- '<!-- abstract-display-end -->'
   if (stringr::str_count(contents, stringr::fixed(display_start)) != 2L || stringr::str_count(contents, stringr::fixed(display_end)) != 2L) base::stop('Abstract must mark exactly one figure and one table.', call. = FALSE)
   narrative <- stringr::str_replace_all(contents, '(?s)<!-- abstract-display-start -->.*?<!-- abstract-display-end -->', '')
+  narrative <- stringr::str_replace_all(narrative, stringr::regex('\\$\\$.*?\\$\\$', dotall = TRUE), 'CSAx equals predicted size minus frame expected size minus mean residual divided by residual standard deviation')
+  narrative <- stringr::str_replace_all(narrative, '(?<!\\$)\\$([^$]+)\\$(?!\\$)', 'variable')
   plain_source <- stringr::str_replace_all(narrative, '<sup>([^<]+)</sup>', ' [\\1]')
   status <- base::system2(quarto, base::c('pandoc', '--from=gfm', '--to=plain', '--wrap=none', '--output', base::shQuote(plain)), input = plain_source)
   if (status != 0L) base::stop('Plain-text abstract conversion failed.', call. = FALSE)
   word_count <- stringr::str_count(stringr::str_squish(readr::read_file(plain)), '\\S+')
-  if (word_count >= 480L) base::stop('Abstract exceeds the project target of fewer than 480 words.', call. = FALSE)
+  if (word_count >= 500L) base::stop('Abstract exceeds the 500-word competition limit.', call. = FALSE)
   base::message('Rendered Quarto abstract (', word_count, ' counted words; figure and table excluded).')
   word_count
 }
