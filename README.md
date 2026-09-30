@@ -1,6 +1,6 @@
 # Playing Tougher for One’s Size
 
-This repository accompanies our study of physical presence relative to body size among NHL forwards and defensemen. Calibrated size above expected (CSAx) compares the size implied by recorded behavior with a player's listed frame. The [Sloan abstract](reports/abstract_mitssacrpc/abstract_mitssacrpc.pdf) examines agreement with independent scouting descriptions, special-teams deployment, postseason engagement, and next-season continuation.
+Calibrated size above expected (CSAx) measures how tough NHL forwards and defensemen play for their listed size. It compares each player's frame with the size implied by direct contact and position-specific signs of physicality in battles for the puck and space. The [Sloan abstract](reports/abstract_mitssacrpc/abstract_mitssacrpc.pdf) compares CSAx with earlier scouting descriptions and examines special-teams deployment, postseason hitting, and next-season continuation.
 
 ## Reproduce
 
@@ -19,16 +19,9 @@ Rscript scripts/02_build_csax.R
 Rscript scripts/03_analyze.R
 ```
 
-This refits the positional models and applications; rendering the abstract does not.
+This refits the positional models and applications.
 
-## Files
-
-- `reports/abstract_mitssacrpc/`: Quarto abstract and PDF
-- `data/analysis_data.rds`: analysis inputs, fitted scores, and results
-- `R/` and `scripts/01_prepare_data.R` through `scripts/03_analyze.R`: research functions and ordered analysis workflow
-- `validation/`: scouting codebook, source catalog, and prose-free ratings
-
-## Public data
+## Data
 
 The microstats come from Corey Sznajder's [All Three Zones transition workbook](https://public.tableau.com/app/profile/corey.sznajder/viz/transitionstats/Sheet1); we follow its [glossary](https://www.allthreezones.com/player-cardsfaq.html). NHL records are retrieved through the pinned [`nhlscraper`](https://github.com/RentoSaijo/nhlscraper) revision. The scouting descriptions come from official NHL draft-year reports listed in the [source catalog](validation/external_validation_source_catalog.csv). Historical application inputs also cite [Spotrac](https://www.spotrac.com/nhl/contracts/) and the pinned [NHLxG model store](https://huggingface.co/datasets/RentoSaijo/NHLxG). Raw scouting passages are not redistributed.
 

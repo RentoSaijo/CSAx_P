@@ -13,12 +13,12 @@ prepare_abstract <- function(p) {
   panels <- scout$panel[base::match(base::c('Forwards', 'Defensemen'), scout$model)]
   observations <- p$scouting$scores |>
     dplyr::left_join(scout |> dplyr::select(model, panel), by = 'model') |>
-    dplyr::mutate(panel = base::factor(panel, levels = panels), description = base::factor(activePhysicalEngagement, levels = base::c(0, 1), labels = base::c('No mention', 'Active engagement')))
+    dplyr::mutate(panel = base::factor(panel, levels = panels), description = base::factor(activePhysicalEngagement, levels = base::c(0, 1), labels = base::c('No mention', 'Toughness traits')))
   means <- observations |> dplyr::group_by(panel, description) |> dplyr::summarise(meanScore = base::mean(meanCSAx), n = dplyr::n(), .groups = 'drop')
   scouting_text <- purrr::map_chr(base::c('Forwards', 'Defensemen'), function(population) {
     row <- scout[scout$model == population, ]
     values <- p$scouting$scores |> dplyr::filter(model == population) |> dplyr::group_by(activePhysicalEngagement) |> dplyr::summarise(meanScore = base::mean(meanCSAx), .groups = 'drop')
-    glue::glue('{population} (n = {row$n}): {row$absentReports} without a mention average {base::formatC(values$meanScore[1L], digits = 2L, format = "f")}; {row$positiveReports} with a mention average {base::formatC(values$meanScore[2L], digits = 2L, format = "f")}. Mean difference: {abstract_interval(row$estimate, row$confLow, row$confHigh)}; Spearman correlation: {base::formatC(row$spearman, digits = 2L, format = "f")}.')
+    glue::glue('{population} (n = {row$n}): {row$absentReports} without a toughness-trait mention average {base::formatC(values$meanScore[1L], digits = 2L, format = "f")}; {row$positiveReports} with such a mention average {base::formatC(values$meanScore[2L], digits = 2L, format = "f")}. Mean difference: {abstract_interval(row$estimate, row$confLow, row$confHigh)}; Spearman correlation: {base::formatC(row$spearman, digits = 2L, format = "f")}.')
   })
   deployment <- p$applications$deployment$estimates |>
     dplyr::transmute(model, Outcome = dplyr::recode(outcome, powerPlayShare = 'Power-play share (percentage points)', penaltyKillShare = 'Penalty-kill share (percentage points)'), estimate = 2 * effect, low = 2 * effectLow, high = 2 * effectHigh)
@@ -48,7 +48,7 @@ plot_abstract_scouting <- function(values) {
     ggplot2::geom_point(data = values$scoutingMeans, ggplot2::aes(y = meanScore), shape = 23, size = 3, fill = 'white', color = '#151515', stroke = 0.6) +
     ggplot2::geom_text(data = values$scoutingMeans, ggplot2::aes(y = -2.3, label = base::paste0('n = ', n)), family = 'Latin Modern Roman', size = 2.8) +
     ggplot2::facet_wrap(~panel, nrow = 1L) +
-    ggplot2::scale_color_manual(values = base::c('No mention' = '#727272', 'Active engagement' = '#17324D'), guide = 'none') +
+    ggplot2::scale_color_manual(values = base::c('No mention' = '#727272', 'Toughness traits' = '#17324D'), guide = 'none') +
     ggplot2::scale_y_continuous(breaks = -2:3, limits = base::c(-2.45, 3.5), expand = ggplot2::expansion(mult = 0)) +
     ggplot2::labs(x = NULL, y = 'Player-average CSAx') +
     ggplot2::theme_minimal(base_family = 'Latin Modern Roman', base_size = 10) +
