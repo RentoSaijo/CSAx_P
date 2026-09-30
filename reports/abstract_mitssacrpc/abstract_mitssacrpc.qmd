@@ -131,7 +131,7 @@ if (knitr::is_latex_output()) {
 ```
 
 ```{=latex}
-\par
+\par\addvspace{0.5\baselineskip}
 ```
 
 **Figure 1.** Player-average CSAx by scouting description. Points represent players; diamonds mark group means. Differences show 95% confidence intervals. The high-CSAx defenseman without active engagement description may serve as an example of how our metric can evaluate "tough" players who are sometimes overlooked by scouts due to their relative size; we examine this case further in the full paper.
