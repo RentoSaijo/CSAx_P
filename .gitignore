@@ -15,4 +15,6 @@ tmp/
 .quarto/
 reports/abstract_mitssacrpc/abstract_mitssacrpc_files/
 reports/abstract_mitssacrpc/abstract_mitssacrpc.md
+reports/paper_mitssacrpc/
 reports/poster_fsrp/
+scripts/04_write_summary.R
