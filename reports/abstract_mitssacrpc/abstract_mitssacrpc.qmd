@@ -97,11 +97,11 @@ base::cat(metadata$affiliations, '\n')
 
 ## Introduction
 
-Players with larger body size do not necessarily play tougher. Contact and battles for the puck and space reveal toughness that size and hit counts can miss. We develop calibrated size above expected (CSAx), a position-specific measure of playing tougher for one’s size. We examine whether CSAx agrees with earlier scouting reports and how it relates to NHL deployment, postseason hitting, and next-season continuation.
+Adding size to an NHL roster does not guarantee tougher play. Toughness emerges through contact and battles for the puck and space, yet size and hit counts cannot measure it relative to a player’s frame. We develop calibrated size above expected (CSAx), a position-specific measure of playing tougher for one’s size. We examine its agreement with scouting reports and links to special-teams deployment, postseason hitting, and next-season continuation.
 
 ## Methods
 
-We combine NHL events with All Three Zones’ tracked five-on-five puck play data from 2021–22 through 2024–25, covering `r base::format(abstract$forwardSeasons, big.mark = ',')` forward- and `r abstract$defenseSeasons` defenseman-seasons. Separate ridge models predict listed height-and-weight size using shared direct measures (e.g., hits delivered and received) and position-specific indirect measures (e.g., dump-in recoveries for forwards, entry-denial share for defensemen). We calibrate held-out predictions against listed size and standardize the residual within position and season:
+NHL events and All Three Zones’ tracked five-on-five data cover 1,485 forward- and 829 defenseman-seasons from 2021–22 through 2024–25. Separate ridge models predict listed height-and-weight size using shared direct measures (e.g., hits delivered and received) and position-specific indirect measures (e.g., dump-in recoveries for forwards, entry-denial share for defensemen). We calibrate held-out predictions against listed size and standardize the residual within position and season:
 
 $$
 \mathrm{CSAx}=\frac{\widehat S-\widehat m(S)-\overline r}{s_r},\qquad r=\widehat S-\widehat m(S).
