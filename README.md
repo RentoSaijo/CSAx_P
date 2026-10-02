@@ -8,7 +8,7 @@ R package versions are pinned in `renv.lock`. With R, Quarto, and a LaTeX instal
 
 ```sh
 Rscript -e "renv::restore(prompt = FALSE)"
-quarto render reports/abstract_mitssacrpc/abstract_mitssacrpc.qmd --to pdf
+Rscript -e "base::source('R/abstract.R'); render_abstract()"
 ```
 
 To rebuild the analysis from the bundled inputs, run:

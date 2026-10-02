@@ -15,11 +15,6 @@ prepare_abstract <- function(p) {
     dplyr::left_join(scout |> dplyr::select(model, panel), by = 'model') |>
     dplyr::mutate(panel = base::factor(panel, levels = panels), description = base::factor(activePhysicalEngagement, levels = base::c(0, 1), labels = base::c('No mention', 'Active-physical-trait mention')))
   means <- observations |> dplyr::group_by(panel, description) |> dplyr::summarise(meanScore = base::mean(meanCSAx), n = dplyr::n(), .groups = 'drop')
-  scouting_text <- purrr::map_chr(base::c('Forwards', 'Defensemen'), function(population) {
-    row <- scout[scout$model == population, ]
-    values <- p$scouting$scores |> dplyr::filter(model == population) |> dplyr::group_by(activePhysicalEngagement) |> dplyr::summarise(meanScore = base::mean(meanCSAx), .groups = 'drop')
-    glue::glue('{population} (n = {row$n}): {row$absentReports} without an active-physical-trait mention average {base::formatC(values$meanScore[1L], digits = 2L, format = "f")}; {row$positiveReports} with such a mention average {base::formatC(values$meanScore[2L], digits = 2L, format = "f")}. Mean difference: {abstract_interval(row$estimate, row$confLow, row$confHigh)}; Spearman correlation: {base::formatC(row$spearman, digits = 2L, format = "f")}.')
-  })
   deployment <- p$applications$deployment$estimates |>
     dplyr::transmute(model, Outcome = dplyr::recode(outcome, powerPlayShare = 'Power-play share (percentage points)', penaltyKillShare = 'Penalty-kill share (percentage points)'), estimate = 2 * effect, low = 2 * effectLow, high = 2 * effectHigh)
   postseason <- p$applications$engagement$estimates |>
@@ -35,7 +30,7 @@ prepare_abstract <- function(p) {
     tidyr::pivot_wider(names_from = model, values_from = value) |>
     dplyr::arrange(Outcome) |>
     dplyr::select(Outcome, Forwards, Defensemen)
-  base::list(forwardSeasons = base::sum(p$predictions$model == 'Forwards'), defenseSeasons = base::sum(p$predictions$model == 'Defensemen'), scouting = observations, scoutingMeans = means, scoutingText = base::paste(scouting_text, collapse = '\n\n'), applications = applications)
+  base::list(scouting = observations, scoutingMeans = means, applications = applications)
 }
 
 # Abstract Figure --------------------------------------------------------
@@ -58,17 +53,15 @@ plot_abstract_scouting <- function(values) {
 
 # Abstract Rendering -----------------------------------------------------
 
-# Render authoritative Quarto source in submission formats.
+# Render authoritative Quarto source as PDF.
 render_abstract <- function() {
   candidates <- base::c(base::Sys.which('quarto'), '/Applications/RStudio.app/Contents/Resources/app/quarto/bin/quarto')
   candidates <- candidates[base::nzchar(candidates) & base::file.exists(candidates)]
   if (!base::length(candidates)) base::stop('Quarto is required; add its executable to PATH.', call. = FALSE)
   quarto <- candidates[1L]
   source <- base::file.path('reports/abstract_mitssacrpc', 'abstract_mitssacrpc.qmd')
-  for (format in base::c('pdf', 'docx')) {
-    status <- base::system2(quarto, base::c('render', base::shQuote(source), '--to', format, '--quiet'))
-    if (status != 0L) base::stop('Quarto abstract rendering failed for ', format, '.', call. = FALSE)
-  }
-  base::message('Rendered Quarto abstract PDF and Word copy.')
+  status <- base::system2(quarto, base::c('render', base::shQuote(source), '--to', 'pdf', '--quiet'))
+  if (status != 0L) base::stop('Quarto abstract PDF rendering failed.', call. = FALSE)
+  base::message('Rendered Quarto abstract PDF.')
   base::invisible(NULL)
 }
