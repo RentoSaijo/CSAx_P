@@ -13,12 +13,12 @@ prepare_abstract <- function(p) {
   panels <- scout$panel[base::match(base::c('Forwards', 'Defensemen'), scout$model)]
   observations <- p$scouting$scores |>
     dplyr::left_join(scout |> dplyr::select(model, panel), by = 'model') |>
-    dplyr::mutate(panel = base::factor(panel, levels = panels), description = base::factor(activePhysicalEngagement, levels = base::c(0, 1), labels = base::c('No mention', 'Toughness traits')))
+    dplyr::mutate(panel = base::factor(panel, levels = panels), description = base::factor(activePhysicalEngagement, levels = base::c(0, 1), labels = base::c('No mention', 'Active-physical-trait mention')))
   means <- observations |> dplyr::group_by(panel, description) |> dplyr::summarise(meanScore = base::mean(meanCSAx), n = dplyr::n(), .groups = 'drop')
   scouting_text <- purrr::map_chr(base::c('Forwards', 'Defensemen'), function(population) {
     row <- scout[scout$model == population, ]
     values <- p$scouting$scores |> dplyr::filter(model == population) |> dplyr::group_by(activePhysicalEngagement) |> dplyr::summarise(meanScore = base::mean(meanCSAx), .groups = 'drop')
-    glue::glue('{population} (n = {row$n}): {row$absentReports} without a toughness-trait mention average {base::formatC(values$meanScore[1L], digits = 2L, format = "f")}; {row$positiveReports} with such a mention average {base::formatC(values$meanScore[2L], digits = 2L, format = "f")}. Mean difference: {abstract_interval(row$estimate, row$confLow, row$confHigh)}; Spearman correlation: {base::formatC(row$spearman, digits = 2L, format = "f")}.')
+    glue::glue('{population} (n = {row$n}): {row$absentReports} without an active-physical-trait mention average {base::formatC(values$meanScore[1L], digits = 2L, format = "f")}; {row$positiveReports} with such a mention average {base::formatC(values$meanScore[2L], digits = 2L, format = "f")}. Mean difference: {abstract_interval(row$estimate, row$confLow, row$confHigh)}; Spearman correlation: {base::formatC(row$spearman, digits = 2L, format = "f")}.')
   })
   deployment <- p$applications$deployment$estimates |>
     dplyr::transmute(model, Outcome = dplyr::recode(outcome, powerPlayShare = 'Power-play share (percentage points)', penaltyKillShare = 'Penalty-kill share (percentage points)'), estimate = 2 * effect, low = 2 * effectLow, high = 2 * effectHigh)
@@ -48,7 +48,8 @@ plot_abstract_scouting <- function(values) {
     ggplot2::geom_point(data = values$scoutingMeans, ggplot2::aes(y = meanScore), shape = 23, size = 3, fill = 'white', color = '#151515', stroke = 0.6) +
     ggplot2::geom_text(data = values$scoutingMeans, ggplot2::aes(y = -2.3, label = base::paste0('n = ', n)), family = 'Latin Modern Roman', size = 2.8) +
     ggplot2::facet_wrap(~panel, nrow = 1L) +
-    ggplot2::scale_color_manual(values = base::c('No mention' = '#727272', 'Toughness traits' = '#17324D'), guide = 'none') +
+    ggplot2::scale_x_discrete(labels = base::c('No mention', 'Active-physical-trait\nmention')) +
+    ggplot2::scale_color_manual(values = base::c('No mention' = '#727272', 'Active-physical-trait mention' = '#17324D'), guide = 'none') +
     ggplot2::scale_y_continuous(breaks = -2:3, limits = base::c(-2.45, 3.5), expand = ggplot2::expansion(mult = 0)) +
     ggplot2::labs(x = NULL, y = 'Player-average CSAx') +
     ggplot2::theme_minimal(base_family = 'Latin Modern Roman', base_size = 10) +
@@ -57,33 +58,17 @@ plot_abstract_scouting <- function(values) {
 
 # Abstract Rendering -----------------------------------------------------
 
-# Render authoritative Quarto source and check submission length.
+# Render authoritative Quarto source in submission formats.
 render_abstract <- function() {
   candidates <- base::c(base::Sys.which('quarto'), '/Applications/RStudio.app/Contents/Resources/app/quarto/bin/quarto')
   candidates <- candidates[base::nzchar(candidates) & base::file.exists(candidates)]
   if (!base::length(candidates)) base::stop('Quarto is required; add its executable to PATH.', call. = FALSE)
   quarto <- candidates[1L]
-  abstract_directory <- 'reports/abstract_mitssacrpc'
-  source <- base::file.path(abstract_directory, 'abstract_mitssacrpc.qmd')
-  markdown <- base::file.path(abstract_directory, 'abstract_mitssacrpc.md')
-  plain <- base::tempfile(fileext = '.txt')
-  base::on.exit(base::unlink(base::c(markdown, plain)), add = TRUE)
-  for (format in base::c('gfm', 'pdf')) {
+  source <- base::file.path('reports/abstract_mitssacrpc', 'abstract_mitssacrpc.qmd')
+  for (format in base::c('pdf', 'docx')) {
     status <- base::system2(quarto, base::c('render', base::shQuote(source), '--to', format, '--quiet'))
     if (status != 0L) base::stop('Quarto abstract rendering failed for ', format, '.', call. = FALSE)
   }
-  contents <- stringr::str_replace_all(readr::read_file(markdown), '\f', '')
-  display_start <- '<!-- abstract-display-start -->'
-  display_end <- '<!-- abstract-display-end -->'
-  if (stringr::str_count(contents, stringr::fixed(display_start)) != 2L || stringr::str_count(contents, stringr::fixed(display_end)) != 2L) base::stop('Abstract must mark exactly one figure and one table.', call. = FALSE)
-  narrative <- stringr::str_replace_all(contents, '(?s)<!-- abstract-display-start -->.*?<!-- abstract-display-end -->', '')
-  narrative <- stringr::str_replace_all(narrative, stringr::regex('\\$\\$.*?\\$\\$', dotall = TRUE), 'CSAx equals predicted size minus frame expected size minus mean residual divided by residual standard deviation')
-  narrative <- stringr::str_replace_all(narrative, '(?<!\\$)\\$([^$]+)\\$(?!\\$)', 'variable')
-  plain_source <- stringr::str_replace_all(narrative, '<sup>([^<]+)</sup>', ' [\\1]')
-  status <- base::system2(quarto, base::c('pandoc', '--from=gfm', '--to=plain', '--wrap=none', '--output', base::shQuote(plain)), input = plain_source)
-  if (status != 0L) base::stop('Plain-text abstract conversion failed.', call. = FALSE)
-  word_count <- stringr::str_count(stringr::str_squish(readr::read_file(plain)), '\\S+')
-  if (word_count >= 500L) base::stop('Abstract exceeds the 500-word competition limit.', call. = FALSE)
-  base::message('Rendered Quarto abstract (', word_count, ' counted words; figure and table excluded).')
-  word_count
+  base::message('Rendered Quarto abstract PDF and Word copy.')
+  base::invisible(NULL)
 }

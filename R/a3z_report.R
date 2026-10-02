@@ -364,7 +364,7 @@ The compact analysis object retains frozen source inputs, model identities, feat
 
 Current outputs include [player rankings](player_rankings.csv), [player-period engagement](postseason_engagement.csv), and [application estimates](application_estimates.csv). The [README](../../README.md) supplies reproduction instructions and describes the locked scouting data. NHL inputs use the pinned nhlscraper revision; A3Z observations remain attributed to Corey Sznajder / All Three Zones. Source materials retain their third-party terms.
 
-Sloan requires an abstract under 500 words, including title and body, with Introduction, Methods, Results, and Conclusion sections reporting actual findings. Our count also includes author details and headings while excluding figure and table material under the competition clarification. Abstracts are due October 1, 2026, at 11:59 p.m. Eastern; invited manuscripts are due December 4 at the same time. The authenticated form’s upload requirements remain unverified. Current guidance requires an open-source repository link. The repository remains private pending a public-release decision, and full-manuscript formatting awaits invitation guidance. [Competition rules](https://www.sloansportsconference.com/research-paper-competition).
+Sloan requires an abstract under 500 words, including title and body, with Introduction, Methods, Results, and Conclusion sections reporting actual findings. Abstracts are due October 1, 2026, at 11:59 p.m. Eastern; invited manuscripts are due December 4 at the same time. The authenticated form’s upload requirements remain unverified. Current guidance requires an open-source repository link, and full-manuscript formatting awaits invitation guidance. [Competition rules](https://www.sloansportsconference.com/research-paper-competition).
 ', .open = '<<', .close = '>>')
   readr::write_file(base::paste0(report, '\n'), base::file.path(report_directory, 'research_summary.md'))
   write_physicality_submission(p, report_directory)
@@ -373,7 +373,7 @@ Sloan requires an abstract under 500 words, including title and body, with Intro
 # Render submission document and describe focused manuscript structure.
 write_physicality_submission <- function(p, report_directory) {
   base::source('R/abstract.R')
-  word_count <- render_abstract()
+  render_abstract()
   scout_forward <- p$scouting$estimates |> dplyr::filter(model == 'Forwards')
   scout_defense <- p$scouting$estimates |> dplyr::filter(model == 'Defensemen')
   roadmap <- glue::glue('# Playing tougher for one’s size: paper roadmap
@@ -406,11 +406,11 @@ The results review determines which player examples best explain the direct, ind
 
 ## Abstract and submission
 
-The [Quarto source](../abstract_mitssacrpc/abstract_mitssacrpc.qmd) is the authoritative abstract. It renders the [PDF](../abstract_mitssacrpc/abstract_mitssacrpc.pdf) with one scouting figure and one application table. The abstract contains **<<word_count>> counted words**, including title, author information, headings, and body while excluding the figure and table. Introduction, Methods, Results, and Conclusion follow Sloan’s published structure. The authenticated submission form’s upload requirements remain unverified.
+The [Quarto source](../abstract_mitssacrpc/abstract_mitssacrpc.qmd) is the authoritative abstract. It renders the [PDF](../abstract_mitssacrpc/abstract_mitssacrpc.pdf) with one scouting figure and one application table. Introduction, Methods, Results, and Conclusion follow Sloan’s published structure. The authenticated submission form’s upload requirements remain unverified.
 
 Abstracts are due **October 1, 2026, at 11:59 p.m. Eastern**. Invited papers are due **December 4, 2026, at 11:59 p.m. Eastern**. Hockey belongs in the Other Sports track. Full-manuscript formatting awaits invitation guidance. [Sloan competition rules](https://www.sloansportsconference.com/research-paper-competition).
 
-Sloan requires an open-source repository link. This repository remains private until an explicit release decision. Release review covers reproducible inputs, source attribution, third-party terms, and exclusion of private scouting prose and identity keys. The paper explains the positional and A3Z contributions in relation to the preceding forward study.
+Sloan requires an open-source repository link. The public repository supports reproduction while excluding private scouting prose and identity keys. The paper explains the positional and A3Z contributions in relation to the preceding forward study.
 ', .open = '<<', .close = '>>')
   readr::write_file(base::paste0(roadmap, '\n'), base::file.path(report_directory, 'paper_roadmap.md'))
   base::message('Wrote positional physicality report and paper roadmap.')
