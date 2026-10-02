@@ -13,7 +13,7 @@ prepare_abstract <- function(p) {
   panels <- scout$panel[base::match(base::c('Forwards', 'Defensemen'), scout$model)]
   observations <- p$scouting$scores |>
     dplyr::left_join(scout |> dplyr::select(model, panel), by = 'model') |>
-    dplyr::mutate(panel = base::factor(panel, levels = panels), description = base::factor(activePhysicalEngagement, levels = base::c(0, 1), labels = base::c('No mention', 'Active-physical-trait mention')))
+    dplyr::mutate(panel = base::factor(panel, levels = panels), description = base::factor(activePhysicalEngagement, levels = base::c(0, 1), labels = base::c('No mention', 'Physical-trait mention')))
   means <- observations |> dplyr::group_by(panel, description) |> dplyr::summarise(meanScore = base::mean(meanCSAx), n = dplyr::n(), .groups = 'drop')
   deployment <- p$applications$deployment$estimates |>
     dplyr::transmute(model, Outcome = dplyr::recode(outcome, powerPlayShare = 'Power-play share (percentage points)', penaltyKillShare = 'Penalty-kill share (percentage points)'), estimate = 2 * effect, low = 2 * effectLow, high = 2 * effectHigh)
@@ -43,8 +43,8 @@ plot_abstract_scouting <- function(values) {
     ggplot2::geom_point(data = values$scoutingMeans, ggplot2::aes(y = meanScore), shape = 23, size = 3, fill = 'white', color = '#151515', stroke = 0.6) +
     ggplot2::geom_text(data = values$scoutingMeans, ggplot2::aes(y = -2.3, label = base::paste0('n = ', n)), family = 'Latin Modern Roman', size = 2.8) +
     ggplot2::facet_wrap(~panel, nrow = 1L) +
-    ggplot2::scale_x_discrete(labels = base::c('No mention', 'Active-physical-trait\nmention')) +
-    ggplot2::scale_color_manual(values = base::c('No mention' = '#727272', 'Active-physical-trait mention' = '#17324D'), guide = 'none') +
+    ggplot2::scale_x_discrete(labels = base::c('No mention', 'Physical-trait mention')) +
+    ggplot2::scale_color_manual(values = base::c('No mention' = '#727272', 'Physical-trait mention' = '#17324D'), guide = 'none') +
     ggplot2::scale_y_continuous(breaks = -2:3, limits = base::c(-2.45, 3.5), expand = ggplot2::expansion(mult = 0)) +
     ggplot2::labs(x = NULL, y = 'Player-average CSAx') +
     ggplot2::theme_minimal(base_family = 'Latin Modern Roman', base_size = 10) +
